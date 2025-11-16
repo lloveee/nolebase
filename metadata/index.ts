@@ -10,12 +10,12 @@ export const siteDescription = '手脑并用'
 export const include = ['notes', '生活']
 
 /** Repo */
-export const githubRepoLink = 'https://github.com/lloveee'
+export const githubRepoLink = 'https://github.com/lloveee/nolebase'
 /** Discord */
 export const discordLink = 'https://discord.gg/'
 
 /** 无协议前缀域名 */
-export const plainTargetDomain = 'nolebase.ayaka.io'
+export const plainTargetDomain = 'lloveee.20250430.xyz'
 /** 完整域名 */
 export const targetDomain = `https://${plainTargetDomain}`
 
