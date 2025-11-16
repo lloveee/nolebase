@@ -36,8 +36,8 @@ export default defineConfig({
           root: {
             translations: {
               button: {
-                buttonText: '搜索文档',
-                buttonAriaLabel: '搜索文档',
+                buttonText: 'Searching',
+                buttonAriaLabel: 'Searching',
               },
               modal: {
                 noResultsText: '无法找到相关结果',
@@ -98,35 +98,35 @@ export default defineConfig({
   },
   locales: {
     root: {
-      lang: 'zh-CN',
-      label: '中文',
-      dir: '/zh-CN',
-      link: '/zh-CN',
+      lang: 'en',
+      label: 'repository',
+      dir: '/repo',
+      link: '/repo',
       themeConfig: {
         nav: [
-          { text: '主页', link: '/zh-CN/' },
-          { text: '笔记', link: '/zh-CN/笔记/' },
-          { text: '编目 Catalog', link: '/zh-CN/编目 Catalog/' },
-          { text: '最近更新', link: '/zh-CN/toc' },
+          { text: 'home', link: '/repo/' },
+          { text: 'notes', link: '/repo/notes/' },
+          { text: 'refer', link: '/repo/refer/' },
+          { text: 'recent update', link: '/repo/toc' },
         ],
         socialLinks: [
           { icon: 'github', link: githubRepoLink },
           { icon: 'discord', link: discordLink },
         ],
         darkModeSwitchLabel: '切换主题',
-        outline: { label: '页面大纲', level: 'deep' },
+        outline: { label: 'Outline', level: 'deep' },
         editLink: {
           pattern: `${githubRepoLink}/tree/main/:path`,
           text: '编辑本页面',
         },
         sidebar: calculateSidebar([
-          { folderName: 'zh-CN/笔记', separate: true },
-          { folderName: 'zh-CN/编目 Catalog', separate: true },
-        ], 'zh-CN'),
+          { folderName: 'repo/notes', separate: true },
+          { folderName: 'repo/refer', separate: true },
+        ], 'repo'),
         footer: {
           message: '用 <span style="color: #e25555;">&#9829;</span> 撰写',
           copyright:
-        '<a class="footer-cc-link" target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> © 2022-PRESENT Nólëbase 的创作者们',
+        '<a class="footer-cc-link" target="_blank" CC BY-SA 4.0</a> © 2025-PRESENT lloveee-blog ',
         },
       },
     },

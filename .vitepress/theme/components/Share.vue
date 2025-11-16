@@ -119,7 +119,7 @@ function copyShareLink() {
       </span>
       <span v-else flex items-center space-x-1>
         <span class="i-octicon:share-16" />
-        <span>分享此页</span>
+        <span>Share</span>
       </span>
     </Transition>
   </button>
