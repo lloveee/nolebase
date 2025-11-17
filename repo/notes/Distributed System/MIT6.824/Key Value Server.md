@@ -40,8 +40,10 @@ This what we called a **Compare-And-Swap (CAS)** operation:
 - swap only if the comparison succeeds
 
 Until now, we have achieved our first goal: ensuring that all individual opeartions in the system are atomic and linearizable.
-However, consider the scenario with two clients, c1 and c2, each sending a sequence of operations. For example, both clients may first `Get` a value and then determines what to `Put` based on the result. Even though each individual operation is atomic and linearizable, the sequences from c1 and c2 may inerleave in arbitrary ways, potentially producing incorrect or unexpected results.
-One might suggest implementing a server-side lock to strictly control the execution order of each client's requests. While this approach could ensure correctness, it would push responsibilities onto the server far beyond what is necessary. In parctice, we want the server to remain as simple and efficient as possible, delegating the management of multi-step atomic sequences to the clients themselves.
+However, consider the scenario with two clients, c1 and c2, each sending a sequence of operations. For example, both clients may first `Get` a value and then determines what to `Put` based on the result. 
+Even though each individual operation is atomic and linearizable, the sequences from c1 and c2 may inerleave in arbitrary ways, potentially producing incorrect or unexpected results.
+One might suggest implementing a server-side lock to strictly control the execution order of each client's requests. While this approach could ensure correctness, it would push responsibilities onto the server far beyond what is necessary. 
+In parctice, we want the server to remain as simple and efficient as possible, delegating the management of multi-step atomic sequences to the clients themselves.
 
 Here is how to use server-side CAS feature to make a client-side lock.
 ```go
