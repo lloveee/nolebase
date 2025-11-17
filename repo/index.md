@@ -3,11 +3,11 @@ layout: home
 sidebar: false
 
 title: lloveee-blog
-titleTemplate: 手脑并用
+titleTemplate: mens et manus
 
 hero:
-  name: ~Tingqing
-  text: 手脑并用
+  name: Tingqing
+  text: mens et manus
   tagline: 
   image:
     src: /logo.svg

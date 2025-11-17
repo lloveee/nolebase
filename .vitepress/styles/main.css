@@ -4,6 +4,13 @@ html, body {
   -webkit-tap-highlight-color: transparent; /* 避免触屏下的点击高亮颜色 */
 }
 
+:root {
+  --vp-font-family-base: 'comicrelief', 'jiangcheng';
+  --vp-font-family-heading: 'comicrelief-bold', 'jiangcheng-bold';
+  --vp-other-font-family-base: 'jiangcheng';
+  --vp-other-font-family-heading: 'jiangcheng-bold';
+}
+
 /* 参考 Vitest */
 /* fix height ~ 2 lines of text: 3 or more cards per row */
 .VPTeamMembersItem.small .profile .data .affiliation {
@@ -75,7 +82,7 @@ html, body {
 /* 标题所需要的字体 */
 @font-face {
   font-family: tengwarannatar;
-  src: url(/tengwar-annatar-glaemscrafu.woff2) format('woff2');
+  src: url(/ShadowsIntoLightTwo-Regular.woff2) format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: block;
@@ -84,10 +91,89 @@ html, body {
 /* 标题所需要的字体 */
 @font-face {
   font-family: tengwarannatar-bold;
-  src: url(/tengwar-annatar-glaemscrafu-bold.woff2) format('woff2');
+  src: url(/ShadowsIntoLightTwo-Regular.woff2) format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: block;
+}
+
+@font-face{
+  font-family: comicrelief;
+  src: url(/ComicRelief-Regular.woff2) format('woff2');
+  font-style: normal;
+  font-display: block;
+  unicode-range:
+    U+0020-007F,     /* 基本 ASCII 英文 */
+    U+00A0-00FF;     /* 扩展英文字符 */
+}
+
+@font-face{
+  font-family: geguohei;
+  src: url(/geguohei.woff2) format('woff2');
+  font-style: normal;
+  font-display: block;
+  unicode-range:
+    U+4E00-9FFF,    /* CJK 统一汉字 */
+    U+3400-4DBF;    /* CJK 扩展 A */
+}
+
+@font-face{
+  font-family: jiangcheng;
+  src: url(/jiangcheng400W.woff2) format('woff2');
+  font-style: normal;
+  font-display: block;
+  unicode-range:
+    U+4E00-9FFF,    /* CJK 统一汉字 */
+    U+3400-4DBF;    /* CJK 扩展 A */
+}
+
+@font-face{
+  font-family: jiangcheng-bold;
+  src: url(/jiangcheng600W.woff2) format('woff2');
+  font-style: normal;
+  font-display: block;
+  unicode-range:
+    U+4E00-9FFF,    /* CJK 统一汉字 */
+    U+3400-4DBF;    /* CJK 扩展 A */
+}
+
+@font-face{
+  font-family: comicrelief-bold;
+  src: url(/ComicRelief-Bold.woff2) format('woff2');
+  font-style: normal;
+  font-display: block;
+  unicode-range:
+    U+0020-007F,     /* 基本 ASCII 英文 */
+    U+00A0-00FF;     /* 扩展英文字符 */
+}
+
+.VPNav {
+  font-family: var(--vp-other-font-family-base);
+}
+
+.VPSidebarNav {
+  font-family: var(--vp-other-font-family-base);
+}
+
+.VPSidebarItem{
+  font-family: var(--vp-other-font-family-base);
+}
+
+.VPDocAside{
+  font-family: var(--vp-other-font-family-base);
+}
+
+.vp-doc{
+  font-family: var(--vp-font-family-base);
+}
+
+.vp-doc h1,
+.vp-doc h2{
+  font-family: var(--vp-font-family-heading);
+}
+
+.vp-doc strong {
+  font-family: var(--vp-font-family-heading);
 }
 
 /* 首页标题样式 */

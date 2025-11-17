@@ -104,10 +104,10 @@ export default defineConfig({
       link: '/repo',
       themeConfig: {
         nav: [
-          { text: 'home', link: '/repo/' },
-          { text: 'notes', link: '/repo/notes/' },
-          { text: 'refer', link: '/repo/refer/' },
-          { text: 'recent update', link: '/repo/toc' },
+          { text: 'Home', link: '/repo/' },
+          { text: 'Notes', link: '/repo/notes/' },
+          { text: 'Refer', link: '/repo/refer/' },
+          { text: 'Recent Updates', link: '/repo/toc' },
         ],
         socialLinks: [
           { icon: 'github', link: githubRepoLink },
