@@ -1,6 +1,6 @@
 ---
 tags:
-  - DistributedSystem
+  - Distributed-System
   - Lab
 title: Key Value Server
 ---

@@ -1,7 +1,7 @@
 ---
 tags:
-  - DistributedSystem
-  - FaultTolerant
+  - Distributed-System
+  - Fault-Tolerant
   - Replication
 title: Fault Tolerant
 ---
