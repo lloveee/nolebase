@@ -167,9 +167,18 @@ html, body {
   font-family: var(--vp-font-family-base);
 }
 
+
 .vp-doc h1,
 .vp-doc h2{
   font-family: var(--vp-font-family-heading);
+}
+.vp-doc p > img {
+  display: block;        /* 块级元素，方便 margin 居中 */
+  margin: 0 auto;        /* 水平居中 */
+  height: 250px;         /* 限定高度 */
+  width: auto;           /* 保持宽高比 */
+  max-width: 100%;       /* 防止超出容器宽度 */
+  object-fit: contain;   /* 保持比例 */
 }
 
 .vp-doc strong {
