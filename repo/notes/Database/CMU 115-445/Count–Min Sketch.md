@@ -45,11 +45,11 @@ $$
 ### CMS 接口设计
 
 * `void Insert(const KeyType &item);`
-		给定一个目标IP，遍历所有depth函数，计算目标得到目标桶 `col = hash_fun[d_i](item)`,  `sketch[d_i][col]++`。
-* `auto Count(const KeyType &item) const -> uint32_t;
-		对于需要查询的IP，遍历所有depth函数，获取目标桶 `col = hash_fun[d_i](item)`，取最小值作为统计数。
+	* 给定一个目标IP，遍历所有depth函数，计算目标得到目标桶 `col = hash_fun[d_i](item)`,  `sketch[d_i][col]++`。
+* `auto Count(const KeyType &item) const -> uint32_t;`
+	* 对于需要查询的IP，遍历所有depth函数，获取目标桶 `col = hash_fun[d_i](item)`，取最小值作为统计数。
 * `void Merge(const CountMinSketch<KeyType> &other);`
-		对于两个 CMS：`A` 和 `B`，并且两者的 `width`、`depth` 完全相同，且使用的哈希函数族 / seed 配置也一致，那么合并后`C`理应存在关系`C[i][j] = A[i][j] + B[i][j]   (对所有行 i 和列 j)`
+	* 对于两个 CMS：`A` 和 `B`，并且两者的 `width`、`depth` 完全相同，且使用的哈希函数族 / seed 配置也一致，那么合并后`C`理应存在关系`C[i][j] = A[i][j] + B[i][j]   (对所有行 i 和列 j)`
 
 ### 应用意义
 * 在分布式系统中，每个节点可以本地维护一个 CMS；
