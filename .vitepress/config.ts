@@ -3,7 +3,6 @@ import { transformHeadMeta } from '@nolebase/vitepress-plugin-meta'
 import { calculateSidebar } from '@nolebase/vitepress-plugin-sidebar'
 // import { buildEndGenerateOpenGraphImages } from '@nolebase/vitepress-plugin-og-image/vitepress'
 import MarkdownItFootnote from 'markdown-it-footnote'
-import MarkdownItMathjax3 from 'markdown-it-mathjax3'
 import { defineConfig } from 'vitepress'
 
 import { discordLink, githubRepoLink, siteDescription, siteName } from '../metadata'
@@ -142,7 +141,6 @@ export default defineConfig({
     },
     config: (md) => {
       md.use(MarkdownItFootnote)
-      md.use(MarkdownItMathjax3)
     },
   },
   async transformHead(context) {
