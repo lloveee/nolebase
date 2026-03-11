@@ -6,7 +6,8 @@ tags:
 ---
 # Buffer Pool Manager
 
-## 缓存策略
+> [ARC: A SELF-TUNING, LOW OVERHEAD REPLACEMENT CACHE](/archieve/database-cmu/arcfast.pdf) 强烈建议深入阅读论文
+## 缓存策略 Cache Replacement Policy
 
 随着硬件技术的发展，机器的标配主存也越来越大了，尽管如此，始终是比不上数据库使用量的增长，因此对于数据库读写的缓存问题，时至今日仍然值得细细探讨。
 
@@ -27,3 +28,6 @@ tags:
 与此类似的策略是 least frequently used，将时间换成频率，同样是局限于特定的使用情况。
 
 ### LRU-K
+
+法如其名，在LRU后带上一个参数K，即是在LRU的基础上纵向扩展K层，以达到抵御污染的效果。其中当K=2时，表现效果尤其好，于是常常引用LRU-2。
+
