@@ -59,8 +59,34 @@ ARC算法一定程度上可以理解为升级版的LRU-K。
 * 从L1中最近淘汰的影子列表B1
 * L2中最近淘汰的影子列表B2
 * 以及一个哈希表映射内存中实际存储的pages。
-* 参数c表示L1+L2内存所能容纳最大的pages数量
-* 动态参数p，作为分割点，p表示L1的最大实际容量，c-p表示L2的最大实际容量
+* 参数c表示L1，L2内存T1,T2所能容纳最大的pages数量
+* 动态参数p，作为分割点，p表示L1中T1的容量，c-p表示L2中T2的容量
+
+```c++
+// ArcReplacer
+struct FrameStatus {
+  page_id_t page_id_;
+  frame_id_t frame_id_;
+  bool evictable_;
+  ArcStatus arc_status_;
+  std::list<frame_id_t>::iterator iter_;
+  FrameStatus(page_id_t pid, frame_id_t fid, bool ev, ArcStatus st)
+      : page_id_(pid), frame_id_(fid), evictable_(ev), arc_status_(st) {}
+};
+std::list<frame_id_t> mru_;
+std::list<frame_id_t> mfu_;
+std::list<page_id_t> mru_ghost_;
+std::list<page_id_t> mfu_ghost_;
+std::unordered_map<frame_id_t, std::shared_ptr<FrameStatus>> alive_map_;
+std::unordered_map<page_id_t, std::shared_ptr<FrameStatus>> ghost_map_;
+
+size_t mru_target_size_{0}; // aka p
+size_t replacer_size_; // aka c
+std::mutex latch_;
+
+std::unordered_map<page_id_t, std::list<page_id_t>::iterator> mru_ghost_map;
+std::unordered_map<page_id_t, std::list<page_id_t>::iterator> mfu_ghost_map;
+```
 
 #### 规则
 
@@ -74,4 +100,131 @@ ARC算法一定程度上可以理解为升级版的LRU-K。
 
 直觉上也比较相近，当B1/B2数量较小，仍能命中，说明L1/L2淘汰几乎都是仍然将会再用上的，也就表明L1/L2需要急需更大的空间，当B1/B2数量相对大时，能够命中，说明L1/L2淘汰的虽然还会用上，但是概率小了很多，只需要增加一点点L1/L2的容量即可。
 
+假定存在输入流: `x1, x2, ... , xt, ...` 设 `p = 0`, `T1 = B1 = T2 = B2 = null`, `T1 + B1 = L1`, `T2 + B2 = L2` 缓存总容量为 `c`，系统必定已通过 `Evict()` 保证物理缓存有空位。
 
+对于任意新访问的 `xt`，`RecordAccess` 的分类流转如下：
+
+**Case 1：命中主缓存 (xt 存在于 T1 或 T2)**
+
+- 将 `xt` 从原有位置移除，作为 MRU 移至 `T2` 的头部。
+- _(如果原来在 T1，它的身份就正式晋升为 T2)_。
+
+**Case 2/3：命中幽灵列表 (xt 存在于 B1 或 B2)**
+
+- **如果是 B1**：按规则调大目标值 `p`。
+- **如果是 B2**：按规则调小目标值 `p`。
+- 将 `xt` 从幽灵列表 `B1` 或 `B2` 中彻底移除。
+- 将 `xt` 作为全新的物理页，移至 `T2` 的头部（复活并晋升）
+
+**Case 4：彻头彻尾的未命中 (xt 并不存在于上述 4 个列表中)** _此时需要控制系统的总追踪名额，防止爆内存：_
+
+- **情况 A：如果 `L1` (即 T1 + B1) 的长度刚好等于 `c`**
+    - _(因为 BusTub 保证了此时 `T1` 不可能满，所以 `B1` 绝对不为空)_。
+    - 直接删除 `B1` (MRU 幽灵列表) 尾部最老的数据。
+- **情况 B：如果 `L1` 的长度不到 `c`**
+    - 说明 `B1` 名额没占满，那么去检查四表总追踪长度：
+    - 如果 `L1 + L2` 的总长度已经达到了极限 `2c`，直接删除 `B2` (MFU 幽灵列表) 尾部最老的数据。
+- **最终动作**：经过上面的瘦身，放心地将全新的 `xt` 作为 MRU 移入 `T1` 的头部。
+
+```c++
+void ArcReplacer::RecordAccess(frame_id_t frame_id, page_id_t page_id, [[maybe_unused]] AccessType access_type) {
+    std::lock_guard<std::mutex> lock(latch_);
+    // 将列表查询O(n)降至O(1)
+    auto it = alive_map_.find(frame_id);
+    auto mru_g_it = mru_ghost_map.find(page_id);
+    auto mfu_g_it = mfu_ghost_map.find(page_id);
+
+	//命中T1 or T2
+    if (it != alive_map_.end()){
+		//将目标移动至mfu作为MRU
+        if (it->second->arc_status_ == ArcStatus::MRU){
+            mfu_.splice(mfu_.begin(), mru_, it->second->iter_);
+            it->second->arc_status_ = ArcStatus::MFU;
+        } else {
+            mfu_.splice(mfu_.begin(), mfu_, it->second->iter_);
+        }
+        return;
+    }
+    //命中B1 or B2，调整参数p，目标移动至mfu作为MRU 
+    else if (mru_g_it != mru_ghost_map.end() || mfu_g_it != mfu_ghost_map.end()){
+        if (mru_g_it != mru_ghost_map.end()){
+            if (mru_ghost_.size() >= mfu_ghost_.size()){
+                mru_target_size_++;
+                if (mru_target_size_ > replacer_size_) mru_target_size_ = replacer_size_;
+            } else {
+                mru_target_size_ += mfu_ghost_.size() / mru_ghost_.size();
+                if (mru_target_size_ > replacer_size_) mru_target_size_ = replacer_size_;
+            }
+            mru_ghost_.erase(mru_g_it->second);
+            mfu_.push_front(frame_id);
+            alive_map_[frame_id] = std::make_shared<FrameStatus>(page_id, frame_id, false, ArcStatus::MFU);
+            alive_map_[frame_id]->iter_ = mfu_.begin();
+            mru_ghost_map.erase(mru_g_it);
+            return;
+        } else {
+            size_t delta = (mfu_ghost_.size() >= mru_ghost_.size()) ? 1 : (mru_ghost_.size() / mfu_ghost_.size());
+            if (mru_target_size_ < delta) {
+                mru_target_size_ = 0;
+            } else {
+                mru_target_size_ -= delta;
+            }
+            mfu_ghost_.erase(mfu_g_it->second);
+            mfu_.push_front(frame_id);
+            alive_map_[frame_id] = std::make_shared<FrameStatus>(page_id, frame_id, false, ArcStatus::MFU);
+            alive_map_[frame_id]->iter_ = mfu_.begin();
+            mfu_ghost_map.erase(mfu_g_it);
+            return;
+        }
+    }
+    //未命中缓存，按需清理B1/B2缓存，将新目标移动至T1作为MRU 
+    else {
+        if (mru_.size() + mru_ghost_.size() == replacer_size_){
+            mru_ghost_map.erase(mru_ghost_.back());
+            mru_ghost_.pop_back();
+        } else if (mru_.size() + mru_ghost_.size() + mfu_.size() + mfu_ghost_.size() >= 2 * replacer_size_){
+            mfu_ghost_map.erase(mfu_ghost_.back());
+            mfu_ghost_.pop_back();
+        }
+        mru_.push_front(frame_id);
+        alive_map_[frame_id] = std::make_shared<FrameStatus>(page_id, frame_id, false, ArcStatus::MRU);
+        alive_map_[frame_id]->iter_ = mru_.begin();
+    }
+}
+
+```
+
+对于驱逐函数而言，相对简单很多，若T1 >= p，理应先驱逐T1末尾，否则驱逐T2末尾，反之亦然，当然对于项目中，存在`pinned`操作标记`frame`不可驱逐，所以当条件成立，T1/T2，均不可驱逐，退而对T2/T1操作，再不然返回null
+
+```c++
+auto ArcReplacer::Evict() -> std::optional<frame_id_t> {
+	std::lock_guard<std::mutex> lock(latch_);
+	
+	if (mru_.size() >= mru_target_size_){
+        if (auto v = TryEvict(mru_, mru_ghost_, mru_ghost_map)) return v;
+        return TryEvict(mfu_, mfu_ghost_,mfu_ghost_map);
+    } else {
+        if (auto v = TryEvict(mfu_, mfu_ghost_, mfu_ghost_map)) return v;
+        return TryEvict(mru_, mru_ghost_, mru_ghost_map);
+    }
+}
+
+std::optional<frame_id_t> ArcReplacer::TryEvict(std::list<frame_id_t> &list, std::list<page_id_t> &ghost_list, std::unordered_map<page_id_t, std::list<page_id_t>::iterator> &ghost_map){
+    for (auto it = list.rbegin(); it != list.rend(); it++){
+        auto map_it = alive_map_.find(*it);
+        if (map_it != alive_map_.end() && map_it->second->evictable_){
+            frame_id_t fid = map_it->second->frame_id_;
+            page_id_t pid = map_it->second->page_id_;
+            list.erase(std::next(it).base());
+            ghost_list.push_front(pid);
+            ghost_map[pid] = ghost_list.begin();
+            alive_map_.erase(fid);
+            curr_size_--;
+            return fid;
+        }
+    }
+    return std::nullopt;
+}
+```
+
+
+## 磁盘调度器 Disk Scheduler
