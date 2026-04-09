@@ -1,6 +1,6 @@
 # NeoVim 安装
 
-高颜值命令行IDE
+高颜值命令行IDE。
 
 ## Windows
 
