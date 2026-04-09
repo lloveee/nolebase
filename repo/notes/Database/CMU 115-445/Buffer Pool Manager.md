@@ -228,3 +228,91 @@ std::optional<frame_id_t> ArcReplacer::TryEvict(std::list<frame_id_t> &list, std
 
 
 ## 磁盘调度器 Disk Scheduler
+
+### C++ 实现简单的channel
+```c++
+void Put(T element){
+	std::unique_lock<std::mutex> lk(m_);
+	q_.push(std::move(element));
+	lk.unlock();
+	cv_.notify_all();
+}
+
+auto Get() -> T {
+	std::unique_lock<std::mutex> lk(m_);
+	//阻塞直到存在数据进行消费
+	cv_.wait(lk, [&]() {return !q_.empty(); })
+	T element = std::move(q_.front());
+	q_.pop();
+	return element;
+}
+
+private:
+	std::mutex m_;
+	std::condition_variable cv_;
+	std::queue<T> q_;
+```
+
+对于每一个磁盘请求，存在如下结构封装
+```c++
+struct DiskRequest{
+	bool is_write_;
+	char *data_;
+	page_id_t page_id_;
+	std::promise<bool> callback_;
+}
+```
+
+为了解耦请求与执行，并且保证线程安全，这里使用promise + future的组合。比较形象的形容是`promise`是构造的订单，而`future`则是订单对应的取餐码，主线程创建订单`p`，并将其`move`进子线程后，通过在子线程中对`promise`调用`.set_value()`进行通知。而主线程可通过`future.get()`进行状态查询，整个过程线程安全。具体实例如下：
+```c++
+auto promise = disk_scheduler->CreatePromise();
+auto future = promise.get_future();
+DiskRequest r1{ture, data, page_id, std::move(promise)}
+disk_scheduler->Schedule(r1); // 消费request并设置promise为ture
+ASSERT_TURE(future.get());
+```
+
+磁盘调度器内部维护一个请求队列，以及一个实际执行请求的工作线程。并持有实际disk_manager的引用。
+```c++
+private:
+	DiskManager *dis_manager_ ;
+	Channel<std::optional<DiskRequest>> request_queue_;
+	std::optional<std::thread> background_thread_;
+```
+
+调度器创建之初，启动工作线程，并死等查询请求队列并执行请求，直到调度器销毁。
+```c++
+DiskScheduler::DiskScheduler(DiskManager *disk_manager) : disk_manager_(disk_manager) {
+  background_thread_.emplace([&] { StartWorkerThread(); });
+}
+
+DiskScheduler::~DiskScheduler(){
+	//加入空请求进行中止死等
+	request_queue_.Put(std::nullopt);
+	//等待工作线程完成收尾
+	if (background_thread_.has_value()){
+		background_thread_->join();
+	}
+}
+
+void DiskScheduler::StartWorkerThread(){
+	while (auto r = request_queue_.Get()){
+		if (!r->is_write_) disk_manager_->ReadPage(r->page_id_, r->data_);
+		else disk_manager_->WritePage(r->page_id_, r->data_);
+		r->callback_.set_value(true);
+	}
+}
+```
+
+外部封装好的请求通过Schedule函数向调度器队列添加请求
+```c++
+void DiskScheduler::Schedule(std::vector<DiskRequest> requests){
+	for(auto &r : requests){
+		request_queue_.Put(std::move(r));
+	}
+	requests.clear();
+}
+```
+
+
+## BufferPool Manager
