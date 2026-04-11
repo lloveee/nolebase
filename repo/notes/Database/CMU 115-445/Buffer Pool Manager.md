@@ -316,3 +316,142 @@ void DiskScheduler::Schedule(std::vector<DiskRequest> requests){
 
 
 ## BufferPool Manager
+
+BPM的职责简单来讲，就是让数据库上层在实际使用中，能感到仿佛拥有无限大的内存。
+
+这里的两个名词必须先搞清楚，`page`和`frame`
+
+为了方便数据存储以及追踪，数据库将最小数据单位称作`page`，通常是一个8kb大小的数据块，最终归档入硬盘。
+
+`frame`本质上是在数据库启动后，在内存中申请分配好的一连串`page`槽位，从硬盘中读上来的`page`就放在`frame`中
+
+更直观的了解frame可以参考如下结构
+```c++
+class FrameHeader {
+private:
+	auto GetData() const -> const char *;
+	auto GetDataMut() -> char *;
+	void Reset();
+	const frame_id_t frame_id_;
+	std::shared_mutex rwlatch_;
+	std::atomic<size_t> pin_count_;
+	bool is_dirty_;
+	std::vector<char> data_;
+}
+```
+
+换句话说，`frame`中实际存储的是`page`的副本，因此在实际考虑中，`frame`中存储的`page`是必须考虑并发问题的。
+
+为了更好的管理和使用内存中的`page`副本，更现代化的c++模式是引出新的类利用RAII和生命周期管理。
+
+RAII全称 Resource Acquistion Is Initialization，Resource在这里指的是诸如内存、文件句柄、锁一类，在使用时通常包括请求资源、使用、以及销毁或者归还资源。RAII所述Acquistion Is Initialization，表意为资源管理的最佳实践应该是绑定到栈对象的生命周期。也就是在对象调用构造函数时进行请求，在析构函数中自动释放。
+
+### PageGuard
+
+职责
+* 持有实际`page`副本，以及所在`frame`槽位
+* 持有`page`交互磁盘调度器刷盘的实际权力
+
+为了保证PageGuard的权威性，也是更好的遵循RAII实践，这里引入`rust`语言中所有权的概念，PageGuard在这里意味持有`page`实际所有权的对象。不可复制、单独存在。
+```c++
+ReadPageGuard() = default;
+//禁用左值拷贝和拷贝构造函数
+ReadPageGuard(const ReadPageGuard &) = delete;
+auto operator=(const ReadPageGuard &) -> ReadPageGuard & = delete;
+//实现右值拷贝和移动构造函数
+ReadPageGuard(ReadPageGuard &&that) noexcept;
+auto operator=(ReadPageGuard &&that) noexcept -> ReadPageGuard &;
+```
+
+右值拷贝和移动构造函数的实现，充分体现了`rust`中所有权转移的编程哲学
+```c++
+ReadPageGuard::ReadPageGuard(ReadPageGuard &&that) noexcept {
+  if (this == &that) {
+    return;
+  }
+  this->page_id_ = that.page_id_;
+  this->frame_ = std::move(that.frame_);
+  this->replacer_ = std::move(that.replacer_);
+  this->bpm_latch_ = std::move(that.bpm_latch_);
+  this->disk_scheduler_ = std::move(that.disk_scheduler_);
+  this->is_valid_ = that.is_valid_;
+  that.is_valid_ = false;
+}
+
+auto ReadPageGuard::operator=(ReadPageGuard &&that) noexcept -> ReadPageGuard &{
+  if (this == &that) {
+    return *this;
+  }
+  //先释放自己原本的资源
+  Drop();
+  this->page_id_ = that.page_id_;
+  this->frame_ = std::move(that.frame_);
+  this->replacer_ = std::move(that.replacer_);
+  this->bpm_latch_ = std::move(that.bpm_latch_);
+  this->disk_scheduler_ = std::move(that.disk_scheduler_);
+  this->is_valid_ = that.is_valid_;
+  that.is_valid_ = false;
+  return *this
+}
+```
+
+刷盘操作
+```c++
+void WritePageGuard::Flush() {
+  if (frame_->is_dirty_) {
+    std::promise<bool> promise;
+    auto future = promise.get_future();
+    std::vector<DiskRequest> r;
+    r.push_back(DiskRequest{true, frame_->GetDataMut(), page_id_, std::move(promise)});
+    disk_scheduler_->Schedule(r);
+    future.get();
+    frame_->is_dirty_ = false;
+  }
+}
+```
+
+RAII
+构造移动成员的同时，标记is_valid防止多次Drop
+```c++
+WritePageGuard::WritePageGuard(page_id_t page_id, std::shared_ptr<FrameHeader> frame,
+                               std::shared_ptr<ArcReplacer> replacer, std::shared_ptr<std::mutex> bpm_latch,
+                               std::shared_ptr<DiskScheduler> disk_scheduler)
+    : page_id_(page_id),
+      frame_(std::move(frame)),
+      replacer_(std::move(replacer)),
+      bpm_latch_(std::move(bpm_latch)),
+      disk_scheduler_(std::move(disk_scheduler)) {
+  is_valid_ = true;
+}
+
+void WritePageGuard::Drop() {
+  if (!is_valid_) return;
+  frame_->is_dirty_ = true;
+  frame_->rwlatch_.unlock();
+  bpm_latch_->lock();
+  frame_->pin_count_--;
+  if (frame_->pin_count_ == 0) {
+    replacer_->SetEvictable(frame_->frame_id_, true);
+  }
+  bpm_latch_->unlock();
+  is_valid_ = false;
+}
+
+void ReadPageGuard::Drop() {
+  if (!is_valid_) return;
+  //std::shared_ptr<std::mutex> unlock_shared表示解开只读锁 unlock表示解开读写锁
+  frame_->rwlatch_.unlock_shared();
+  bpm_latch_->lock();
+  frame_->pin_count_--;
+  if (frame_->pin_count_ == 0) {
+    replacer_->SetEvictable(frame_->frame_id_, true);
+  }
+  bpm_latch_->unlock();
+  is_valid_ = false;
+}
+
+//析构自动Drop
+WritePageGuard::~WritePageGuard() { Drop(); }
+```
+
+

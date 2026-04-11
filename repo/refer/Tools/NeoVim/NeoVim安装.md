@@ -58,3 +58,13 @@ http://www.lazyvim.org/installation
 ```bash
 git clone https://github.com/LazyVim/starter ~/.config/nvim
 ```
+
+
+🎯 **JACKPOT!** Found a JSON blob with the real credentials:
+
+- `game_app_id`: **1110543085** (not 27808!)
+- `access_token`: **179E1121DA8180D42B898029DAE824DD** (32 hex chars!)
+- `timestamp`: **1775792097437** (milliseconds)
+- `open_id`: `6721361396744912272`
+
+Let me test these immediately as keys.
