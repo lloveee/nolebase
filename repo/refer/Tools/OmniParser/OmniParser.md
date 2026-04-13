@@ -52,3 +52,27 @@ if __name__ == "__main__":
 cd omnitool/omniparserserver
 python -m omniparserserver
 ```
+
+跑通后会发现omniparser无法解析中文
+
+找到`./util/utils.py`修改如下代码：
+```python
+from matplotlib import pyplot as plt
+import easyocr
+from paddleocr import PaddleOCR
+reader = easyocr.Reader(['ch_sim', 'en']) #中英混合
+paddle_ocr = PaddleOCR(
+    lang='ch',  # 中文OCR模型
+    use_angle_cls=False,
+    use_gpu=False,  # using cuda will conflict with pytorch in the same process
+    show_log=False,
+    max_batch_size=1024,
+    use_dilation=True,  # improves accuracy
+    det_db_score_mode='slow',  # improves accuracy
+    rec_batch_num=1024)
+
+```
+
+
+- 我们搜索的是 `坝` = **0x574d**
+- OmniParser 返回的是 `坝` = **0x575d**

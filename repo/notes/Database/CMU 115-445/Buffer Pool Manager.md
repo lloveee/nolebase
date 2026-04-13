@@ -454,4 +454,10 @@ void ReadPageGuard::Drop() {
 WritePageGuard::~WritePageGuard() { Drop(); }
 ```
 
+### BPM
+
+有了封装好的`PageGuard`，接下来我们管理`Page`的任务就轻松多了。
+
+回顾一下此前构造的两大利器，`ArcReplacer`、`DiskScheduler`
+
 
