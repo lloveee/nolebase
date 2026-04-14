@@ -460,4 +460,99 @@ WritePageGuard::~WritePageGuard() { Drop(); }
 
 回顾一下此前构造的两大利器，`ArcReplacer`、`DiskScheduler`
 
+#### CheckedWritePage / CheckedReadPage
 
+两者的核心逻辑完全对称，区别在于锁的粒度和写标志：
+
+```cpp
+// CheckedWritePage：独占写锁
+std::scoped_lock latch(*bpm_latch_);  // 全局锁
+frame->rwlatch_.lock();                // 独占锁
+
+// CheckedReadPage：共享读锁
+std::scoped_lock latch(*bpm_latch_);   // 全局锁（注意：不是 shared_lock！必须独占访问 page_table_）
+frame->rwlatch_.lock_shared();         // 共享锁
+```
+
+整体流程三分支：
+
+**① 缓存命中（page 已存在于 page_table_）**
+
+直接根据 frame_id 找到 frame，pin_count++，加锁，返回 guard。
+
+**② free_frames 有可用 frame（free list 非空）**
+
+从 free list 弹出一个 frame，清空其旧数据（`Reset()`），设置新的 `page_id_`，建立 page_table_ 映射，调度磁盘读（`is_write_ = false`），加锁返回。
+
+> ⚠️ 此处必须处理旧数据可能是脏页的情况：`if (frame->is_dirty_) { disk_scheduler_->Schedule({true, frame->GetDataMut(), frame->page_id_, {}}); }`
+
+**③ 需要 eviction（free list 空，必须驱逐一个 frame）**
+
+调用 `replacer_->Evict()` 获取候选 frame：
+- 若为脏：`disk_scheduler_->Schedule({true, frame->GetDataMut(), frame->page_id_, {}});` 写回到**它原本的 page_id**
+- 从 page_table_ 擦除旧映射，`Reset()` 重置 frame
+- pin_count++，设置新 `page_id_`，建立新映射，加锁返回
+
+#### 调试过程中踩的坑
+
+**Bug 1：Eviction 分支 `page_id` 写错**
+
+```cpp
+// 错误：把脏 frame 内容写到了"新 page_id"（正要读入的页）
+disk_scheduler_->Schedule({true, frame->GetDataMut(), page_id, {}});
+
+// 正确：写回到该 frame 原本存储的那个旧 page_id
+disk_scheduler_->Schedule({true, frame->GetDataMut(), frame->page_id_, {}});
+```
+
+Evict 是腾出 frame 给新页用，磁盘写操作的 page_id 必须是**被驱逐的那个旧页**，否则旧页数据丢失。
+
+**Bug 2：CheckedReadPage eviction 分支 `is_write_` 用反**
+
+```cpp
+// 错误：false 表示"从磁盘读入"，而这里明明是在写回脏页
+disk_scheduler_->Schedule({false, frame->GetDataMut(), frame->page_id_, {}});
+
+// 正确：true 表示"写入磁盘"
+disk_scheduler_->Schedule({true, frame->GetDataMut(), frame->page_id_, {}});
+```
+
+**Bug 3：Reset 后对 `page_id_` 做无意义的 `++`**
+
+```cpp
+frame->Reset();     // Reset() 会把 page_id_ 设为 INVALID_PAGE_ID（-1）
+frame->page_id_++;  // 结果变成 0，紧跟着下一行就赋值成正确 page_id——中间这步什么也没做
+frame->page_id_ = page_id;
+```
+
+**Bug 4：free frame 路径未处理脏页**
+
+free list 上的 frame 可能之前被修改过（`is_dirty_ = true`），直接覆盖 `page_id_` 会导致脏数据丢失。eviction 路径有这个保护，free frame 路径也必须保持一致。
+
+#### 区分 pin_count_ 和 page_id_
+
+这是两个完全不同的概念，极易混淆：
+
+| 字段 | 含义 | 何时变化 |
+|---|---|---|
+| `pin_count_` | 该 frame 当前被多少 guard 引用 | guard 获取时 +1，guard 释放时 -1 |
+| `page_id_` | 该 frame 缓存的是磁盘上哪个 page 的数据 | 加载新页时赋值，Reset 时清零 |
+
+`Reset()` 会将 `page_id_` 设为 `INVALID_PAGE_ID`，但不影响 `pin_count_`。因此 `pin_count_++` 必须在 `Reset()` **之后**执行，否则会被清零。
+
+#### GetPinCount
+
+实现简单，O(1) 查询：
+
+```cpp
+auto BufferPoolManager::GetPinCount(page_id_t page_id) -> std::optional<size_t> {
+  std::scoped_lock latch(*bpm_latch_);
+  auto it = page_table_.find(page_id);
+  if (it == page_table_.end()) {
+    return std::nullopt;
+  }
+  return frames_[it->second]->pin_count_.load();
+}
+```
+
+遍历 page_table_（hash table）直接定位 frame，返回其原子计数。
