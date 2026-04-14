@@ -493,53 +493,94 @@ frame->rwlatch_.lock_shared();         // 共享锁
 - 从 page_table_ 擦除旧映射，`Reset()` 重置 frame
 - pin_count++，设置新 `page_id_`，建立新映射，加锁返回
 
-#### 调试过程中踩的坑
-
-**Bug 1：Eviction 分支 `page_id` 写错**
-
-```cpp
-// 错误：把脏 frame 内容写到了"新 page_id"（正要读入的页）
-disk_scheduler_->Schedule({true, frame->GetDataMut(), page_id, {}});
-
-// 正确：写回到该 frame 原本存储的那个旧 page_id
-disk_scheduler_->Schedule({true, frame->GetDataMut(), frame->page_id_, {}});
+具体实现参考如下：
+```c++
+auto BufferPoolManager::CheckedWritePage(page_id_t page_id, AccessType access_type) -> std::optional<WritePageGuard> {
+  std::scoped_lock latch(*bpm_latch_);
+  if (page_table_.find(page_id) != page_table_.end()) {
+    auto frame = frames_[page_table_[page_id]];
+    frame->pin_count_++;
+    frame->rwlatch_.lock();
+    return WritePageGuard(page_id, frame, replacer_, bpm_latch_, disk_scheduler_);
+  } else {
+    if (!frames_.empty()) {
+      auto frame = frames_[free_frames_.back()];
+      free_frames_.pop_back();
+      if (frame->is_dirty_) {
+        disk_scheduler_->Schedule({true, frame->GetDataMut(), frame->page_id_, {}});
+      }
+      frame->Reset();
+      frame->pin_count_++;
+      frame->rwlatch_.lock();
+      frame->page_id_ = page_id;
+      page_table_[page_id] = frame->frame_id_;
+      disk_scheduler_->Schedule({false, frame->GetDataMut(), page_id, {}});
+      return WritePageGuard(page_id, frame, replacer_, bpm_latch_, disk_scheduler_);
+    } else {
+      if (auto frame_id = replacer_->Evict()) {
+        auto frame = frames_[frame_id.value()];
+        if (frame->is_dirty_) {
+          disk_scheduler_->Schedule({true, frame->GetDataMut(), frame->page_id_, {}});
+        }
+        page_table_.erase(frame->page_id_);
+        frame->Reset();
+        frame->pin_count_++;
+        frame->rwlatch_.lock();
+        frame->page_id_ = page_id;
+        page_table_[page_id] = frame->frame_id_;
+        return WritePageGuard(page_id, frame, replacer_, bpm_latch_, disk_scheduler_);
+      }
+    }
+  }
+  return std::nullopt;
+}
 ```
 
-Evict 是腾出 frame 给新页用，磁盘写操作的 page_id 必须是**被驱逐的那个旧页**，否则旧页数据丢失。
+```c++
+auto BufferPoolManager::CheckedReadPage(page_id_t page_id, AccessType access_type) -> std::optional<ReadPageGuard> {
+  std::scoped_lock latch(*bpm_latch_);
+  if (page_table_.find(page_id) != page_table_.end()) {
+    auto frame = frames_[page_table_[page_id]];
+    frame->pin_count_++;
+    frame->rwlatch_.lock_shared();
+    return ReadPageGuard(page_id, frame, replacer_, bpm_latch_, disk_scheduler_);
+  } else {
+    if (!free_frames_.empty()) {
+      auto frame = frames_[free_frames_.back()];
+      free_frames_.pop_back();
+      if (frame->is_dirty_) {
+        disk_scheduler_->Schedule({true, frame->GetDataMut(), frame->page_id_, {}});
+      }
+      frame->Reset();
+      frame->pin_count_++;
+      frame->rwlatch_.lock_shared();
+      frame->page_id_ = page_id;
+      page_table_[page_id] = frame->frame_id_;
+      disk_scheduler_->Schedule({false, frame->GetDataMut(), page_id, {}});
 
-**Bug 2：CheckedReadPage eviction 分支 `is_write_` 用反**
+      return ReadPageGuard(page_id, frame, replacer_, bpm_latch_, disk_scheduler_);
 
-```cpp
-// 错误：false 表示"从磁盘读入"，而这里明明是在写回脏页
-disk_scheduler_->Schedule({false, frame->GetDataMut(), frame->page_id_, {}});
+    } else {
+      if (auto frame_id = replacer_->Evict()) {
+        auto frame = frames_[frame_id.value()];
+        if (frame->is_dirty_) {
+          disk_scheduler_->Schedule({true, frame->GetDataMut(), frame->page_id_, {}});
+        }
+        page_table_.erase(frame->page_id_);
+        frame->Reset();
+        frame->pin_count_++;
+        frame->rwlatch_.lock_shared();
+        frame->page_id_ = page_id;
+        page_table_[page_id] = frame->frame_id_;
+        return ReadPageGuard(page_id, frame, replacer_, bpm_latch_, disk_scheduler_);
+      }
+      return std::nullopt;
+    }
+  }
+  return std::nullopt;
+}
 
-// 正确：true 表示"写入磁盘"
-disk_scheduler_->Schedule({true, frame->GetDataMut(), frame->page_id_, {}});
 ```
-
-**Bug 3：Reset 后对 `page_id_` 做无意义的 `++`**
-
-```cpp
-frame->Reset();     // Reset() 会把 page_id_ 设为 INVALID_PAGE_ID（-1）
-frame->page_id_++;  // 结果变成 0，紧跟着下一行就赋值成正确 page_id——中间这步什么也没做
-frame->page_id_ = page_id;
-```
-
-**Bug 4：free frame 路径未处理脏页**
-
-free list 上的 frame 可能之前被修改过（`is_dirty_ = true`），直接覆盖 `page_id_` 会导致脏数据丢失。eviction 路径有这个保护，free frame 路径也必须保持一致。
-
-#### 区分 pin_count_ 和 page_id_
-
-这是两个完全不同的概念，极易混淆：
-
-| 字段 | 含义 | 何时变化 |
-|---|---|---|
-| `pin_count_` | 该 frame 当前被多少 guard 引用 | guard 获取时 +1，guard 释放时 -1 |
-| `page_id_` | 该 frame 缓存的是磁盘上哪个 page 的数据 | 加载新页时赋值，Reset 时清零 |
-
-`Reset()` 会将 `page_id_` 设为 `INVALID_PAGE_ID`，但不影响 `pin_count_`。因此 `pin_count_++` 必须在 `Reset()` **之后**执行，否则会被清零。
-
 #### GetPinCount
 
 实现简单，O(1) 查询：
