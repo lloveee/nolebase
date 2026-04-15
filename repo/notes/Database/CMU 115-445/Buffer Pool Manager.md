@@ -460,128 +460,111 @@ WritePageGuard::~WritePageGuard() { Drop(); }
 
 回顾一下此前构造的两大利器，`ArcReplacer`、`DiskScheduler`
 
-#### CheckedWritePage / CheckedReadPage
+### CheckedWritePage / CheckedReadPage 核心逻辑
 
 两者的核心逻辑完全对称，区别在于锁的粒度和写标志：
 
 ```cpp
 // CheckedWritePage：独占写锁
-std::scoped_lock latch(*bpm_latch_);  // 全局锁
-frame->rwlatch_.lock();                // 独占锁
+frame->rwlatch_.lock();   // 独占锁
+frame->is_dirty_ = true;  // 写操作 → 脏页标记
 
 // CheckedReadPage：共享读锁
-std::scoped_lock latch(*bpm_latch_);   // 全局锁（注意：不是 shared_lock！必须独占访问 page_table_）
-frame->rwlatch_.lock_shared();         // 共享锁
+frame->rwlatch_.lock_shared();  // 共享锁
 ```
 
-整体流程三分支：
+整体流程三分支（以 CheckedWritePage 为例）：
 
 **① 缓存命中（page 已存在于 page_table_）**
 
-直接根据 frame_id 找到 frame，pin_count++，加锁，返回 guard。
+```cpp
+if (page_table_.find(page_id) != page_table_.end()) {
+  frame = frames_[page_table_[page_id]];
+  frame->pin_count_++;
+  replacer_->SetEvictable(frame->frame_id_, false);  // 正在使用，不可驱逐
+  replacer_->RecordAccess(frame->frame_id_, page_id, access_type);
+}
+```
 
 **② free_frames 有可用 frame（free list 非空）**
 
-从 free list 弹出一个 frame，清空其旧数据（`Reset()`），设置新的 `page_id_`，建立 page_table_ 映射，调度磁盘读（`is_write_ = false`），加锁返回。
+> ⚠️ 关键：`if (!free_frames_.empty())` 而不是 `if (!frames_.empty())`
+> `frames_` 预分配后永远不为空，用 `frames_` 判断会导致对空 free list 调用 `back()` + `pop_back()` —— UB，ASAN 崩溃。
 
-> ⚠️ 此处必须处理旧数据可能是脏页的情况：`if (frame->is_dirty_) { disk_scheduler_->Schedule({true, frame->GetDataMut(), frame->page_id_, {}}); }`
+```cpp
+if (!free_frames_.empty()) {
+  frame = frames_[free_frames_.back()];
+  free_frames_.pop_back();
+  if (frame->is_dirty_) {
+    // 旧数据可能是脏页，先写回磁盘（同步等待）
+    std::promise<bool> p;
+    auto f = p.get_future();
+    disk_scheduler_->Schedule({true, frame->GetDataMut(), frame->page_id_, std::move(p)});
+    f.get();
+  }
+  frame->Reset();
+  frame->pin_count_++;
+  frame->page_id_ = page_id;
+  page_table_[page_id] = frame->frame_id_;
+  // ⚠️ 必须从磁盘读取新 page 数据！
+  std::promise<bool> p;
+  auto f = p.get_future();
+  disk_scheduler_->Schedule({false, frame->GetDataMut(), page_id, std::move(p)});
+  f.get();
+  replacer_->RecordAccess(frame->frame_id_, page_id, access_type);
+  replacer_->SetEvictable(frame->frame_id_, false);
+}
+```
 
 **③ 需要 eviction（free list 空，必须驱逐一个 frame）**
 
-调用 `replacer_->Evict()` 获取候选 frame：
-- 若为脏：`disk_scheduler_->Schedule({true, frame->GetDataMut(), frame->page_id_, {}});` 写回到**它原本的 page_id**
-- 从 page_table_ 擦除旧映射，`Reset()` 重置 frame
-- pin_count++，设置新 `page_id_`，建立新映射，加锁返回
-
-具体实现参考如下：
-```c++
-auto BufferPoolManager::CheckedWritePage(page_id_t page_id, AccessType access_type) -> std::optional<WritePageGuard> {
-  std::scoped_lock latch(*bpm_latch_);
-  if (page_table_.find(page_id) != page_table_.end()) {
-    auto frame = frames_[page_table_[page_id]];
-    frame->pin_count_++;
-    frame->rwlatch_.lock();
-    return WritePageGuard(page_id, frame, replacer_, bpm_latch_, disk_scheduler_);
-  } else {
-    if (!frames_.empty()) {
-      auto frame = frames_[free_frames_.back()];
-      free_frames_.pop_back();
-      if (frame->is_dirty_) {
-        disk_scheduler_->Schedule({true, frame->GetDataMut(), frame->page_id_, {}});
-      }
-      frame->Reset();
-      frame->pin_count_++;
-      frame->rwlatch_.lock();
-      frame->page_id_ = page_id;
-      page_table_[page_id] = frame->frame_id_;
-      disk_scheduler_->Schedule({false, frame->GetDataMut(), page_id, {}});
-      return WritePageGuard(page_id, frame, replacer_, bpm_latch_, disk_scheduler_);
-    } else {
-      if (auto frame_id = replacer_->Evict()) {
-        auto frame = frames_[frame_id.value()];
-        if (frame->is_dirty_) {
-          disk_scheduler_->Schedule({true, frame->GetDataMut(), frame->page_id_, {}});
-        }
-        page_table_.erase(frame->page_id_);
-        frame->Reset();
-        frame->pin_count_++;
-        frame->rwlatch_.lock();
-        frame->page_id_ = page_id;
-        page_table_[page_id] = frame->frame_id_;
-        return WritePageGuard(page_id, frame, replacer_, bpm_latch_, disk_scheduler_);
-      }
-    }
+```cpp
+if (auto frame_id = replacer_->Evict()) {
+  frame = frames_[frame_id.value()];
+  if (frame->is_dirty_) {
+    // 写回磁盘到它原本的 page_id（同步等待）
+    std::promise<bool> p;
+    auto f = p.get_future();
+    disk_scheduler_->Schedule({true, frame->GetDataMut(), frame->page_id_, std::move(p)});
+    f.get();
   }
-  return std::nullopt;
+  page_table_.erase(frame->page_id_);  // 擦除旧映射
+  frame->Reset();                        // 清空 frame 数据
+  frame->pin_count_++;
+  frame->page_id_ = page_id;
+  page_table_[page_id] = frame->frame_id_;
+  // ⚠️ 必须从磁盘读取新 page 数据！
+  std::promise<bool> p;
+  auto f = p.get_future();
+  disk_scheduler_->Schedule({false, frame->GetDataMut(), page_id, std::move(p)});
+  f.get();
+  replacer_->RecordAccess(frame->frame_id_, page_id, access_type);
+  replacer_->SetEvictable(frame->frame_id_, false);
 }
 ```
 
-```c++
-auto BufferPoolManager::CheckedReadPage(page_id_t page_id, AccessType access_type) -> std::optional<ReadPageGuard> {
-  std::scoped_lock latch(*bpm_latch_);
-  if (page_table_.find(page_id) != page_table_.end()) {
-    auto frame = frames_[page_table_[page_id]];
-    frame->pin_count_++;
-    frame->rwlatch_.lock_shared();
-    return ReadPageGuard(page_id, frame, replacer_, bpm_latch_, disk_scheduler_);
-  } else {
-    if (!free_frames_.empty()) {
-      auto frame = frames_[free_frames_.back()];
-      free_frames_.pop_back();
-      if (frame->is_dirty_) {
-        disk_scheduler_->Schedule({true, frame->GetDataMut(), frame->page_id_, {}});
-      }
-      frame->Reset();
-      frame->pin_count_++;
-      frame->rwlatch_.lock_shared();
-      frame->page_id_ = page_id;
-      page_table_[page_id] = frame->frame_id_;
-      disk_scheduler_->Schedule({false, frame->GetDataMut(), page_id, {}});
+**最后统一加锁，返回 guard（在 bpm_latch_ 之外执行）：**
 
-      return ReadPageGuard(page_id, frame, replacer_, bpm_latch_, disk_scheduler_);
-
-    } else {
-      if (auto frame_id = replacer_->Evict()) {
-        auto frame = frames_[frame_id.value()];
-        if (frame->is_dirty_) {
-          disk_scheduler_->Schedule({true, frame->GetDataMut(), frame->page_id_, {}});
-        }
-        page_table_.erase(frame->page_id_);
-        frame->Reset();
-        frame->pin_count_++;
-        frame->rwlatch_.lock_shared();
-        frame->page_id_ = page_id;
-        page_table_[page_id] = frame->frame_id_;
-        return ReadPageGuard(page_id, frame, replacer_, bpm_latch_, disk_scheduler_);
-      }
-      return std::nullopt;
-    }
-  }
-  return std::nullopt;
-}
-
+```cpp
+frame->rwlatch_.lock();  // 或 lock_shared()
+return WritePageGuard(page_id, std::move(frame), replacer_, bpm_latch_, disk_scheduler_);
 ```
-#### GetPinCount
+
+> ⚠️ 锁的顺序：先释放 bpm_latch_，再加 frame 的 rwlatch_。否则会造成死锁（持大锁等小锁）。
+
+### 今日 Debug 关键教训
+
+1. **`!frames_.empty()` vs `!free_frames_.empty()`**：前者永远为真（frames_ 预分配后永不空），后者才是正确的判断条件。这个笔误会导致对空 list 调用 `back()` + `pop_back()`，是 UB，ASAN 会报 `alloc-dealloc-mismatch`。
+
+2. ** eviction 路径必须调度磁盘读**：`frame->Reset()` 把数据填 0 后，必须调度 `DiskRequest{false, ...}` 从磁盘把新 page 的实际数据读进来，否则用户拿到的是全 0 数据。
+
+3. **`SetEvictable` 的调用时机**：pin_count 从 0 变 1 时 → 不可驱逐（`false`）；从 1 变 0 时 → 可驱逐（`true`）。在 CheckedReadPage/CheckedWritePage 里 pin_count++ 后立即设 `false`，在 PageGuard::Drop() 里 pin_count-- 后判断是否为 0 再设 `true`。
+
+4. **`RecordAccess` 的调用时机**：每次往 frame 里装入新 page（无论是 free frame 路径还是 eviction 路径）都要调用，让 ArcReplacer 重新认识这个 frame。漏了会导致 ArcReplacer 的 alive_map_ 丢失 frame，Evict() 选到正在被 pin 的 frame → use-after-free。
+
+5. **`promise.get()` 的必要性**：`DiskScheduler::Schedule` 把请求入队后立即返回，不等执行完成。对于需要同步等待的场景（eviction 前写回、加载新 page 后才能访问），必须用 `promise/future` 手动等待。`FlushAllPages` 则是批量等待所有 future。
+
+6. **`Drop()` 的顺序不能错**：先 unlock rwlatch_（否则其他线程无法访问），再 lock bpm_latch_（访问 page_table_ 和 pin_count 需要），最后 unlock bpm_latch_。顺序反了会死锁。
 
 实现简单，O(1) 查询：
 
