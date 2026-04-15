@@ -556,7 +556,7 @@ return WritePageGuard(page_id, std::move(frame), replacer_, bpm_latch_, disk_sch
 
 1. **`!frames_.empty()` vs `!free_frames_.empty()`**：前者永远为真（frames_ 预分配后永不空），后者才是正确的判断条件。这个笔误会导致对空 list 调用 `back()` + `pop_back()`，是 UB，ASAN 会报 `alloc-dealloc-mismatch`。
 
-2. ** eviction 路径必须调度磁盘读**：`frame->Reset()` 把数据填 0 后，必须调度 `DiskRequest{false, ...}` 从磁盘把新 page 的实际数据读进来，否则用户拿到的是全 0 数据。
+2. **eviction 路径必须调度磁盘读**：`frame->Reset()` 把数据填 0 后，必须调度 `DiskRequest{false, ...}` 从磁盘把新 page 的实际数据读进来，否则用户拿到的是全 0 数据。
 
 3. **`SetEvictable` 的调用时机**：pin_count 从 0 变 1 时 → 不可驱逐（`false`）；从 1 变 0 时 → 可驱逐（`true`）。在 CheckedReadPage/CheckedWritePage 里 pin_count++ 后立即设 `false`，在 PageGuard::Drop() 里 pin_count-- 后判断是否为 0 再设 `true`。
 
@@ -565,6 +565,62 @@ return WritePageGuard(page_id, std::move(frame), replacer_, bpm_latch_, disk_sch
 5. **`promise.get()` 的必要性**：`DiskScheduler::Schedule` 把请求入队后立即返回，不等执行完成。对于需要同步等待的场景（eviction 前写回、加载新 page 后才能访问），必须用 `promise/future` 手动等待。`FlushAllPages` 则是批量等待所有 future。
 
 6. **`Drop()` 的顺序不能错**：先 unlock rwlatch_（否则其他线程无法访问），再 lock bpm_latch_（访问 page_table_ 和 pin_count 需要），最后 unlock bpm_latch_。顺序反了会死锁。
+
+### NewPage 细节（2026-04-15）
+
+`NewPage()` 分配新 page 后，必须将新 frame 向 ArcReplacer 注册：
+
+```cpp
+page_table_[np_id] = frame_id;
+replacer_->RecordAccess(frame_id, np_id);   // 让 replacer 认识这个 frame
+replacer_->SetEvictable(frame_id, true);    // 新 page 可驱逐
+return np_id;
+```
+
+### DeletePage 完整实现（2026-04-15 重写）
+
+旧版直接返回 `true`（stub），新版完整实现：
+
+```cpp
+auto BufferPoolManager::DeletePage(page_id_t page_id) -> bool {
+  std::scoped_lock latch(*bpm_latch_);
+  if (page_table_.find(page_id) == page_table_.end()) {
+    return true;  // 不存在 → 算删除成功
+  }
+  auto frame = frames_[page_table_[page_id]];
+  if (frame->pin_count_ > 0) {
+    return false;  // 还在被 pin，不能删
+  }
+  disk_scheduler_->DeallocatePage(page_id);      // 通知磁盘层释放 page
+  replacer_->Remove(frame->frame_id_);           // 从 replacer 移除
+  frame->Reset();                                 // 重置 frame 内容
+  page_table_.erase(page_id);                    // 移除映射
+  free_frames_.push_back(frame->frame_id_);       // 归还 free list
+  return true;
+}
+```
+
+### FlushAllPages 并行刷盘（2026-04-15）
+
+```cpp
+void BufferPoolManager::FlushAllPages() {
+  std::scoped_lock latch(*bpm_latch_);
+  std::vector<std::future<bool>> futures;
+  for (auto &frame : frames_) {
+    if (frame->is_dirty_) {
+      std::promise<bool> p;
+      futures.push_back(p.get_future());
+      disk_scheduler_->Schedule({true, frame->GetDataMut(), frame->page_id_, std::move(p)});
+      frame->is_dirty_ = false;
+    }
+  }
+  for (auto &f : futures) {
+    f.get();  // 等待所有脏页写盘完成
+  }
+}
+```
+
+`FlushAllPagesUnsafe` 逻辑相同但不加 bpm_latch_，适用于启动阶段批量刷盘。
 
 实现简单，O(1) 查询：
 
