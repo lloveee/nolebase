@@ -9,7 +9,7 @@ tags:
 
 > [ARC: A SELF-TUNING, LOW OVERHEAD REPLACEMENT CACHE](/archieve/database-cmu/arcfast.pdf) 前排强烈建议深入阅读该论文
 
-
+[Project1](https://15445.courses.cs.cmu.edu/fall2025/project1/)
 ## 缓存策略 Cache Replacement Policy
 
 随着硬件技术的发展，机器的标配主存也越来越大了，尽管如此，始终是比不上数据库使用量的增长，因此对于数据库读写的缓存问题，时至今日仍然值得细细探讨。
@@ -340,7 +340,7 @@ private:
 }
 ```
 
-换句话说，`frame`中实际存储的是`page`的副本，因此在实际考虑中，`frame`中存储的`page`是必须考虑并发问题的。
+换句话说，`frame`中实际存储的是硬盘上`page`的副本，因此在实际考虑中，`frame`中存储的`page`是必须考虑并发问题的。
 
 为了更好的管理和使用内存中的`page`副本，更现代化的c++模式是引出新的类利用RAII和生命周期管理。
 
@@ -575,68 +575,41 @@ auto BufferPoolManager::CheckedWritePage(page_id_t page_id, AccessType access_ty
       frame->pin_count_++;                     // 使用计数 +1（正在被谁使用）
       replacer_->SetEvictable(frame->frame_id_, false);   // 正在使用，禁止驱逐
       replacer_->RecordAccess(frame->frame_id_, page_id, access_type);  // 更新 ARC 状态
-    }
-
-    // ── 分支 ②：free list 有空闲 frame ───────────────────────
-    // 新 page第一次加载，且有预分配的空闲 frame 可用
-    else if (!free_frames_.empty()) {
-      frame = frames_[free_frames_.back()];   // 拿到 frame id
-      free_frames_.pop_back();               // 从 free list 移除
-      frame->Reset();                         // 清空旧数据
+    } else {
+	    // ── 分支 ②：free list 有空闲 frame ───────────────────────
+	    // 新 page第一次加载，且有预分配的空闲 frame 可用
+	    if (!free_frames_.empty()) {
+        frame = frames_[free_frames_.back()]; // 拿到 frame id
+        free_frames_.pop_back();  // 从 free list 移除
+      } else {
+	    // ── 分支 ③：需要 eviction ────────────────────────────────
+	    // free list 也空了，只能驱逐一个 victim frame
+        if (auto frame_id = replacer_->Evict()) {
+          frame = frames_[frame_id.value()];
+          if (frame->is_dirty_) { // 将驱逐的脏page，写回磁盘
+            std::promise<bool> write_promise;
+            auto w_future = write_promise.get_future();
+            disk_scheduler_->Schedule({true, frame->GetDataMut(), frame->page_id_, std::move(write_promise)}); //注意此处为frame->page_id
+            w_future.get();
+          }
+          page_table_.erase(frame->page_id_);
+        } else { // 无空位可用，直接返回 null
+          return std::nullopt;
+        }
+      }
+      
+      frame->Reset(); //重置frame
       frame->pin_count_++;
       frame->page_id_ = page_id;
       page_table_[page_id] = frame->frame_id_;
 
-      // ⚠️ 必须从磁盘加载实际数据（Reset 只填了 0）
       std::promise<bool> read_promise;
       auto r_future = read_promise.get_future();
-      disk_scheduler_->Schedule(
-        {false, frame->GetDataMut(), page_id, std::move(read_promise)});
-      r_future.get();  // 同步等待磁盘读完成
-
-      replacer_->RecordAccess(frame->frame_id_, page_id, access_type);
-      replacer_->SetEvictable(frame->frame_id_, false);
-    }
-
-    // ── 分支 ③：需要 eviction ────────────────────────────────
-    // free list 也空了，只能驱逐一个 victim frame
-    else {
-      auto frame_id = replacer_->Evict();     // ArcReplacer 选 victim
-      if (!frame_id.has_value()) {
-        return std::nullopt;                  // 没有可驱逐的 frame（全部 pinned）
-      }
-
-      frame = frames_[frame_id.value()];
-
-      // ③a: victim 是脏页 → 先同步写回它的旧数据
-      if (frame->is_dirty_) {
-        std::promise<bool> write_promise;
-        auto w_future = write_promise.get_future();
-        disk_scheduler_->Schedule(
-          {true, frame->GetDataMut(), frame->page_id_, std::move(write_promise)});
-        w_future.get();
-      }
-
-      // ③b: 从 page_table_ 移除 victim frame 原先对应的旧 page
-      page_table_.erase(frame->page_id_);
-
-      // ③c: 重置 frame，安装新 page
-      frame->Reset();
-      frame->pin_count_++;
-      frame->page_id_ = page_id;
-      page_table_[page_id] = frame->frame_id_;
-
-      // ⚠️ 必须从磁盘加载新 page 的实际数据
-      std::promise<bool> read_promise;
-      auto r_future = read_promise.get_future();
-      disk_scheduler_->Schedule(
-        {false, frame->GetDataMut(), page_id, std::move(read_promise)});
+      disk_scheduler_->Schedule({false, frame->GetDataMut(), page_id, std::move(read_promise)}); //从磁盘读取page到frame槽位
       r_future.get();
-
-      replacer_->RecordAccess(frame->frame_id_, page_id, access_type);
+      replacer_->RecordAccess(frame->frame_id_, frame->page_id_, access_type);
       replacer_->SetEvictable(frame->frame_id_, false);
     }
-  }
   //  ┌──────────────────────────────────────────────────────────
   //  │  阶段 1 结束：bpm_latch_ 已释放                           │
   //  │  frame 被 shared_ptr 持有，可以安全地继续                   │
@@ -678,12 +651,25 @@ auto BufferPoolManager::CheckedReadPage(page_id_t page_id, AccessType access_typ
       frame->pin_count_++;
       replacer_->SetEvictable(frame->frame_id_, false);
       replacer_->RecordAccess(frame->frame_id_, page_id, access_type);
-    }
-
-    // 分支 ②：free list 有空闲 frame
-    else if (!free_frames_.empty()) {
-      frame = frames_[free_frames_.back()];
-      free_frames_.pop_back();
+    } else {
+	    // 分支 ②：free list 有空闲 frame
+      if (!free_frames_.empty()) {
+        frame = frames_[free_frames_.back()];
+        free_frames_.pop_back();
+      } else { // 分支 ③：需要 eviction
+        if (auto frame_id = replacer_->Evict()) {
+          frame = frames_[frame_id.value()];
+          if (frame->is_dirty_) {
+            std::promise<bool> write_promise;
+            auto w_future = write_promise.get_future();
+            disk_scheduler_->Schedule({true, frame->GetDataMut(), frame->page_id_, std::move(write_promise)});
+            w_future.get();
+          }
+          page_table_.erase(frame->page_id_);
+        } else {
+          return std::nullopt;
+        }
+      }
       frame->Reset();
       frame->pin_count_++;
       frame->page_id_ = page_id;
@@ -691,44 +677,9 @@ auto BufferPoolManager::CheckedReadPage(page_id_t page_id, AccessType access_typ
 
       std::promise<bool> read_promise;
       auto r_future = read_promise.get_future();
-      disk_scheduler_->Schedule(
-        {false, frame->GetDataMut(), page_id, std::move(read_promise)});
+      disk_scheduler_->Schedule({false, frame->GetDataMut(), page_id, std::move(read_promise)});
       r_future.get();
-
-      replacer_->RecordAccess(frame->frame_id_, page_id, access_type);
-      replacer_->SetEvictable(frame->frame_id_, false);
-    }
-
-    // 分支 ③：需要 eviction
-    else {
-      auto frame_id = replacer_->Evict();
-      if (!frame_id.has_value()) {
-        return std::nullopt;
-      }
-
-      frame = frames_[frame_id.value()];
-
-      if (frame->is_dirty_) {
-        std::promise<bool> write_promise;
-        auto w_future = write_promise.get_future();
-        disk_scheduler_->Schedule(
-          {true, frame->GetDataMut(), frame->page_id_, std::move(write_promise)});
-        w_future.get();
-      }
-
-      page_table_.erase(frame->page_id_);
-      frame->Reset();
-      frame->pin_count_++;
-      frame->page_id_ = page_id;
-      page_table_[page_id] = frame->frame_id_;
-
-      std::promise<bool> read_promise;
-      auto r_future = read_promise.get_future();
-      disk_scheduler_->Schedule(
-        {false, frame->GetDataMut(), page_id, std::move(read_promise)});
-      r_future.get();
-
-      replacer_->RecordAccess(frame->frame_id_, page_id, access_type);
+      replacer_->RecordAccess(frame->frame_id_, frame->page_id_, access_type);
       replacer_->SetEvictable(frame->frame_id_, false);
     }
   }
