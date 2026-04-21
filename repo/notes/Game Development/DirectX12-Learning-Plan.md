@@ -67,21 +67,25 @@ git clone https://github.com/walbourn/directx-sdk-samples.git
 
 ## 三、推荐教材
 
-### 必买书籍
+### 推荐教材（含购买/下载链接）
 
-| 书名 | 用途 | 优先级 |
+#### 书籍
+
+| 书名 | 链接 | 用途 | 优先级 |
+|---|---|---|---|
+| 《Introduction to 3D Game Programming with DirectX 12》— Frank Luna | [d3dcoder.net 配套网站](http://www.d3dcoder.net/) | 主教材，环境搭建到完整渲染器，代码可跑通 | ⭐⭐⭐⭐⭐ |
+| 《Real-Time Rendering 4th Edition》 | [Amazon 购买](https://www.amazon.com/Real-Time-Rendering-Fourth-Tomasz-Net?ots=1&slotNum=0&linkCode=gs2&tag=realtime rend10-20) | 图形学百科全书，前 12 章打底基础 | ⭐⭐⭐⭐⭐ |
+| 《Computer Graphics Principles and Practice》— Foley & van Dam | [Amazon 购买](https://www.amazon.com/Computer-Graphics-Principles-Practice-3rd/dp/0321399528) | 经典教材，数学和理论部分写得极清楚 | ⭐⭐⭐⭐ |
+| 《Advanced Graphics Programming Using OpenGL》 | [PDF 下载（ Wayback Machine）](https://www.realtimerendering.com/forum/viewtopic.php?t=93) | 老但核心概念扎实，可当补充 | ⭐⭐⭐ |
+
+#### 免费课程
+
+| 课程 | 链接 | 用途 |
 |---|---|---|
-| 《Introduction to 3D Game Programming with DirectX 12》— Frank Luna | 主教材，从环境搭建到完整渲染器，代码可跑通 | ⭐⭐⭐⭐⭐ |
-| 《Real-Time Rendering 4th Edition》 | 图形学百科全书，前 12 章打底基础 | ⭐⭐⭐⭐⭐ |
-| 《Computer Graphics Principles and Practice》— Foley & van Dam | 经典教材，数学和理论部分写得极清楚 | ⭐⭐⭐⭐ |
-| 《Advanced Graphics Programming Using OpenGL》 | 老但核心概念扎实，可当补充 | ⭐⭐⭐ |
-
-### 免费课程
-
-| 课程 | 来源 | 用途 |
-|---|---|---|
-| GAMES101 / GAMES104 / GAMES201 | 闫令琪 / 刘利刚团队，B站 | 投影/光栅化/纹理映射核心概念 + 高级渲染 |
-| TU Wien Rendering Lectures | YouTube | SIGGRAPH 强度训练 |
+| GAMES101（闫令琪） | [B站](https://www.bilibili.com/video/BV1X7411F7JQ/) | 投影/光栅化/纹理映射核心概念 |
+| GAMES104（刘利刚） | [B站](https://www.bilibili.com/video/BV1Xz4y1R7w5/) | 现代图形引擎架构 |
+| GAMES201 | [B站](https://www.bilibili.com/video/BV1K5411z7d7/) | 高级渲染（光线追踪/全局光照） |
+| TU Wien Rendering Lectures | [YouTube](https://www.youtube.com/playlist?list=PLujxSBD-JXgnGmsn7gEyN28P1DnRZG7qi) | SIGGRAPH 强度，系统渲染知识 |
 
 ### UE 源码导航
 
