@@ -8,7 +8,7 @@ import { defineConfig } from 'vitepress'
 import { discordLink, githubRepoLink, siteDescription, siteName } from '../metadata'
 import head from './head'
 
-const nolebase = presetMarkdownIt()
+const nolebase = presetMarkdownIt({ unlazyImages: false })
 
 export default defineConfig({
   vue: {
