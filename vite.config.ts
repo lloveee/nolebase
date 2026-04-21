@@ -10,7 +10,6 @@ import { creators, githubRepoLink } from './metadata'
 
 export default defineConfig(async () => {
   const nolebase = presetVite({
-    thumbnailHash: false,
     gitChangelog: {
       options: {
         gitChangelog: {
@@ -59,5 +58,10 @@ export default defineConfig(async () => {
       nolebase,
       ...nolebase.plugins(),
     ],
+    resolve: {
+      alias: {
+        '@nolebase/vitepress-plugin-thumbnail-hash': '/dev/null',
+      },
+    },
   }
 })
