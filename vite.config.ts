@@ -50,6 +50,7 @@ export default defineConfig(async () => {
       Inspect(),
       Components({
         include: [/\.vue$/],
+        exclude: [/\.md$/],
         dirs: '.vitepress/theme/components',
         dts: '.vitepress/components.d.ts',
       }),
