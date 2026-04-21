@@ -28,7 +28,6 @@
     "update": "tsx scripts/update.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "postinstall": "node scripts/patch-thumb-hash.js",
   "devDependencies": {
     "@antfu/eslint-config": "^6.2.0",
     "@hedgedoc/markdown-it-plugins": "^2.1.4",
@@ -39,7 +38,6 @@
     "@netlify/functions": "^5.0.1",
     "@nolebase/integrations": "2.18.2",
     "@nolebase/markdown-it-bi-directional-links": "^2.18.2",
-    "@nolebase/markdown-it-unlazy-img": "^2.18.2",
     "@nolebase/vitepress-plugin-enhanced-mark": "^2.18.2",
     "@nolebase/vitepress-plugin-enhanced-readabilities": "^2.18.2",
     "@nolebase/vitepress-plugin-git-changelog": "^2.18.2",

@@ -37,14 +37,6 @@ export default defineConfig(async () => {
     thumbnailHash: false,
   })
 
-  // Filter out thumbnail-hash plugins from nolebase.plugins() by name
-  // to prevent OOM during Vercel builds
-  const rawPlugins: any[] = nolebase.plugins()
-  const filteredPlugins = rawPlugins.filter((p) => {
-    const name: string = p?.name ?? ''
-    return !name.includes('thumbnail-hash') && !name.includes('nolebase-thumbnail')
-  })
-
   return {
     assetsInclude: [
       '**/*.mov',
@@ -63,13 +55,6 @@ export default defineConfig(async () => {
       }),
       UnoCSS(),
       nolebase,
-      ...filteredPlugins,
     ],
-    resolve: {
-      alias: {
-        '@nolebase/vitepress-plugin-thumbnail-hash': '/dev/null',
-        '@nolebase/vitepress-plugin-thumbnail-hash/dist/chunkhash': '/dev/null',
-      },
-    },
   }
 })
