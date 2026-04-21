@@ -12,16 +12,16 @@ const nolebase = presetMarkdownIt()
 
 export default defineConfig({
   vue: {
-    template: {
-      transformAssetUrls: {
-        video: ['src', 'poster'],
-        source: ['src'],
-        img: ['src'],
-        image: ['xlink:href', 'href'],
-        use: ['xlink:href', 'href'],
-        NolebaseUnlazyImg: ['src'],
-      },
-    },
+    // template: {
+    //   transformAssetUrls: {
+    //     video: ['src', 'poster'],
+    //     source: ['src'],
+    //     img: ['src'],
+    //     image: ['xlink:href', 'href'],
+    //     use: ['xlink:href', 'href'],
+    //     NolebaseUnlazyImg: ['src'],
+    //   },
+    // },
   },
   title: siteName,
   description: siteDescription,
