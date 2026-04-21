@@ -10,6 +10,7 @@ import { creators, githubRepoLink } from './metadata'
 
 export default defineConfig(async () => {
   const nolebase = presetVite({
+    thumbnailHash: false,
     gitChangelog: {
       options: {
         gitChangelog: {
