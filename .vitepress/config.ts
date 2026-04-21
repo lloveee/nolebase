@@ -12,16 +12,8 @@ const nolebase = presetMarkdownIt({ unlazyImages: false })
 
 export default defineConfig({
   vue: {
-    // template: {
-    //   transformAssetUrls: {
-    //     video: ['src', 'poster'],
-    //     source: ['src'],
-    //     img: ['src'],
-    //     image: ['xlink:href', 'href'],
-    //     use: ['xlink:href', 'href'],
-    //     NolebaseUnlazyImg: ['src'],
-    //   },
-    // },
+    // Exclude .md files from Vue template compilation to prevent LaTeX ${} being parsed as JS expressions
+    exclude: [/\.md$/],
   },
   title: siteName,
   description: siteDescription,
@@ -135,8 +127,26 @@ export default defineConfig({
       light: 'github-light',
       dark: 'one-dark-pro',
     },
-    math: false,
     preConfig: async (md) => {
+      // Escape ${ in rendered HTML to prevent Vue template compiler from
+      // interpreting LaTeX ${...} as JS template expressions.
+      // This works because vitepress uses a JS template literal to embed
+      // the rendered HTML: `<template><div>${html}</div></template>`
+      const originalRender = md.render.bind(md)
+      const originalRenderAsync = md.renderAsync.bind(md)
+      md.render = function (...args: any[]) {
+        const result = originalRender(...args)
+        return escapeTemplateLiterals(result)
+      }
+      md.renderAsync = async function (...args: any[]) {
+        const result = await originalRenderAsync(...args)
+        return escapeTemplateLiterals(result)
+      }
+
+      function escapeTemplateLiterals(html: string): string {
+        return html.replace(/\$\{/g, '$\\{')
+      }
+
       await nolebase.install(md)
     },
     config: (md) => {
