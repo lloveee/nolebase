@@ -78,7 +78,7 @@ enum D3D12_LOGIC_OP
 
 Note that you cannot use traditional blending and logic operator blending at the same time; you pick one or the other. Note also that in order to use logic operator blending the render target format must support—it should be a format of the UINT variety, otherwise you will get errors like the following: 
 
-```txt
+```cpp
 D3D12 ERROR: ID3D12Device::CreateGraphicsPipelineState: The render target format at slot 0 is format (R8G8B8A8_UNORM). This format does not support logic ops. The Pixel Shader output signature indicates this output could be written, and the Blend State indicates logic op is enabled for this slot. [ STATE Creation ERROR #678: CREATEGRAPHICSPIPELINESTATE_ON-render_TARGET DOES_NOT_support_LOGICOPS] D3D12 WARNING: ID3D12Device::CreateGraphicsPipelineState: Pixel Shader output 'SV_Target0' has type that is NOT unsigned int, while the corresponding Output Merger RenderTarget slot [0] has logic op enabled. This happens to be well defined: the raw bits output from the Shader will simply be interpreted as UINT bits in the blender without any data conversion. This warning is to check that the application developer really intended to rely on this behavior. [ STATE Creation WARNING #677: CREATEGRAPHICSPIPELINESTATE_PS_OUTPUT_TYPE_MISMATCH] 
 ```
 
@@ -111,7 +111,7 @@ $$
 
 We can set the blend factor color with the following function: 
 
-```txt
+```cpp
 void ID3D12GraphicsCommandList::OMSetBlendFactor(const FLOAT BlendFactor[4]); 
 ```
 
@@ -127,7 +127,7 @@ D3D12 grafICS_PIPELINE_STATE_DESC opaquePsoDesc; ZeroMemory(&opaquePsoDesc, size
 
 To configure a non-default blend state we must fill out a D3D12_BLEND_DESC structure. The D3D12_BLEND_DESC structure is defined like so: 
 
-```txt
+```cpp
 typedef struct D3D12 Blend_DESC {
     BOOL AlphaToCoverageEnable; // Default: False
     BOOL IndependentBlendEnable; // Default: False
@@ -193,7 +193,7 @@ Blending is not free and does require additional per-pixel work, so only enable 
 
 The following code shows example code of creating and setting a blend state: 
 
-```txt
+```cpp
 D3D12graphicspipeline_STATE_DESC basePsoDesc = d3dUtil::InitDefaultPso( mBackBufferFormat, mDepthStencilFormat, mInputLayout, mRootSignature.Get(), mShaders["standardVS"].Get(), mShaders["opaquePS"].Get());  
 D3D12graphicspipeline_STATE_DESC transparentPsoDesc = basePsoDesc;  
 D3D12_RENDER_TARGET BlendDesc transparencyBlendDesc;  
@@ -348,7 +348,7 @@ Sometimes we want to completely reject a source pixel from being further process
 
 In the pixel shader, we grab the alpha component of the texture. If it is a small value close to 0, which indicates that the pixel is completely transparent, then we clip the pixel from further processing. 
 
-```txt
+```cpp
 float4 PS(VertexOut pin) : SV_Target  
 { MaterialData matData = gMaterialData[gMaterialIndex]; float4 diffuseAlbedo = matData.DiffuseAlbedo; float3 fresnelR0 = matData.FresnelR0; float roughness = matData.Roughness; uint diffuseMapIndex = matData.DiffuseMapIndex; 
 ```
@@ -461,7 +461,7 @@ When $f o g S t a r t < \mathrm { d i s t } ( \mathbf { p } , \mathbf { E } ) < 
 
 The following shader code shows how fog is implemented. We compute the distance and interpolation at the pixel level, after we have computed the lit color. 
 
-```lisp
+```cpp
 // Include common HLSL code. #include "Shaders/Common.hls1"   
 struct VertexIn { float3 PosL : POSITION; float3 NormalL : NORMAL; float2 TexC : TEXCOORD; } ;   
 struct VertexOut { float4 PosH : SV POSITION; float3 PosW : POSITION0; float3 NormalW : NORMAL; float2 TexC : TEXCOORD; } ;   
@@ -472,7 +472,7 @@ float4 texC $=$ mul(float4(vin.TexC,0.0f,1.0f)，gTexTransform);vout.TexC $\equi
 }   
 float4 PS(VertexOut pin)：SV_Target{MaterialData matData $=$ gMaterialData[gMaterialIndex];float4 diffuseAlbedo $=$ matData.DiffuseAlbedo;float3 fresnelR0 $=$ matData.FresnelR0;float roughness $=$ matData.Roughness;uint diffuseMapIndex $=$ matData.DiffuseMapIndex; //Dynamically look up the texture in the heap.Texture2D diffuseMap $=$ ResourceDescriptorHeap[diffuseMapIndex];diffuseAlbedo $\ast =$ diffuseMap_SAMPLE(GetAnisoWrapSampler(),pin. TexC);#endif ALPHA_TEST//Discard pixel if texture alpha $<  0.1$ .We do this test as soon//as possible in the shader so that we can potentially exit the//shader early,thereby skipping the rest of the shader code. clip(diffuseAlbedo.a-0.1f);endif// Interpolating normal can unnormalize it,so renormalize it.float3 normalW $=$ normalize(pin.NormalW);// Vector from point being lit to eye.float3 toEyeW $=$ gEyePosW - pin(PosW;float distToEye $=$ length(toEyeW);toEyeW $= =$ distToEye; // normalize// Light terms.float4 ambient $=$ gAmbientLight\*diffuseAlbedo;const float shininess $= (1.0f$ -roughness);Material mat $=$ {diffuseAlbedo,fresnelR0, shininess $\}$ float4 directLight $=$ ComputeLighting(gLights,mat，pin(PosW, normalW,toEyeW);float4 litColor $=$ ambient + directLight;if( gFogEnabled）{float fogAmount $=$ saturate((distToEye-gFogStart)/ gFogRange);litColor $=$ lerpl(litColor,gFogColor,fogAmount);} //Common convention to take alpha from diffuse albedo. litColor.a $=$ diffuseAlbedo.a; 
 
-```txt
+```cpp
 returnlitColor; 
 ```
 
@@ -487,7 +487,7 @@ This essentially computes the length of the toEye vector twice, once in the norm
 
 Some scenes may not want to use fog; therefore, we make fog optional and it is enabled by a constant gFogEnabled in the PerPassCB. Other per-pass constants for fog are as follows: 
 
-```txt
+```cpp
 float4 gFogColor;  
 float gFogStart;  
 float gFogRange; 

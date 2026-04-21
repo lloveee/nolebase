@@ -1,6 +1,6 @@
 Chapter 
 
-# 13 The Comp ute Shader
+# 13 The Compute Shader
 
 GPUs have been optimized to process a large amount of memory from a single location or sequential locations (so-called streaming operation); this is in contrast to a CPU designed for random memory accesses [Boyd10]. Moreover, because vertices and pixels can be independently processed, GPUs have been architected to be massively parallel; for example, a GeForce RTX 4070 has 46 streaming multiprocessors that each have 128 CUDA cores for a total of 5888 CUDA cores. 
 
@@ -87,7 +87,7 @@ If you submit consecutive dispatch commands on the CPU, they are not guaranteed 
 
 Below is a simple compute shader that sums two textures, assuming all the textures are the same size. This shader is not very interesting, but it illustrates the basic syntax of writing a compute shader. 
 
-```txt
+```cpp
 cbuffer cbSettings   
 { // Compute shader can access values in constant buffers. uint gIndexA; uint gIndexB; uint gOutputIndex;   
 }；   
@@ -119,7 +119,7 @@ Observe that we can define different topologies of the thread group; for example
 
 To enable a compute shader, we use a special “compute pipeline state description.” This structure has far fewer fields than D3D12_GRAPHICS_PIPELINE_STATE_DESC because the compute shader sits to the side of the graphics pipeline, so all the graphics pipeline state does not apply to compute shaders and thus does not need to be set. Below shows an example of creating a compute pipeline state object: 
 
-```txt
+```cpp
 D3D12.Compute_PIPELINE_STATE_DESC wavesUpdatePSO = {};  
 wavesUpdatePSO.pRootSignature = mWavesRootSignature.Get();  
 wavesUpdatePSO.CS = {  
@@ -153,13 +153,13 @@ This is the same way we access shader resources in the other shaders (e.g., vert
 
 The compute shader defined in the previous section defined one output resource: 
 
-```txt
+```cpp
 RWTexture2D gOutput = ResourceDescriptorHeap[gOutputIndex]; 
 ```
 
 Outputs are treated specially and have the special prefix to their type “RW,” which stands for read-write, and as the name implies, you can read and write to elements in this resource in the compute shader. In contrast, the textures gInputA and gInputB are read-only. Also, it is necessary to specify the type and dimensions of the output with the template angle brackets syntax <float4>. If our output was a 2D integer like DXGI_FORMAT_R8G8_SINT, then we would have instead written: 
 
-```txt
+```cpp
 RWTexture2D<int2> gOutput; 
 ```
 
@@ -218,7 +218,7 @@ CD3DX12_CPU DescriptorHandle hDescriptor)
 uavDesc.Format = format; 
 ```
 
-```txt
+```cpp
 uavDesc.ViewDimension = D3D12_UAV_DIMENSION-textURE2D;  
 uavDesc.Texture2D.MipSlice = mipSlice;  
 device->CreateUnorderedAccessView(resource, nullptr, &uavDesc, hDescriptor); 
@@ -249,7 +249,7 @@ As with other shaders we have been writing, textures and buffer resources are ac
 
 The elements of the textures can be accessed using 2D indices using the bracket operator. In the compute shader defined in $\$ 13.2$ , we index the texture based on the dispatch thread ID (thread IDs are discussed in $\ S 1 3 . 4 \AA ,$ ). Each thread is given a unique dispatch ID. 
 
-```txt
+```cpp
 [numthreads(16, 16, 1)]  
 void CS(int3 dispatchThreadID : SV_DispatchThreadID)  
 { // Data sources and outputs. Texture2D gInputA = DescriptorHeap[gIndexA]; Texture2D gInputB = DescriptorHeap[gIndexB]; RWTexture2D gOutput = DescriptorHeap[gOutputIndex]; // Sum the xyth texels and store the result in the xyth texel of // gOutput. gOutput[dispatchThreadID.xy] = gInputA[dispatchThreadID.xy] + gInputB[dispatchThreadID.xy]; } 
@@ -273,7 +273,7 @@ Note that we offset by half a texel so that the uvs coincide with the texel cent
 
 The following code shows a compute shader using integer indices, and a second equivalent version using texture coordinates and SampleLevel, where it is assumed the texture size is $5 1 2 \times 5 1 2$ and we only need the top level mip: 
 
-```txt
+```cpp
 //   
 // VERSION 1: Using integer indices.   
 //   
@@ -281,7 +281,7 @@ cbuffer cbUpdateSettings
 { float gWaveConstant0; float gWaveConstant1; float gWaveConstant2; 
 ```
 
-```txt
+```cpp
 float gDisturbMag; int2 gDisturbIndex; uint gIndexA; uint gIndexB; uint gOutputIndex;   
 };   
 [numthreads(16, 16, 1)] void CS(int3 dispatchThreadID : SV_DispatchThreadID) { // Data sources and outputs. Texture2D gInputA = ResourceDescriptorHeap[gIndexA]; Texture2D gInputB = ResourceDescriptorHeap[gIndexB]; RWTexture2D gOutput = ResourceDescriptorHeap[gOutputIndex]; int x = dispatchThreadID.x; int y = dispatchThreadID.y; gNextSolOutput[int2(x,y)] = gWaveConstants0*gPrevSolInput[int2(x,y)].r + gWaveConstants1*gCurrSolInput[int2(x,y)].r + gWaveConstants2*( gCurrSolInput[int2(x,y+1)].r + gCurrSolInput[int2(x,y-1)].r + gCurrSolInput[int2(x+1,y)].r + gCurrSolInput[int2(x-1,y)].r); }   
@@ -290,7 +290,7 @@ float gDisturbMag; int2 gDisturbIndex; uint gIndexA; uint gIndexB; uint gOutputI
 // cbuffer cbUpdateSettings { float gWaveConstant0; float gWaveConstant1; float gWaveConstant2; float gDisturbMag; int2 gDisturbIndex; uint gIndexA; uint gIndexB; uint gOutputIndex; }; [numthreads(16, 16, 1)] void CS(int3 dispatchThreadID : SV_DispatchThreadID) { // Data sources and outputs. Texture2D gInputA = ResourceDescriptorHeap[gIndexA]; 
 ```
 
-```txt
+```cpp
 Texture2D gInputB = DescriptorHeap[gIndexB]; RWTexture2D gOutput = DescriptorHeap[gOutputIndex]; // Equivalently using SampleLevel() instead of operator []; float x = dispatchThreadID.x + 0.5f; float y = dispatchThreadID.y + 0.5f; float2 c = float2(x,y)/512.0f; float2 t = float2(x,y-1)/512.0; float2 b = float2(x,y+1)/512.0; float2 l = float2(x-1,y)/512.0; float2 r = float2(x+1,y)/512.0; gNextSolOutput[int2(x,y)] = gWaveConstants0*gPrevSolInput.SampleLevel(GetPointClampSampler(), c, 0.0f).r + gWaveConstants1*gCurrSolInput.SampleLevel(GetPointClampSampler(), c, 0.0f).r + gWaveConstants2*( gCurrSolInput.SampleLevelToPointClampSampler(), b, 0.0f).r + gCurrSolInput.SampleLevel(GetPointClampSampler(), t, 0.0f).r + gCurrSolInput.SampleLevel(GetPointClampSampler(), r, 0.0f).r + gCurrSolInput.SampleLevel(GetPointClampSampler(), 1, 0.0f).r); } 
 ```
 
@@ -298,7 +298,7 @@ Texture2D gInputB = DescriptorHeap[gIndexB]; RWTexture2D gOutput = DescriptorHea
 
 The following examples show how structured buffers are defined in the HLSL: 
 
-```txt
+```cpp
 struct Data
 {
     float3 v1;
@@ -378,7 +378,7 @@ CopyResource does not execute immediately; it is a command put on the GPU comman
 
 We have included a structured buffer demo for this chapter called “VecAdd,” which simply sums the corresponding vector components stored in two structured buffers: 
 
-```txt
+```cpp
 struct Data
 {
     float3 v1;
@@ -468,7 +468,7 @@ for(int $\mathrm{i} = 0$ ；i $<$ NumDataElements；++i） { dataA[i].v1 $=$ XMF
 
 The resulting text file contains the following data, which confirms that the compute shader is working as expected. 
 
-```lisp
+```cpp
 (0, 0, 0, 0, 0)  
 (0, 2, 1, 1, -1)  
 (0, 4, 2, 2, -2)  
@@ -491,7 +491,7 @@ The resulting text file contains the following data, which confirms that the com
 (0, 38, 19, 19, -19) 
 ```
 
-```lisp
+```cpp
 (0, 40, 20, 20, -20)  
 (0, 42, 21, 21, -21)  
 (0, 44, 22, 22, -22)  
@@ -550,7 +550,7 @@ Regarding the indexing coordinate order, the first coordinate gives the x-positi
 
 So why do we need these thread ID values. Well a compute shader generally takes some input data structure and outputs to some data structure. We can use the thread ID values as indexes into these data structures: 
 
-```txt
+```cpp
 [numthreads(16, 16, 1)]  
 void CS(int3 dispatchThreadID : SV_DispatchThreadID)  
 { // Data sources and outputs. Texture2D gInputA = ResourceDescriptorHeap[gIndexA]; Texture2D gInputB = ResourceDescriptorHeap[gIndexB]; RWTexture2D gOutput = ResourceDescriptorHeap[gOutputIndex]; // Use dispatch thread ID to index into output and input textures. gOutput[dispatchThreadID.xy] = gInputA[dispatchThreadID.xy] + gInputB[dispatchThreadID.xy]; } 
@@ -562,7 +562,7 @@ The SV_GroupThreadID is useful for indexing into thread local storage memory (§
 
 Suppose we have a buffer of particles defined by the structure: 
 
-```txt
+```cpp
 struct Particle
 {
     float3 Position;
@@ -751,7 +751,7 @@ for (UINT i = 0; i < SwapChainBufferCount; i++)
 
 We instruct Direct3D to render to the back buffer by binding a render target view of the back buffer to the OM stage of the rendering pipeline: 
 
-```txt
+```cpp
 // Specify the buffers we are going to render to.  
 mCommandList->OMSetRenderTargets(1, &CurrentBackBufferView(), true, &DepthStencilView()); 
 ```
@@ -957,7 +957,7 @@ Figure 13.13. Situations where we can read outside the bounds of the image.
 
 Reading from an out-of-bounds index is not illegal—it is defined to return 0 (and writing to an out-of-bounds index results in a no-op). However, we do not want to read 0 when we go out-of-bounds, as it means 0 colors (i.e., black) will make their way into the blur at the boundaries. Instead, we want to implement something analogous to the clamp texture address mode, where if we read an out-of-bounds value, it returns the same value as the boundary texel. This can be implemented by clamping the indices: 
 
-```txt
+```cpp
 // Clamp out of bound samples that occur at image borders. // Note: Need int cast since subtracting. int x = max((int)dispatchThreadID.x - gBlurRadius, 0); gCache[groupId.x] = gInput[uint2(x, dispatchThreadID.y)]; 
 ```
 
@@ -1007,7 +1007,7 @@ void VertBlurCS(zuint3 groupThreadID : SV_GroupThreadID,
                     uint3 dispatchThreadID : SV_DispatchThreadID) 
 ```
 
-```lisp
+```cpp
 Texture2D gInput = ResourceDescriptorHeap[gBlurInputIndex];  
 RWTexture2D<float4> gOutput = ResourceDescriptorHeap[gBlurOutputIndex];  
 uint2 imgDims;  
@@ -1036,14 +1036,14 @@ for(int i = -gBlurRadius; i <= gBlurRadius; ++i)
 { int k = groupThreadID.y + gBlurRadius + i; int float4Index = (i+gBlurRadius) / 4; int slotIndex = (i+gBlurRadius) & 0x3; float weight = gWeightVec[float4Index][slotIndex]; blurColor += weight*gCache[k]; 
 ```
 
-```txt
+```cpp
 }  
 gOutput[dispatchThreadID.xy] = blurColor; 
 ```
 
 For the last line 
 
-```txt
+```cpp
 gOutput[dispatchThreadID.xy] = blurColor; 
 ```
 
@@ -1104,7 +1104,7 @@ VertexOut VS(VERTEXin vin)
 { VertexOut vout = (VertexOut)0.0f; 
 ```
 
-```lisp
+```cpp
 if WAVES_VS
     uint wavesBufferIndex = gMiscUint3.x;
     uint wavesGridWidth = gMiscUint3.y;
@@ -1167,13 +1167,13 @@ Figure 13.15. Multiplying the original image by the inverse of the edge detectio
 
 Use render-to-texture and a compute shader to implement the Sobel Operator. After you have generated the edge detection image, multiply the original image with the inverse of the image generated by the Sobel Operator to get the results shown in Figure 13.15. The necessary shader code is included below: 
 
-```txt
+```cpp
 //  
 // Performs edge detection using Sobel operator.  
 // 
 ```
 
-```txt
+```cpp
 // Approximates luminance ("brightness") from an RGB value.   
 // These weights are derived from experiment based on eye   
 // sensitivity to different wavelengths of light. float CalcLuminance(float3 color) { return dot(color, float3(0.299f, 0.587f, 0.114f));   
@@ -1190,7 +1190,7 @@ void SobelCS(int3 dispatchThreadID : SV_DispatchThreadID) { Texture2D gInput = R
 // Make edges black, and nonedges white. mag = 1.0f - saturate(CalcLuminance(mag.rgb)); 
 ```
 
-```txt
+```cpp
 gOutput[dispatchThreadID.xy] = mag;   
 }   
 //**********   

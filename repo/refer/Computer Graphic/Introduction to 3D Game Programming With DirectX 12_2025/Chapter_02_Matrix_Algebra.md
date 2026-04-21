@@ -1,6 +1,4 @@
-# Chapter 2
-
-# Matrix Al gebra
+# Chapter 2 Matrix Algebra
 
 In 3D computer graphics, we use matrices to compactly describe geometric transformations such as scaling, rotation, and translation, and also to change the coordinates of a point or vector from one frame to another. This chapter explores the mathematics of matrices. 
 
@@ -509,7 +507,7 @@ As you can see, XMMATRIX uses four XMVECTOR instances to use SIMD. Moreover, XMM
 
 In addition to using the various constructors, an XMMATRIX instance can be created using the XMMatrixSet function: 
 
-```txt
+```cpp
 XMMMATRIX XM_CALLCONV XMMMatrixSet( float m00, float m01, float m02, float m03, float m10, float m11, float m12, float m13, float m20, float m21, float m22, float m23, float m30, float m31, float m32, float m33); 
 ```
 
@@ -532,20 +530,20 @@ struct XMFLOAT4X4
 } 
 ```
 
-```txt
+```cpp
 float operator() (size_t Row, size_t Column) const { return m[Row] [Column]; } float& operator() (size_t Row, size_t Column) { return m[Row] [Column]; } XMFLOAT4X4& operator = (const XMFLOAT4X4& Float4x4); }; 
 ```
 
 We use the following method to load data from XMFLOAT4X4 into XMMATRIX: 
 
-```txt
+```cpp
 inline XMMMATRIX XM_CALLCONV  
 XMLoadFloat4x4(const XMFLOAT4X4* pSource); 
 ```
 
 We use the following method to store data from XMMATRIX into XMFLOAT4X4: 
 
-```txt
+```cpp
 inline void XM_CALLCONV  
 XMStoreFloat4x4(XMFLOAT4X4* pDestination, FXMMATRIX M); 
 ```
@@ -602,7 +600,7 @@ ostream& XM_CALLCONV operator << (ostream& os, FXMVECTOR v)
 } 
 ```
 
-```txt
+```cpp
 ostream& XM_CALLCONV operator << (ostream& os, FXMMATRIX m)
 {
     for (int i = 0; i < 4; ++i)

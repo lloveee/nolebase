@@ -699,7 +699,7 @@ public static Quaternion LerpAndNormalize(Quaternion p,Quaternion q, float s)
 public static Quaternion Slerp(Quaternion p,Quaternion q,float s)   
 { //Recall that q and -q represent the same orientation,but interpolating // between the two is different: One will take the shortest arc and one //will take the long arc.To find the shortest arc, compare the magnitude //of $\mathfrak{p}\text{-}\mathfrak{q}$ with the magnitude $\mathrm{p - (-q) = p + q}$ if(LengthSq(p-q)>LengthSq(p+q)) $\mathrm{q} = -\mathrm{q};$ float cosPhi $=$ DotP(p,q); //For very small angles,use linear interpolation. if(cosPhi>(1.0f-0.001)) return LerpAndNormalize(p,q,s); //Find the angle between the two quaternions. float phi $=$ (float)Math.Acos(cosPhi); float sinPhi $=$ (float)Math.Sin(phi); 
 
-```txt
+```cpp
 // Interpolate along the arc formed by the intersection of the 4D unit sphere and // the plane passing through p, q, and the origin of the unit sphere. return ((float)Math.Sin(phi* (1.0-s)) / sin Phi) *p + ((float) Math. Sin (phi* s) / sin Phi) *q; } 
 ```
 
@@ -715,24 +715,24 @@ The DirectX math library supports quaternions. Because the “data” of a quate
 
 // Returns the norm of the quaternion $\mathbf{Q}$ XMVECTOR XMQuaternionLength(XMVECTOR Q); 
 
-```txt
+```cpp
 // Normalizes a quaternion by treating it as a 4D vector.  
 XMVECTOR XMQuaternionNormalize(XMVECTOR Q); 
 ```
 
 //Computesthequaternionproduct $\mathbf{Q}_1\mathbf{Q}_2$ XMVECTORXMQuaternionMultiply(XMVECTORQ1，XMVECTORQ2); 
 
-```txt
+```cpp
 // Returns a quaternions from axis-angle rotation representation.  
 XMVECTOR XMQuaternionRotationAxis(XMVECTOR Axis, FLOAT Angle); 
 ```
 
-```txt
+```cpp
 // Returns a quaternions from axis-angle rotation representation, where the axis // vector is normalized—this is faster than XMQuaternionRotationAxis.  
 XMVector XMQuaternionRotationNormal(XMVECTOR NormalAxis, FLOAT Angle); 
 ```
 
-```txt
+```cpp
 // Returns a quaternion from a rotation matrix.  
 XMVECTOR XMQuaternionRotationMatrix(XMMatrix M); 
 ```
@@ -784,7 +784,7 @@ The reason for using the term “bone” will be made clear in the next Chapter.
 
 We now have a list of key frames, which define the rough overall look of the animation. So how will the animation look at time between the key frames? This is where interpolation comes in. For times $t$ between two key frames, say $K _ { i }$ and $K _ { i + 1 }$ , we interpolate between the two key frames $K _ { i }$ and $K _ { i + 1 }$ . 
 
-```txt
+```cpp
 void BoneAnimation::Interpolate(float t, XM FLOAT4X4& M) const
 {
 // t is before the animation started, so just return the first key frame.
@@ -834,7 +834,7 @@ XMStoreFloat4x4(&M, XMMatrixAffineTransformation(S, zero, Q, P));
 Figure 22.11. Key frame interpolation. The key frames define the “key” poses of the animation. The interpolated values represent the values between the key frames.
 
 
-```txt
+```cpp
 break; } 1 1 1 
 ```
 
@@ -861,7 +861,7 @@ Now that our simple animation system is in place, the next part of our demo is t
 float mAnimTimePos $= 0$ .0f; BoneAnimation mSkullAnimation;   
 // 
 
-```txt
+```cpp
 // In constructor, define the animation keyframes
 //  
 void QuatApp::DefineSkullAnimation()

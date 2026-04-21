@@ -1,6 +1,6 @@
 # Chapter
 
-# 26 Ampl ification and Mesh Shaders
+# 26 Amplification and Mesh Shaders
 
 If you think about it, a compute shader can basically do what a vertex shader does. We could dispatch a thread per vertex input and write to an output buffer that contains the output vertices. Observe that with the compute shader model, we do not need an input layout; the computer shader is written to expect a certain input type. Taking this idea further, you might suggest that we could also have the compute shader write out vertex indices to an index buffer that form triangles (or lines). Then we could issue a draw call to draw the geometry. A compute shader has quite a bit of flexibility: If each thread group were processing a local patch of geometry, you could implement culling at patch granularity, or given a single geometric primitive, you could write out multiple vertices and indices to generate additional geometry, thus emulating the geometry shader. 
 
@@ -81,14 +81,14 @@ out primitives PrimitiveOut outPrimitiveInfo[MAX_MS_TRIS])
 
 Because a mesh shader links to the rasterizer, we need to specify the kind of primitive we are outputting. This can either be “triangle” or “line,” and this is done with one of the following attributes: 
 
-```txt
+```cpp
 [outputtopology("triangle")]  
 [outputtopology("line")] 
 ```
 
 As mentioned earlier, a mesh shader is basically a special compute shader, so we specify the thread group size with the [numthreads(X, Y, Z)] attribute just like we would with a compute shader. The number of threads per thread group must be less than or equal to 128. Furthermore, we get access to the usual compute shader system values: 
 
-```txt
+```cpp
 uint3groupId:SV_GroupID,  
 uint3groupId :SV_GroupThreadID,  
 uint3dispatchThreadId:SV_DispatchThreadID, 
@@ -110,7 +110,7 @@ The SetMeshOutputCounts function is a special intrinsic function that specifies 
 
 Finally, there is a restriction on setting the output indices: we must assign an entire uint3 at a time. That is, the following would be illegal: 
 
-```txt
+```cpp
 outIndices[primIndex].x = 0;  
 outIndices[primIndex].y = 1;  
 outIndices[primIndex].z = 2; 
@@ -135,7 +135,7 @@ An initial approach would be to just divide the mesh up into a collection of mes
 
 Fixing this requires another level of indirection and motivates the following data structure for describing a mesh with meshlets. 
 
-```txt
+```cpp
 struct Meshlet
 {
     // Range of vertex indices that indirectly
@@ -149,7 +149,7 @@ struct Meshlet
 }; 
 ```
 
-```txt
+```cpp
 // Vertex indices for all meshlets in the mesh.  
 ByteAddressBuffer UniqueVertexIndices : register(t2);  
 // Unique vertex array for all meshlets in the mesh  
@@ -175,14 +175,14 @@ void main(
 
 We use the local group thread ID to index the primitive data. The indices stored in PrimitiveIndices are already meshlet indices (i.e., indices relative to the meshlet vertex array) so they can be written to the output indices directly: 
 
-```txt
+```cpp
 if (gtid < m.PrimCount)  
 { tris[gtid] = UnpackPrimitive(PrimitiveIndices[m.PrimOffset + gtid]); } 
 ```
 
 where, 
 
-```txt
+```cpp
 uint3 UnpackPrimitive uint primitive)   
 { // Unpacks a 10 bits per index triangle from a 32-bit uint. return uint3(primitive & 0x3FF, (primitive >> 10) & 0x3FF, (primitive >> 20) & 0x3FF);   
 } 
@@ -203,7 +203,7 @@ Figure 26.3. A meshlet with 4 vertices and 6 triangle indices. The 4 vertex indi
 
 indices instead of an array of vertices. So, for each vertex in the meshlet, we fetch the vertex index, and then use this to index into the vertex buffer: 
 
-```txt
+```cpp
 uint GetVertexIndex(Meshlet m, uint localIndex)  
 {  
     localIndex = m.VertOffset + localIndex;  
@@ -247,7 +247,7 @@ CD3DX12_PIPELINE_STATE_STREAMDepthStencil DepthStencilDesc;
 
 Then, we fill out our user-defined PSO structure like we would a usual PSO description. 
 
-```txt
+```cpp
 DXGI_FORMAT particlesPsoFormats[8] =  
 {  
     backBufferFormat,  
@@ -351,7 +351,7 @@ Now we can generate particles along the helix curve by evaluating the above equa
 
 This generates equally spaced particles on the helix, but there will be no motion. If we rotate the helix about the y-axis over time, it actually looks like the particles are “flowing” down the helix and it gives a neat magical spell type effect. This rotation is achieved by offsetting $t$ (for the $x \cdot$ - and $z$ -coordinates only) by the total time and some speed factor to control how fast the rotation happens: 
 
-```txt
+```cpp
 // Generate position along the helix and rotate with time.  
 const float x = gHelixRadius * cos(gHelixAngularFrequency * (t + gHelixSpeed*gTotalTime));  
 const float z = gHelixRadius * sin(gHelixAngularFrequency * (t + gHelixSpeed*gTotalTime));  
@@ -362,7 +362,7 @@ const float3 centerW = gHelixOrigin + float3(x, y, z);
 
 Note that we use the following constant buffer to control the various properties of the helix: 
 
-```txt
+```cpp
 DEFINE_CBUFFER(HelixParticlesCB, b0)  
 {  
     float4 gHelixColorTint;  
@@ -452,7 +452,7 @@ outIndices[localParticleId\*2+0] $=$ baseVertexIndex + uint3(0, 1, 2); outIndice
 
 The pixel shader for this demo is just a texture sample and color tint: 
 
-```txt
+```cpp
 float4 PS(VertexOut pin) : SV_Target{ 
 ```
 
@@ -465,7 +465,7 @@ We have seen that a mesh shader processes a meshlet; it can do per-vertex things
 
 The amplification shader is another special compute shader. Each amplification shader group can dispatch a grid of child mesh shaders, thus amplifying geometry. Furthermore, each amplification shader group can have its own shared memory, often called a payload, that the amplification shader group can write to and propagate to its child mesh shaders. Below is a skeleton of an amplification shader and associated mesh shader with some implementation details omitted. 
 
-```txt
+```cpp
 struct AmpShaderPayload
 {
     // user-defined data, but must be <= 16KB;
@@ -488,7 +488,7 @@ groupshared AmpShaderPayload gPayload;
 } 
 ```
 
-```txt
+```cpp
 // Corresponding child mesh shaders receives payload as an input parameter.   
 [outputtopology("triangle")]   
 [numthreads(8, 8, 1)]   
@@ -527,7 +527,7 @@ define MAX_MS_CELLS_PER_SIDE 8
 #define MAX_MS_VERTS ((MAX_MS_CELLS_PER_SIDE + 1) * (MAX_MS_CELLS_PER_SIDE + 1)) 
 ```
 
-```txt
+```cpp
 groupshared PatchPayload gPayload;   
 //   
 // Each thread processes a quad patch.   
@@ -570,7 +570,7 @@ DispatchMesh(dispatchX, dispatchY, dispatchZ, gPayload);
 
 The corresponding mesh shader looks complicated, but it is mostly bookkeeping. Each quad patch is divided into grid of meshlets, and each meshlet is divided into a group of cells (actual quads we break into two triangles for rendering). The first thing to do is set the number of vertices and primitives the mesh shader will output. This comes from the payload.MeshletCellsPerSide. 
 
-```txt
+```cpp
 const uint cellsPerSide = payload.MeshletCellsPerSide;  
 const uint vertsPerSide = cellsPerSide + 1;  
 const uint numVerts = vertsPerSide * vertsPerSide;  
@@ -601,7 +601,7 @@ const float2 v3 = vertexBuffer[index3].xy;
 
 The rest is having each thread in the mesh shader process at least one vertex (some threads have to process more than one vertex) and a single cell in the mesh shader. 
 
-```txt
+```cpp
 [outputtopology("triangle")]  
 [numthreads(8, 8, 1)]  
 void TerrainMS()  
@@ -650,7 +650,7 @@ const float meshletSizeInUVs $=$ payload.MeshletSizeInUVs; const float cellSpaci
 
 float2 vertPos $=$ lerp( lerp(v0.xy, v1.xy, vertU), lerp(v2.xy, v3.xy, vertU), vertV); const uint vindex $=$ cellY \* VertsPerSide + cellX; outVertices[vindex] $=$ ProcessVertex( vertPos); // Some threads need to process an extra vertex to // handle right/bottom edge. // Remember, a quad patch can be covered by several meshlets. if(cellX $= =$ (cellsPerSide-1)) // right edge { const uint nextVertIndex $=$ vindex + 1; float2 nextVert $=$ lerp( lerp(v0.xy, v1.xy, vertU + cellSpacingInUVs), lerp(v2.xy, v3.xy, vertU + cellSpacingInUVs), vertV); outVertices[nextVertIndex] $=$ ProcessVertex( nextVert ); } if(cellY $= =$ (cellsPerSide-1)) // bottom edge { const uint nextVertIndex $=$ (cellY+1) \* VertsPerSide + cellX; float2 nextVert $=$ lerp( lerp(v0.xy, v1.xy, vertU), lerp(v2.xy, v3.xy, vertU), vertV + cellSpacingInUVs); outVertices[nextVertIndex] $=$ ProcessVertex( nextVert ); } if(cellX $= = 0\& \&$ cellY $= = 0$ // bottom-right vertex. { const uint lastVertIndex $=$ numVertices - 1; const float meshletRightEdgeU $=$ patchOffsetU + cellsPerSide \* cellSpacingInUVs; const float meshletBottomEdgeV $=$ patchOffsetV + cellsPerSide \* cellSpacingInUVs; float2 lastVert $=$ lerp( lerp(v0.xy, v1.xy, meshletRightEdgeU), lerp(v2.xy, v3.xy, meshletRightEdgeU), meshletBottomEdgeV); outVertices[lastVertIndex] $=$ ProcessVertex( lastVert ); } } // Process meshlet cell indices. These are relative to outVertices. 
 
-```txt
+```cpp
 if( cellX < cellsPerSide && cellY < cellsPerSide ) { const uint i0 = cellY * voltsPerSide + cellX; const uint i1 = cellY * voltsPerSide + cellX + 1; const uint i2 = (cellY+1) * voltsPerSide + cellX; const uint i3 = (cellY+1) * voltsPerSide + cellX + 1; const uint cellIndex = cellY * cellsPerSide + cellX; outIndices[cellIndex*2 + 0] = uint3(i0, i1, i2); outIndices[cellIndex*2 + 1] = uint3(i2, i1, i3); } 
 ```
 

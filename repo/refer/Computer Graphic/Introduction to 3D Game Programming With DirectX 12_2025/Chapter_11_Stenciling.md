@@ -35,7 +35,7 @@ Recalling that the depth/stencil buffer is a texture, it must be created with ce
 
 In our D3DApp framework, when we create the depth buffer, we specify: 
 
-```txt
+```cpp
 DXGI_FORMAT mDepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UID; depthStencilDesc.Format = mDepthStencilFormat; 
 ```
 
@@ -59,7 +59,7 @@ void ID3D12GraphicsCommandList::ClearDepthStencilView( D3D12_CPU DescriptorHandl
 
 We have already been calling this method every frame in our demos. For example: 
 
-```txt
+```cpp
 mCommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr); 
 ```
 
@@ -151,13 +151,13 @@ if( StencilRef & StencilReadMask $\trianglelefteq$ Value & StencilReadMask) acce
 
 The default does not mask any bits: 
 
-```txt
+```cpp
 define D3D12_DEFAULT_STENCIL_READ_MASK (0xff) 
 ```
 
 3. StencilWriteMask: When the stencil buffer is being updated, we can mask off certain bits from being written to with the write mask. For example, if you wanted to prevent the top 4 bits from being written to, you could use the write mask of 0x0f. The default value does not mask any bits: 
 
-```txt
+```cpp
 define D3D12_DEFAULT_STENCIL_WRITE_MASK (0xff) 
 ```
 
@@ -264,7 +264,7 @@ using the stencil buffer because the stencil buffer allows us to block rendering
 
 3. Render the mirror only to the stencil buffer. We can disable color writes to the back buffer by creating a blend state that sets 
 
-```txt
+```cpp
 D3D12 RENDER TARGET BLEND DESC::RenderTargetWriteMask = 0; 
 ```
 
@@ -356,7 +356,7 @@ reflectionsDSS.StencilReadMask = 0xff;
 reflectionsDSS.StencilWriteMask = 0xff; 
 ```
 
-```txt
+```cpp
 reflectionsDSS.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
 reflectionsDSS.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
 reflectionsDSS.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
@@ -562,7 +562,7 @@ matLib.AddMaterial("shadowMat", texLib["defaultDiffuseMap"], texLib["defaultNorm
 
 In order to prevent double blending we set up the following PSO with depth/ stencil state: 
 
-```txt
+```cpp
 // We are going to draw shadows with transparency, so base it off  
 // the transparency description.  
 D3D12_DEPTH_STENCIL_DESC shadowDSS;  
@@ -597,7 +597,7 @@ DrawRenderItems(mCommandList.Get(), mRItemLayer[(int) RenderLayer::Shadow]);
 
 where the skull shadow render-item’s world matrix is computed like so: 
 
-```txt
+```cpp
 // Update shadow world matrix.  
 XMVECTOR shadowPlane = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f); // xz plane  
 XMVECTOR toMainLight = -XMLoadFloat3(&mMainPassCBLights[0].Direction);  
@@ -638,7 +638,7 @@ depthStencilDesc.DepthFunc $=$ D3D12_COMPARISON LESS;
 
 Next, draw the skull behind the wall with the depth settings: 
 
-```txt
+```cpp
 depthStencilDesc.DepthEnable = true;  
 depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;  
 depthStencilDesc.DepthFunc = D3D12_COMPARISON LESS; 
@@ -646,7 +646,7 @@ depthStencilDesc.DepthFunc = D3D12_COMPARISON LESS;
 
 Does the wall occlude the skull? Explain. What happens if you use the following to draw the wall instead? 
 
-```txt
+```cpp
 depthStencilDesc.DepthEnable = true;  
 depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;  
 depthStencilDesc.DepthFunc = D3D12_COMPARISON LESS; 
@@ -703,7 +703,7 @@ Note:
 
 We mentioned the ability to modify the depth of a pixel in the pixel shader. How does that work? A pixel shader can actually output a structure, not just a single color vector as we have been doing thus far: 
 
-```txt
+```cpp
 struct PixelOut
 {
     float4 color : SV_Target;
@@ -716,7 +716,7 @@ PixelOut PS(VertexOut pin)
     pout.Color = float4(litColor, alpha); 
 ```
 
-```txt
+```cpp
 // set pixel depth in normalized [0, 1] range  
 pout.depth = pin(PosH.z - 0.05f;  
 return pout; 

@@ -200,14 +200,14 @@ void SkinnedData::GetFinalTransforms(const std::string& clipName, float timePos,
 
 There is one requirement needed to make this work. When we traverse the bones in the loop, we look up the to-root transform of the bone’s parent: 
 
-```txt
+```cpp
 int parentIndex = mBoneHierarchy[i];  
 XMMatrix parentToRoot = XmlFloat4x4(&toRootTransforms[parentIndex]); 
 ```
 
 This only works if we are guaranteed that the parent bone’s to-root transform has already been processed earlier in the loop. We can, in fact, make this guarantee if we ensure that the bones are always ordered in the arrays such that a parent bone always comes before a child bone. Our sample 3D data has been generated such that this is the case. Here is some sample data of the first ten bones in the hierarchy array of some character model: 
 
-```txt
+```cpp
 ParentIndexedBone0: -1  
 ParentIndexedBone1: 0  
 ParentIndexedBone2: 0  
@@ -310,7 +310,7 @@ We use a text file to store a 3D skinned mesh with animation data. We call this 
 
 At the beginning, the .m3d format defines a header which specifies the number of materials, vertices, triangles, bones, and animations that make up the model: 
 
-```txt
+```cpp
 \*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*m3d-File-Header\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*  
 #Materials 3  
 #Vertices 3121  
@@ -361,7 +361,7 @@ A mesh consists of one or more subsets. A subset is a group of triangles in a me
 
 There is a subset corresponding to each material and the ith subset corresponds to the ith material. The ith subset defines a contiguous block of geometry that should be rendered with the ith material. 
 
-```txt
+```cpp
 ******SubsetTable******  
 SubsetID: 0 VertexStart: 0 VertexCount: 3915 FaceStart: 0 FaceCount: 7230  
 SubsetID: 1 VertexStart: 3915 VertexCount: 2984 FaceStart: 7230  
@@ -387,7 +387,7 @@ In the above example, the first 7230 triangles of the mesh (which reference vert
 
 The next two chunks of data are just lists of vertices and indices (3 indices per triangle): 
 
-```txt
+```cpp
 **********Vertices**********  
 Position: -14.34667 90.44742 -12.08929  
 Tangent: -0.3069077 0.2750875 0.9111171 1  
@@ -432,7 +432,7 @@ BoneOffset1 1 4.884964E-07 3.025227E-07 0
 
 The hierarchy chunk stores the hierarchy array—an array of integers such that the ith array entry gives the parent index of the ith bone. To reiterate, these are ordered such that a parent bone always comes before a child bone. In this way, we can compute the final transforms top-down, as shown in $\ S 2 3 . 2 . 5$ . 
 
-```txt
+```cpp
 **********BoneHierarchy**********  
 ParentIndexOfBone0: -1  
 ParentIndexOfBone1: 0  
@@ -454,7 +454,7 @@ ParentIndexOfBone13: 12
 
 The last chunk we need to read are the animation clips. Each animation has a readable name and a list of key frames for each bone in the skeleton. Each key frame stores the time position, the translation vector specifying the position of the bone, the scaling vector specifying the bone scale, and the quaternion specifying the orientation of the bone. 
 
-```txt
+```cpp
 \*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*  
 AnimationClip run_loop  
 {Bone0 #Keyframes: 18Time:0Pos:2.538344 101.6727 -0.52932Scale:111Quat:0.4042651 0.3919331 -0.5853591 0.5833637Time:0.0666666Pos:0.81979 109.6893 -1.575387Scale:0.9999998 0.9999998 0.9999998Quat:0.4460441 0.3467651 -0.5356012 0.6276384...}  
@@ -466,7 +466,7 @@ AnimationClip walk_loop
 Bone1 #Keyframes: 33Time:OPos:-5.831432 2.521564 93.75848Scale:0.9999995 0.9999995 1Quat:-0.033817 -0.000631005 0.9097761 0.4137191Time:0.0333333Pos:-5.688324 2.551427 93.71078 
 ```
 
-```txt
+```cpp
 Scale:0.9999998 0.99999981 Quat:-0.033202-0.0006390021 0.903874 0.426508 } ...   
 } 
 ```
@@ -644,7 +644,7 @@ DEFINE_CBUFFER(SkinnedCB，b2) float4x4 gBoneTransforms[96];
 
 For this, we reserve another root CBV in our root signature: 
 
-```txt
+```cpp
 CD3DX12_ROOT_PARAMETER gfxRootParameters[GFX_ROOT.Arg_COUNT];  
 gfxRootParameters[GFX_ROOT.Arg_OBJECT_CBV].InitAsConstantBufferView(0);  
 gfxRootParameters[GFX_ROOT.Arg_PASS_CBV].InitAsConstantBufferView(1);  
@@ -669,7 +669,7 @@ struct SkinnedModelInstance
 
 Then we add the following data member to our render-item structure: 
 
-```txt
+```cpp
 struct RenderItem
 {
     [...]

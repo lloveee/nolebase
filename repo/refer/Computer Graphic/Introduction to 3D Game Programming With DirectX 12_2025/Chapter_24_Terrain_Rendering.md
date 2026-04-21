@@ -41,7 +41,7 @@ constexpr float MaxUShort $=$ static_cast<float>( std::numeric_limits<uint16_t>:
 Figure 24.2. Examples of heightmaps. Observe how the heights, as described by the heightmaps, build different terrain surfaces.
 
 
-```txt
+```cpp
 for (UINT i = 0; i < in.size(); ++i)  
 {  
     float heightUnorm = heightMap[i] / MaxUShort;  
@@ -177,14 +177,14 @@ static const int CellsPerPatch $\qquad = \quad 3 2$ ;
 Figure 24.5. For illustration purposes, we use smaller numbers. The maximum tessellated terrain grid has $1 7 \times 2 5$ vertices and $1 6 \times 2 4$ cells. We divide the grid into a grid of patches such that each patch covers $8 \times 8$ cells or $9 \times 9$ vertices. This induces a $2 \times 3$ grid of patches.
 
 
-```txt
+```cpp
 mNumPatchVertRows = ((mInfo.HeightmapHeight-1) / CellsPerPatch) + 1;  
 mNumPatchVertCols = ((mInfo.HeightmapWidth-1) / CellsPerPatch) + 1; 
 ```
 
 And the total number of patch vertices and quad patch primitives are calculated by: 
 
-```txt
+```cpp
 mNumPatchVertices = mNumPatchVertRows * mNumPatchVertCols;  
 mNumPatchQuadFaces = (mNumPatchVertRows-1) * (mNumPatchVertCols-1); 
 ```
@@ -235,7 +235,7 @@ CreateStaticBuffer (md3dDevice, uploadBatch,
 
 Since we are using tessellation, the vertex shader operates per control point. Our vertex shader is almost a simple pass-through shader, except that we do displacement mapping for the patch control points by reading the heightmap value. This puts the y-coordinates of the control points at the proper height. The reason for doing this is that in the hull shader, we are going to compute the distance between each patch and the eye; having the patch corners offset to the proper height makes this distance calculation more accurate than having the patch in the $_ { x z }$ -plane. 
 
-```txt
+```cpp
 struct VertexOut
 {
     float3 PosW : POSITION;
@@ -248,7 +248,7 @@ VertexOut VS(float4 vin : POSITION)
     float2 bottomLeft = -0.5f*gTerrainWorldSize; 
 ```
 
-```txt
+```cpp
 float3 posL = float3(vin.x, 0.0f, vin.y);  
 float2 texC = (posL.xz - bottomLeft) / gTerrainWorldSize;  
 texC.y = 1.0f - texC.y;  
@@ -287,7 +287,7 @@ float gTerrainMaxTess;
 float CalcTessFactor(float3 p)  
 { 
 
-```txt
+```cpp
 float d = distance(p, gEyePosW);  
 float s = saturate((d - gTerrainMinTessDist) / (gTerrainMaxTessDist - gTerrainMinTessDist));  
 return pow(2, (lerp(gTerrainMaxTess, gTerrainMinTess, s))); 
@@ -297,7 +297,7 @@ We use power of 2 because this means at each finer level of detail, the number o
 
 Now in the constant hull shader function, we apply this function to the patch midpoint, and the patch edge midpoints to compute the tessellation factors: 
 
-```txt
+```cpp
 struct PatchTess {
     float EdgeTess[4] : SV_TessFactor;
     float InsideTess[2] : SV_InsideTessFactor;
@@ -335,7 +335,7 @@ pt.EddgTess[1] $=$ CalcTessFactor(e1); pt.EddgTess[2] $=$ CalcTessFactor(e2); pt
 
 Recall that the domain shader is like the vertex shader for tessellation. The domain shader is evaluated for each generated vertex. Our task in the domain shader is to use the parametric $( u , \nu )$ coordinates of the tessellated vertex positions to interpolate the control point data to derive the actual vertex positions and texture coordinates. In addition, we sample the terrain heightmap and material heightmaps to perform displacement mapping. 
 
-```txt
+```cpp
 struct DomainOut
 {
     float4 PosH : SV_POSITION;
@@ -356,7 +356,7 @@ struct DomainOut
 } 
 ```
 
-```txt
+```cpp
 // Displacement mapping
 // 
 if( gUseTerrainHeightMap )
@@ -395,7 +395,7 @@ $$
 
 We take the negative $z$ direction because that direction corresponds to the texture space $\nu$ -axis; these vectors also help form the tangent space for normal mapping. Once we have estimates of the tangent vectors in the positive $x \cdot$ - and negative $z \mathrm { . }$ -directions, we compute the normal via the cross product: 
 
-```txt
+```cpp
 void EstimateTangentFrame(float2 texC, out float3 outTangentW, out float3 outBitangentW, 
 ```
 
@@ -422,7 +422,7 @@ Terrains generally cover a vast area and many of our patches will not be seen by
 
 In order to do frustum culling, we need two ingredients: we need the view frustum planes, and we need a bounding volume about each patch. Exercise  2 of Chapter 16 explained how to extract the view frustum planes. Code that implements the solution to this exercise is as follows (implemented in MathHelper.h/MathHelper.cpp): 
 
-```txt
+```cpp
 void MathHelper::ExtractFrustumPlanes(const Matrix& M, XMFLOAT4 outPlanes[6])  
 { Plane planes[6]; // // Left planes[0].x = M(0, 3) + M(0, 0); planes[0].y = M(1, 3) + M(1, 0); planes[0].z = M(2, 3) + M(2, 0); planes[0].w = M(3, 3) + M(3, 0); // Right planes[1].x = M(0, 3) - M(0, 0); planes[1].y = M(1, 3) - M(1, 0); planes[1].z = M(2, 3) - M(2, 0); planes[1].w = M(3, 3) - M(3, 0); // Bottom planes[2].x = M(0, 3) + M(0, 1); planes[2].y = M(1, 3) + M(1, 1); planes[2].z = M(2, 3) + M(2, 1); planes[2].w = M(3, 3) + M(3, 1); 
 ```
@@ -450,7 +450,7 @@ void Terrain::CalcAllPatchBoundsY()
     mPatchBoundsY resize(mNumPatchQuadFaces); 
 ```
 
-```txt
+```cpp
 // For each patch
 for (UINT i = 0; i < mNumPatchVertRows-1; ++i)
 {
@@ -461,7 +461,7 @@ for (UINT i = 0; i < mNumPatchVertRows-1; ++i)
 } 
 ```
 
-```txt
+```cpp
 mPatchBoundsY[patchID].y; } 1 [] 
 ```
 
@@ -500,7 +500,7 @@ bool AabbOutsideFrustumTest(float3 center, float3 extents, float4 frustumPlanes[
 PatchTess ConstantHS(InputPatch<VertexOut, 4> patch, uint patchID : SV_PrimitiveID) { PatchTess pt; // // Frustum cull // // We store the patch BoundsY in the first control point. float minY = patch[0].BoundsY.x; float maxY = patch[0].BoundsY.y; // Build axis-aligned bounding box. patch[2] is lower-left corner // and patch[1] is upper-right corner. float3 vMin = float3(patch[2].PosW.x, minY, patch[2].PosW.z); float3 vMax = float3(patch[1].PosW.x, maxY, patch[1].PosW.z); float3 boxCenter = 0.5f*(vMin + vMax); // Inflate box a bit to compensate for material layer // displacement mapping which we did not account for // when we computed the patch bounds. float3 boxExtents = 0.5f*(vMax - vMin) + float3(1, 1, 1); if(AabbOutsideFrustumTest.boxCenter, boxExtents, gWorldFrustumPlanes)) { pt.EdgEiss[0] = 0.0f; pt.EdgEiss[1] = 0.0f; pt.EdgEiss[2] = 0.0f; pt.EdgEiss[3] = 0.0f; pt.InsiderTess[0] = 0.0f; pt.InsiderTess[1] = 0.0f; 
 ```
 
-```txt
+```cpp
 return pt;   
 1   
 //   
@@ -663,7 +663,7 @@ Figure 24.12. (a) Computing two vectors on the upper-triangle edges. (b) The hei
 
 the height is obtained by the sum $A + s u _ { y } + t \nu _ { y }$ . Thus the conclusion of the Terrain::GetHeight code is as follows: 
 
-```lisp
+```cpp
 // If upper triangle ABC.  
 if(s + t <= 1.0f)  
 { float uy = B - A; float vy = C - A; return A + s*uy + t*vy; } else // lower triangle DCB. { float uy = C - D; float vy = B - D; return D + (1.0f-s)*uy + (1.0f-t)*vy; } 
@@ -699,7 +699,7 @@ c. Bind the heightmap as a shader resource. In the domain shader, perform displa
 
 4. We use continuous level of detail with the fractional_even tessellation mode. For debugging purposes, make the following changes to the CalcTessFactor function to make it easier to see the different LOD levels of the terrain. 
 
-```txt
+```cpp
 float CalcTessFactor(float3 p)   
 { //maxnorminxzplane(useful to see detail levels 
 ```

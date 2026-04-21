@@ -1,9 +1,4 @@
-# Chapter
-
-# 9
-
-# Tex turing
-
+# Chapter 9 Texturing
 Our demos are getting a little more interesting, but the objects drawn in the previous chapter are essentially lit colored objects. Real-world objects typically have more details than constant material properties per draw call can capture. Texture mapping is a technique that allows us to map image data onto a triangle, thereby enabling us to increase the details and realism of our scene significantly. For instance, we can build a cube and turn it into a crate by mapping a crate texture on each side (Figure 9.1). 
 
 # Chapter Objectives:
@@ -238,7 +233,7 @@ Visual Studio 2015 and beyond has a built-in image editor that supports DDS in a
 
 The DirectX Toolkit has code in DDSTextureLoader.h/.cpp to load DDS files into an ID3D12Resource: 
 
-```txt
+```cpp
 HRESULT DirectX::CreateDDSTextureFromFileEx(
 ID3D12Device* d3dDevice,
 ResourceUploadBatch& resourceUpload,
@@ -299,13 +294,13 @@ void TextureLib::Init(ID3D12Device* device, ResourceUploadBatch& uploadBatch)
 { std::vector<std::string> texNames = { "crateDiffuseMap", "waterDiffuseMap", "fenceDiffuseMap", "grassDiffuseMap", }; std::vector<std::wstring> texFilenames = { L"Textures/WoodCrate01.dds", L"Textures/waterl.dds", L"Textures/WireFence.dds", L"Textures/grass.dds", }; for(int i = 0; i < (int) texNames.size(); ++i) { auto texMap = std::make_unique<Texture>(); texMap->Name = texNames[i]; texMap->Filename = texFilenames[i]; ThrowIfFailed(DirectX::CreateDDSTextureFromFileEx( device, uploadBatch, texMap->Filename.c_str(), 0, D3D12Resource_FLAG_NONE, DDSloader_MIP_AUTOGEN, &texMap->Resource, nullptr, &texMap->IsCubeMap)); mTextures[TEXmap->Name] = std::moveTEXmap); } 
 ```
 
-```txt
+```cpp
 mIs Initialized = true; 
 ```
 
 The TextureLib class is a singleton with method: 
 
-```txt
+```cpp
 static TextureLib& GetLib()   
 { static TextureLib singleton; return singleton;   
 } 
@@ -419,7 +414,7 @@ void CrateApp::LoadTextures()
 
 As described in $\ S 4 . 1 . 6$ , resources (e.g., textures) do not get bound to the rendering pipeline directly. Instead, we must create a descriptor that describes the resource and then the GPU can access the resource from the descriptor. An SRV descriptor is described by filling out a D3D12_SHADER_RESOURCE_VIEW_DESC object, which describes how the resource is used and other information—its format, dimension, mipmaps count, etc. 
 
-```txt
+```cpp
 typedef struct D3D12_SHADER_RESOURCE.View_DESC { DXGI_FORMAT Format; D3D12_SRV_DIMENSION ViewDimension; UINT Shader4ComponentMapping; union { D3D12_buffer_SRV Buffer; D3D12TEX1D_SRV Texture1D; D3D12TEX1D_ARRAY_SRV Texture1DArray; D3D12TEX2D_SRV Texture2D; 
 ```
 
@@ -455,7 +450,7 @@ mipmap levels to view. You can specify -1 to indicate to view all mipmap levels 
 
 We define the following utility function for making SRVs to 2D textures in DescriptorUtil.h. This function uses typical settings. If you need more flexibility, you can always fill out the D3D12_SHADER_RESOURCE_VIEW_DESC manually or modify the parameters. 
 
-```txt
+```cpp
 inline void CreateSrv2d(ID3D12Device* device, ID3D12Resource* resource, DXGI_FORMAT format, UINT mipLevels, CD3DX12_CPU DescriptorHandle hDescriptor) { D3D12_SHADER_RESOURCE_DEVC DESC srvDesc = {}; svrDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_componentMapping; svrDesc.ViewDimension = D3D12_SRV_DIMENSION-textURE2D; svrDesc.Texture2D.MostDetailedMip = 0; svrDesc.Texture2D.ResourceMinLODClamp = 0.0f; svrDesc.Format = format; svrDesc.Texture2D.MipLevels = mipLevels; device->CreateShaderResourceView(resource, &srvDesc, hDescriptor); } 
 ```
 
@@ -464,7 +459,7 @@ The following code iterates over the texture library collection and populates th
 void CrateApp::BuildCbvSrvUavDescriptorHeap()   
 { CbvSrvUavHeap& cbvSrvUavHeap $\equiv$ CbvSrvUavHeap::Get(); cbvSrvUavHeap Init (md3dDevice.Get(),CBV_SRV_UAV HEAP_CAPACITY); InitImgui(cbvSrvUavHeap); TextureLib& texLib $\equiv$ TextureLib::GetLib(); forauto&it: texLib.GetCollection()) { Texture\*tex $\equiv$ it(second.get(); tex->BindlessIndex $\equiv$ cbvSrvUavHeap.NextFreeIndex(); CD3DX12_CPU Descriptor HANDLE hDescriptor $=$ cbvSrvUavHeap.CpuHandle(tex->BindlessIndex); ID3D12Resource\* texResource $\equiv$ tex->Resource.Get(); if(tex->IsCubeMap) { CreateSrvCube (md3dDevice.Get(), texResource, texResource->GetDesc().Format, 
 
-```txt
+```cpp
 texResource->GetDesc().MipLevels,
 hDescriptor);
 }
@@ -497,7 +492,7 @@ DrawRenderItem( renderItem);
 float4 PS(VertexOut pin) : SV_Target { 
 ```
 
-```txt
+```cpp
 // Read the texture in the shader float4 diffuseAlbedo = gDiffuseMap.Sample(GetAnisoWrapSampler(), pinTEXC);   
 } 
 ```
@@ -510,7 +505,7 @@ albedoMap->BindlessIndex = cbvSrvUavHeap.NextFreeIndex(); // Propagate texture b
 
 Each texture has a descriptor in the heap, and we store that index in the material data buffer (which is accessible to the shader). In the shader, we look up the material by index from the material buffer, and then from the material data we can get the texture index. Then, using the special HLSL syntax ResourceDescriptorHeap to access the heap, we can index the heap to get the texture in a shader: 
 
-```txt
+```cpp
 float4 PS(VertexOut pin) : SV_Target   
 { MaterialData matData = gMaterialData[gMaterialIndex]; float4 diffuseAlbedo = matData.DiffuseAlbedo; float3 fresnelR0 = matData.FresnelR0; float roughness = matData.Roughness; uint diffuseMapIndex = matData.DiffuseMapIndex; //Dynamically look up the texture in the heap. Texture2D diffuseMap = ResourceDescriptorHeap[diffuseMapIndex]; 
 ```
@@ -680,7 +675,7 @@ Figure 9.15. A brick texture tiled $2 \times 3$ times. Because the texture is se
 
 Address modes are described in Direct3D via the D3D12_TEXTURE_ADDRESS_MODE enumerated type: 
 
-```txt
+```cpp
 typedef enum D3D12-textURE_ADDRESS_MODE  
 {  
     D3D12-textURE_ADDRESS_MODE.WRAP = 1,  
@@ -771,7 +766,7 @@ You can figure out the other possible permutations from these examples, or you c
 
 The following example shows how to create a descriptor to a sampler in the heap that uses linear filtering, wrap address mode, and typical default values for the other parameters: 
 
-```txt
+```cpp
 D3D12_SAMPLER_DESC samplerDesc = {};   
 samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;   
 samplerDesc.AddressU = D3D12-textURE_ADDRESS_MODE_WRAP;   
@@ -789,7 +784,7 @@ md3dDevice->CreateSampler(&samplerDesc, hcpu);
 
 The following code shows how to bind a sampler descriptor to a root signature parameter slot for use by the shader programs: 
 
-```txt
+```cpp
 auto hcpu = CD3DX12_CPU DescriptorHANDLE(
     samplerDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 hcpuOFFSET(index, mDescriptorSize);
@@ -927,7 +922,7 @@ slotRootParameter[0].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY
 
 A texture object is defined in HLSL and assigned to a texture register with the following syntax: 
 
-```txt
+```cpp
 // Not using bindless Texture2D gDiffuseMap : register(t0); // Using bindless Texture2D diffuseMap = ResourceDescriptorHeap[diffuseMapIndex]; 
 ```
 
@@ -935,7 +930,7 @@ Note that texture/SRV registers are specified by tn where n is an integer identi
 
 Similarly, sampler objects are defined HLSL and assigned to a sampler register with the following syntax: 
 
-```txt
+```cpp
 // Not using bindless   
 SamplerState gsamPointWrap : register(s0);   
 SamplerState gsamPointClamp : register(s1);   
@@ -956,7 +951,7 @@ Texture registers are specified by sn where $n$ is an integer identifying the sa
 
 Now, given a pair of texture coordinate $( u , \nu )$ for a pixel in the pixel shader, we actually sample a texture (that is, obtain its value at the specified coordinates) using the Texture2D::Sample method: 
 
-```lisp
+```cpp
 struct VertexOut
 {
     float4 PosH : SV POSITION;
@@ -1020,7 +1015,7 @@ Refer back to Figure 9.3 if you need help seeing why the texture coordinates are
 
 Below is the BasicTex.hlsl file that now supports texturing (texturing code has been bolded): 
 
-```lisp
+```cpp
 // Include common HLSL code. #include "Shaders/Common.hls1"   
 struct VertexIn { float3 PosL : POSITION; float3 NormalL : NORMAL; float2 TexC : TEXCOORD; } ;   
 struct VertexOut { float4 PosH : SV POSITION; float3 PosW : POSITION0; float3 NormalW : NORMAL; float2 TexC : TEXCOORD; } ;   
@@ -1161,7 +1156,7 @@ To scroll a water texture over the water geometry, we translate the texture coor
 void TexWavesApp::AnimateMaterials(const GameTimer& gt) { MaterialLib& matLib = MaterialLib::GetLib(); 
 ```
 
-```txt
+```cpp
 // Scroll the water material texture coordinates. auto waterMat = matLib["water"]; float& tu = waterMat->MatTransform(3, 0); float& tv = waterMat->MatTransform(3, 1); tu += 0.1f * gt.DeltaTime(); tv += 0.02f * gt.DeltaTime(); if(tu >= 1.0f) tu -= 1.0f; if(tv >= 1.0f) tv -= 1.0f; waterMat->MatTransform(3, 0) = tu; waterMat->MatTransform(3, 1) = tv; // Material has changed, so need to update cbuffer. waterMat->NumFramesDirty = gNumFrameResources; } 
 ```
 

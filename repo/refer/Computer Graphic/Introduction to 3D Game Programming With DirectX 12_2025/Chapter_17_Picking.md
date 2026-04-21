@@ -49,7 +49,7 @@ $$
 
 The variables of the viewport matrix refer to those of the D3D12_VIEWPORT structure: 
 
-```txt
+```cpp
 typedef struct D3D12_VIEWPORT  
 {  
     FLOAT TopLeftX;  
@@ -147,7 +147,7 @@ $$
 
 Thus, we can shoot our picking ray through the point $( x _ { \nu } ^ { \prime } , y _ { \nu } ^ { \prime } , 1 )$ instead. Note that this yields the same picking ray as the one shot through the point $( x _ { \nu } , y _ { \nu } , d )$ . The code that computes the picking ray in view space is given below: 
 
-```txt
+```cpp
 void PickingApp::Pick(int sx, int sy)  
 {  
 XMFLOAT4X4 P = mCamera.GetProj4x4f();  
@@ -210,7 +210,7 @@ The XMVector3TransformCoord and XMVector3TransformNormal functions take 3D vecto
 
 Once we have the picking ray and a mesh in the same space, we can perform the intersection test to see if the picking ray intersects the mesh. The following code iterates through each triangle in the mesh and does a ray/triangle intersection test. If the ray intersects one of the triangles, then it must have hit the mesh the triangle belongs to. Otherwise, the ray misses the mesh. Typically, we want the nearest triangle intersection, as it is possible for a ray to intersect several triangles in the scene and even in the same mesh. 
 
-```txt
+```cpp
 // If we did not hit the bounding box, then it is impossible that  
 // we hit the Mesh, so do not waste effort doing ray/triangle  
 // tests.  
@@ -484,7 +484,7 @@ Figure 17.6. The picked triangle is highlighted yellow.
 
 The new models have been designed to be relatively simple: a list of vertices, indices, and one set of textures per model. The models are in the Book\bin\ Models directory and have a .m3d extension. This is a simple format designed for the demos of this book. If you open up one of the . $\mathrm { . m } 3 \mathrm { d }$ files in a text editor, you will see that there is a brief header, a material list (that we ignore—we assign the material in the code), a subset table that specifies the vertex and face range corresponding to a given subset (these models only have 1—a model would have more if it was more complicated and different subsets needed to be drawn with different materials), a list of vertices, and a list of indices. 
 
-```txt
+```cpp
 **********m3d-File-Header**********  
 #Materials 1  
 #Vertices 5814  
@@ -510,7 +510,7 @@ SubsetID: 0 VertexStart: 0 VertexCount: 5814 FaceStart: 0 FaceCount: 6728
 Figure 17.7. A car broken up by its subsets. Here, only the materials per subset differ, but different textures can also be added. In addition, the render states may differ; for example, the glass windows may be rendered with alpha blending for transparency.
 
 
-```txt
+```cpp
 **********Vertices**********  
 Position: -0.0667566 0.246518 0.186381  
 Tangent: 0.56964 -0.0596746 0.819725 1  
@@ -531,14 +531,14 @@ Let us elaborate on subsets: A subset is a group of triangles in a mesh that can
 
 There is a subset corresponding to each material and the ith subset corresponds to the ith material. The ith subset defines a contiguous block of geometry that should be rendered with the ith material. 
 
-```txt
+```cpp
 \*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\* SubsetID:0 VertexStart:0 VertexCount:1600 FaceStart:0 FaceCount: 800   
 SubsetID:1 VertexStart:1600 VertexCount:658 FaceStart:800 FaceCount:874 
 ```
 
 In the above example, the first 800 triangles of the mesh (which reference vertices 0-1599) should be rendered with material 0, and the next 874 triangles of the mesh (which reference vertices 1600-2257) should be rendered with material 1. 
 
-```txt
+```cpp
 struct Subset {
     Subset() : 
         Id(-1), 

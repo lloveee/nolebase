@@ -114,7 +114,7 @@ Note that CreateDDSTextureFromFileEx will output whether the DDS file stores a c
 
 When we create an SRV to a cube map texture resource, we specify the dimension D3D12_SRV_DIMENSION_TEXTURECUBE and use the TextureCube property of the SRV description: 
 
-```txt
+```cpp
 inline void CreateSrvCube(ID3D12Device* device, ID3D12Resource* resource, DXGI_FORMAT format, UINT mipLevels, CD3DX12_CPU DescriptorHandle hDescriptor) { D3D12_SHADER_RESOURCE_DEVCView_DESC srvDesc = {}; srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4 ComponentMapping; srvDesc.ViewDimension = D3D12_SRV_DIMENSION-textTURECUBE; srvDesc.TextureCube.MostDetailedMip = 0; srvDesc.TextureCube.ResourceMinLODClamp = 0.0f; srvDesc.Format = format; srvDesc.TextureCube.MipLevels = mipLevels; device->CreateShaderResourceView(resource, &srvDesc, hDescriptor); } 
 ```
 
@@ -126,7 +126,7 @@ We assume that the sky sphere is infinitely far away (i.e., it is centered about
 
 The shader file for the sky is given below: 
 
-```txt
+```cpp
 include"Shaders/Common.hlsl"   
 struct VertexIn { float3PosL ：POSITION; float3 NormalL：NORMAL; float2TexC ：TEXCOORD; }； 
 ```
@@ -138,7 +138,7 @@ struct VertexIn { float3PosL ：POSITION; float3 NormalL：NORMAL; float2TexC �
 Figure 18.4. We illustrate in 2D for simplicity; in 3D the square becomes a cube and the circle becomes a sphere. We assume that the sky and environment map are centered about the same origin. Then to texture a point on the surface of the sphere, we use the vector from the origin to the surface point as the lookup vector into the cube map. This projects the cube map onto the sphere.
 
 
-```txt
+```cpp
 struct VertexOut {
     float4 PosH : SV POSITION;
     float3 PosL : POSITION;
@@ -441,7 +441,7 @@ XMStoreFloat4x4(&cubeFacePassCB.View,XMMatrixTranspose/view)); XMStoreFloat4x4(&
 
 For this demo we have three render layers: 
 
-```txt
+```cpp
 enum class RenderLayer : int
 {
 Opaque = 0,
@@ -453,7 +453,7 @@ Count
 
 The OpaqueDynamicReflectors layer contains the center sphere in Figure () which will use the dynamic cube map to reflect local dynamic objects. Our first step is to draw the scene to each face of the cube map, but not including the center sphere; this means we just need to render the opaque and sky layers to the cube map: 
 
-```txt
+```cpp
 void DynamicCubeMapApp::DrawSceneToCubeMap() 
 ```
 
@@ -499,7 +499,7 @@ In the previous section, we redrew the scene six times to generate the cube map�
 
 First, it creates a render target view to the entire texture array (not each individual face texture): 
 
-```txt
+```cpp
 // Create the 6-face render target view  
 D3D10-render_TARGET.View_DESC DescRT;  
 DescRT.Format = dstex.Format;  
@@ -534,7 +534,7 @@ That is, we have bound a view to an array of render targets and a view to an arr
 
 Now, the scene is rendered once and an array of six view matrices (one to look in the corresponding direction of each cube map face) is available in the constant buffers. The geometry shader replicates the input triangle six times, and assigns the triangle to one of the six render target array slices. Assigning a triangle to a render target array slice is done by setting the system value SV_RenderTargetArrayIndex. This system value is an integer index, which can only be set as an output from the geometry shader, and that specifies the render target array slice the primitive should be rendered onto. This system value can only be used if the render target view is a view to an array resource. 
 
-```lisp
+```cpp
 struct PS_CUBEMAP_IN
 {
     float4 Pos : SV_POSITION; // Projection coord
@@ -585,7 +585,7 @@ On the other hand, a situation where this strategy does work well would be rende
 
 We mentioned in the previous section that the SV_RenderTargetArrayIndex system value can only be set as an output from the geometry shader. This was historically true, but hardware added the support to replicate geometry to multiple render targets without a geometry shader. This is an optional feature, not guaranteed by all Direct3D 12 devices, and support for it can be queried from the D3D12_FEATURE_DATA_D3D12_OPTIONS:: VPAndRTArrayIndexFromAny ShaderFeedingRasterizerSupportedWithoutGSEmulation member. To get this structure filled out, you would write the following: 
 
-```txt
+```cpp
 D3D12_FEATURE_DATA_D3D12_OPTIONS optionalFeatures;  
 md3dDevice->CheckFeatureSupport(  
     D3D12_FEATURE_D3D12_OPTIONS, &optionalFeatures, Sizeof(optionalFeatures);  

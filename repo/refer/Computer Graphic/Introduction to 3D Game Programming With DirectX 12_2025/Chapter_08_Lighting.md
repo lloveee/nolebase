@@ -1,9 +1,4 @@
-# Chapter
-
-# 8
-
-# Lighting
-
+# Chapter 8 Lighting
 Consider Figure 8.1. On the left we have an unlit sphere, and on the right, we have a lit sphere. As you can see, the sphere on the left looks rather flat—maybe it is not even a sphere at all, but just a 2D circle! On the other hand, the sphere in the right does look 3D—the lighting and shading aid in our perception of the solid form and volume of the object. In fact, our visual perception of the world depends on light and its interaction with materials, and consequently, much of the problem of generating photorealistic scenes has to do with physically accurate lighting models. 
 
 Of course, in general, the more accurate the model, the more computationally expensive it is; thus a balance must be reached between realism and speed. For example, 3D special FX scenes for films can be much more complex and utilize very realistic lighting models than a game because the frames for a film are 
@@ -115,7 +110,7 @@ $$
 
 Below is a function that computes the face normal of the front side (§5.10.2) of a triangle from the three vertex points of the triangle. 
 
-```txt
+```cpp
 XMVECTOR ComputeNormal(FXMVECTOR p0, FXMVECTOR p1, FXMVECTOR p2)  
 { XMVECTOR u = p1 - p0; XMVECTOR v = p2 - p0; return XMVector3Normalize( XMVector3Cross(u,v)); } 
 ```
@@ -137,7 +132,7 @@ In the above example, we do not need to divide by 4, as we would in a typical av
 
 The following pseudocode shows how this averaging can be implemented given the vertex and index list of a triangle mesh: 
 
-```txt
+```cpp
 // Input:   
 // 1. An array of vertices (mVertices). Each vertex has a   
 // position component (pos) and a normal component (normal).   
@@ -578,7 +573,7 @@ include <cstdint> #include <DirectXMath.h> #define DEFINE_CBUFFER(Name, Reg) str
 This allows us to write code like:
 
 
-```txt
+```cpp
 struct MaterialData
 {
     float4 DiffuseAlbedo;
@@ -598,7 +593,7 @@ struct MaterialData
 
 that can be used in $\mathrm { C } { + + }$ code and HLSL code. For $\mathrm { C } { + + }$ , the vector and matrix types become the DirectX Math types. Also note that the way DEFINE_CBUFFER is defined allows us to write code that evaluates to a struct in $\mathrm { C } { + + }$ , but evaluates to the corresponding constant buffer in HLSL: 
 
-```txt
+```cpp
 DEFINE_CBUFFER(PerObjectCB，b0)   
 { float4x4 gWorld; float4x4 gTexTransform; uint gMaterialIndex; float3 gMiscFloat3;   
 }； 
@@ -694,7 +689,7 @@ AddMaterial("lakeBlue",XMFLOAT4(0.2f，0.2f，0.8f，1.0f)，XMFLOAT3(0.05f，0.
 
 Note how each material stores its index; this will be used when the material collection is flattened out into an array. The above table stores the material data in system memory. For the GPU to access the material data in a shader, we need to mirror the relevant data in a buffer. Similar to the per-pass constant buffer, we add a buffer of materials to each FrameResource: 
 
-```txt
+```cpp
 // Defined in SharedTypes.h   
 struct MaterialData   
 { float4 DiffuseAlbedo; float3 FresnelR0; float Roughness; float DisplacementScale; uint DiffuseMapIndex; uint NormalMapIndex; uint GlossHeightAoMapIndex; // Used in texture mapping. float4x4 MatTransform; // Used in ray tracing demos only. float TransparencyWeight; float IndexOfRefraction; }； 
@@ -894,7 +889,7 @@ This section discusses the details for implementing directional, point, and spot
 
 In SharedTypes.h, we define the following structure to support lights. This structure can represent directional, point, or spot lights. However, depending on the light type, some values will not be used; for example, a point light does not use the Direction data member. 
 
-```txt
+```cpp
 struct Light
 {
     float3 Strength;
@@ -908,7 +903,7 @@ struct Light
 
 The order of data members listed in the Light structure (and also the MaterialConstants structure) is not arbitrary. They are cognizant of the HLSL structure packing rules. See Appendix B (“Structure Packing”) for details, but the main idea is that in HLSL, structure padding occurs so that elements are packed into 4D vectors, with the restriction that a single element cannot be split across two 4D vectors. This means the above structure gets nicely packed into three 4D vectors like this: 
 
-```txt
+```cpp
 vector 1: (Strength.x, Strength.y, Strength.z, FalloffStart)  
 vector 2: (Direction.x, Direction.y, Direction.z, FalloffEnd)  
 vector 3: (Position.x, Position.y, Position.z, SpotPower) 
@@ -930,7 +925,7 @@ struct Light
 
 # then it would get packed into four 4D vectors like this:
 
-```txt
+```cpp
 vector 1: (Strength.x, Strength.y, Strength.z, empty)  
 vector 2: (Direction.x, Direction.y, Direction.z, empty)  
 vector 3: (Position.x, Position.y, Position.z, empty)  
@@ -949,7 +944,7 @@ The below three functions, defined in LightingUtils.hlsl, contain code that is c
 
 3. BlinnPhong: Computes the amount of light reflected into the eye; it is the sum of diffuse reflectance and specular reflectance. 
 
-```lisp
+```cpp
 float CalcAttenuation(float d, float falloffStart, float falloffEnd)  
 { // Linear falloff. return saturate((falloffEnd - falloffStart));  
 }  
@@ -998,7 +993,7 @@ Given the eye position E and given a point $\mathbf { p }$ on a surface visible 
 
 direction $\mathbf { v } =$ normalize $\left( \mathbf { E } - \mathbf { p } \right)$ .  In our samples, this function will be called in a pixel shader to determine the color of the pixel based on lighting. 
 
-```txt
+```cpp
 float3 ComputeDirectionalLight(Light L, Material mat, float3 normal, float3 toEye)  
 { // The light vector aims opposite the direction the light rays travel. float3 lightVec = -L.Direction; // Scale light down by Lambert's cosine law. float ndot1 = max.dot(lightVec, normal), 0.0f); float3 lightStrength = L.Strength * ndot1; return BlinnPhong(lightStrength, lightVec, normal, toEye, mat); } 
 ```
@@ -1007,7 +1002,7 @@ float3 ComputeDirectionalLight(Light L, Material mat, float3 normal, float3 toEy
 
 Given the eye position E and given a point p on a surface visible to the eye with surface normal n, and material properties, the following HLSL function outputs the amount of light, from a point light source, that reflects into the to-eye direction $\mathbf { v } =$ normalize $\left( \mathbf { E } - \mathbf { p } \right)$ .  In our samples, this function will be called in a pixel shader to determine the color of the pixel based on lighting. 
 
-```txt
+```cpp
 float3 ComputePointLight(Light L, Material mat, float3 pos, float3 normal, float3 toEye)  
 { // The vector from the surface to the light. float3 lightVec = L.Position - pos; // The distance from surface to light. float d = length(lightVec); // Range test. if(d > L.FalloffEnd) return 0.0f; //Normalize the light vector. lightVec /= d; // Scale light down by Lambert's cosine law. float ndot1 = max.dot(lightVec, normal), 0.0f); float3 lightStrength = L.Strength * ndot1; // Attenuate light by distance. float att = CalcAttenuation(d, L.FalloffStart, L.FalloffEnd); lightStrength *= att; return BlinnPhong(lightStrength, lightVec, normal, toEye, mat); } 
 ```
@@ -1044,7 +1039,7 @@ struct VertexOut { float4 PosH：SV POSITION; float3 PosW：POSITION2; float3 No
 }；   
 VertexOut VS(VertexIn vin) { VertexOut vout $=$ (VertexOut)0.0f; //Transform to world space. float4 posW $=$ mul(float4(vin(PosL,1.0f)，gWorld); vout-posW $=$ posW.xyz; 
 
-```lisp
+```cpp
 // Assumes nonuniform scaling; otherwise, need to use
 // inverse-transpose of world matrix.
 vout.NormalW = mul(vin.NormalL, (float3x3)gWorld);
@@ -1104,7 +1099,7 @@ struct ModelVertex
 }; 
 ```
 
-```lisp
+```cpp
 // Corresponding HLSL vertex structure in BasicLit.hlsl. Recall that  
 // the shader vertex structure may use a subset of the vertex data.  
 struct VertexIn  
@@ -1158,7 +1153,7 @@ We note that this surface normal is not of the unit length, so it needs to be no
 
 We do the above normal calculation at each vertex point to get the vertex normals: 
 
-```txt
+```cpp
 // n = (-df/dx, 1, -df/dz)  
 XMFLOAT3 n(-0.03f*z*cosf(0.1f*x) - 0.3f*cosf(0.1f*z), 1.0f, -0.3f*sinf(0.1f*x) + 0.03f*x*sinf(0.1f*z));  
 XMVECTOR unitNormal = XMVector3Normalize(XMLoadFloat3(&n)); XMStoreFloat3(&n, unitNormal);  

@@ -171,7 +171,7 @@ To represent a color with 32-bits, a byte is given to each component. Since each
 
 DirectX::PackedVector namespace, for storing a 32-bit color: 
 
-```txt
+```cpp
 namespace DirectX  
 {  
 namespace PackedVector  
@@ -236,7 +236,7 @@ Figure 5.10. A 32-bit color, where a byte is allocated for each color component 
 
 DirectXMath library defines the following function which takes a XMCOLOR and returns an XMVECTOR from it: 
 
-```txt
+```cpp
 XMVECTOR XM_CALLCONV PackedVector::XMLoadColor(const XMCOLOR* pSource); 
 ```
 
@@ -428,7 +428,7 @@ Vertex v[4] = {v0, v1, v2, v3};
 
 Then the index list needs to define how the vertices in the vertex list are to be put together to form the two triangles. 
 
-```txt
+```cpp
 UINT indexList[6] = {0, 1, 2, // Triangle 0
 	0, 2, 3}; // Triangle 1 
 ```
@@ -437,13 +437,13 @@ In the index list, every three elements define a triangle. So the above index li
 
 Similarly, the vertex list for the octagon would be constructed as follows: 
 
-```txt
+```cpp
 Vertex v [9] = {v0, v1, v2, v3, v4, v5, v6, v7, v8}; 
 ```
 
 and the index list would be: 
 
-```txt
+```cpp
 UINT indexList[24] = {  
 0, 1, 2, // Triangle 0  
 0, 2, 3, // Triangle 1  
@@ -612,7 +612,7 @@ Thus, given the position of the camera, the target point, and the world “up”
 
 The DirectXMath library provides the following function for computing the view matrix based on the just described process: 
 
-```txt
+```cpp
 XMMMATRIX XM_CALLCONV XMMatrixLookAtLH( // Outputs view matrix V  
 FXMVECTOR EyePosition, // Input camera position Q  
 FXMVECTOR FocusPosition, // Input target point T  
@@ -621,7 +621,7 @@ FXMVECTOR UpDirection); // Input world up direction j
 
 Usually the world’s $y$ -axis corresponds to the “up” direction, so the “up” vector is usually always ${ \bf j } = ( 0 , 1 , 0 )$ . As an example, suppose we want to position the camera at the point ( , 5 3, ) −10 relative to the world space, and have the camera look at the origin of the world (0 0 0 , , ). We can build the view matrix by writing: 
 
-```txt
+```cpp
 XMVECTOR pos = XMVectorSet(5, 3, -10, 1.0f);  
 XMVECTOR target = XMVectorZero();  
 XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);  
@@ -824,13 +824,13 @@ After multiplying by the projection matrix, but before the perspective divide, g
 
 A perspective projection matrix can be built with the following DirectX Math function: 
 
-```txt
+```cpp
 XMMatrix XM_CALLCONV XMMatrixPerspectiveFovLH(/ / Returns the projection matrix float FovAngleY, // vertical field of view angle in radians float Aspect, // aspect ratio = width / height float NearZ, // distance to near plane float FarZ); // distance to far plane 
 ```
 
 The following code snippet illustrates how to use XMMatrixPerspectiveFovLH. Here, we specify a $4 5 ^ { \circ }$ vertical field of view, a near plane at $z = 1$ and a far plane at $z = 1 0 0 0$ (these lengths are in view space). 
 
-```txt
+```cpp
 XMMatrix P = XMMatrixPerspectiveFovLH(0.25f*XM.PI, AspectRatio(), 1.0f, 1000.0f); 
 ```
 

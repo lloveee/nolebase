@@ -1,12 +1,13 @@
-# Introduction to
+# Introduction to 3D Game Programming With DirectX 12, Second Edition
 
-# 3D Game Programming
+**Frank D. Luna**
 
-# With DirectX 12,
+Mercury Learning and Information · Boston, Massachusetts · © 2025
 
-# Second Edition
+ISBN: 978-1-68392-916-1
 
-# LICENSE, DISCLAIMER OF LIABILITY, AND LIMITED WARRANTY
+---
+
 
 By purchasing or using this book and companion files (the “Work”), you agree that this license grants permission to use the contents contained herein, including the disc, but does not give you the right of ownership to any of the textual content in the book / disc or ownership to any of the information or products contained in it. This license does not permit uploading of the Work onto the Internet or on a network (of any kind) without the written consent of the Publisher. Duplication or dissemination of any text, code, simulations, images, etc. contained herein is limited to and subject to licensing terms for the respective products, and permission must be obtained from the Publisher or the owner of the content, etc., in order to reproduce or network any portion of the textual material (in any media) that is contained in the Work. 
 
@@ -1692,7 +1693,7 @@ We link the necessary library files through the source code using #pragmas in Co
 
 // Link necessary d3d12 libraries. #pragma comment(lib,"d3dcompiler.lib") 
 
-```txt
+```cpp
 pragma comment.lib, "D3D12.lib") #pragma comment.lib, "dxgi.lib") 
 ```
 

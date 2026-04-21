@@ -175,7 +175,7 @@ Particle systems generally emit and destroy particles over time. The seemingly n
 
 Our particles will be stored in a structured buffer on the GPU. We use the following structure to represent a particle: 
 
-```txt
+```cpp
 struct Particle {
     float3 Position;
     float3 Velocity;
@@ -251,7 +251,7 @@ Every frame (or at some discrete update interval), we want to check if we should
 
 To get some flexibility on how particles are emitted, we have the following constant buffer, which defines parameters to control how particles get emitted. Different particle system types would have different values. 
 
-```txt
+```cpp
 DEFINE_CBUFFER(ParticleEmitCB, b0)  
 {  
     float3 gEmitBoxMin;  
@@ -304,7 +304,7 @@ gEmitRandomValues: A vector filled with random values basically to seed random v
 
 The emit compute shader is implemented as follows: 
 
-```txt
+```cpp
 // Remap [0,1) -> [a, b)
 float Remap(float value, float a, float b)
 {
@@ -361,7 +361,7 @@ void ParticlesEmitCS uint3 groupThreadID : SV_GroupThreadID, uint3 dispatchThrea
 
 Some new HLSL code we have not discussed are the DecrementCounter/ IncrementCounter methods. When we create a UAV to a buffer, we can associate the counter buffers we created. 
 
-```txt
+```cpp
 CreateBufferUav (md3dDevice, 0, mMaxParticleCount, sizeof (uint32_t), 0, mFreeIndexBuffer.Get(), mFreeCountBuffer.Get(), heap.CpuHandle (mFreeIndexBufferUavIndex));  
 CreateBufferUav (md3dDevice, 0, mMaxParticleCount, sizeof (uint32_t), 0, mPrevAliveIndexBuffer.Get(), mPrevAliveCountBuffer.Get(), heap.CpuHandle (mPrevAliveIndexBufferUavIndex));  
 CreateBufferUav (md3dDevice, 0, mMaxParticleCount, sizeof (uint32_t), 0, mCurrAliveIndexBuffer.Get(), mCurrAliveCountBuffer.Get(), heap.CpuHandle (mCurrAliveIndexBufferUavIndex)); 
@@ -390,7 +390,7 @@ void UpdateParticle(inout Particle p)
 void ParticlesUpdateCS( uint3 groupThreadID : SV_GroupThreadID, dispatchThreadID : SV_DispatchThreadID)   
 { RWStructuredBuffer<Particle> particleBuffer $=$ ResourceDescriptorHeap[gParticleBufferUavIndex]; RWStructuredBuffer<uint> freeIndexBuffer ResourceDescriptorHeap[gFreeIndexBufferUavIndex]; RWStructuredBuffer<uint> currAliveIndexBuffer ResourceDescriptorHeap[gCurrAliveIndexBufferUavIndex]; RWStructuredBuffer<uint> prevAliveIndexBuffer ResourceDescriptorHeap[gPrevAliveIndexBufferUavIndex]; 
 
-```txt
+```cpp
 RWStructuredBuffer<uint>prevAliveCountBuffer = ResourceDescriptorHeap[gPrevAliveCountUavIndex];  
 if(dispatchThreadID.x < prevAliveCountBuffer[0])  
 { uint particleIndex = prevAliveIndexBuffer[dispatchThreadID.x]; UpdateParticle(particleBuffer[particleIndex]); if(particleBuffer[particleIndex].Age >= particleBuffer[particleIndex].Lifetime) { //Particle died, append to free list. uint oldIndex = freeIndexBuffer.IncrementCounter(); freeIndexBuffer[oldIndex] = particleIndex; } else { //Particle is still alive, append to the current alive list. uint oldIndex = currAliveIndexBuffer.IncrementCounter(); currAliveIndexBuffer[oldIndex] = particleIndex; } } 
@@ -406,7 +406,7 @@ cmdList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->Bas
 
 Likewise, when we issue a dispatch, we need to specify how many thread groups to dispatch: 
 
-```txt
+```cpp
 UINT numGroupsX = (UINT)ceilf(emitConstants.gEmitCount / 128.0f);  
 cmdList->Dispatch(numGroupsX, 1, 1); 
 ```
@@ -456,7 +456,7 @@ voidParticlesCSApp::BuildCommandSignatures()
             UINT InstanceCount; 
 ```
 
-```txt
+```cpp
 UINT StartIndexLocation;  
 INT BaseVertexLocation;  
 UINT StartInstanceLocation;  
@@ -476,13 +476,13 @@ ThrowIfFailed(fd3dDevice->CreateCommandSignature(&indirectDrawIndexedDesc, nullp
 
 The command buffer is a GPU buffer that stores the actual indirect commands. The layout of each element must match the layout described by the indirect command signature. In our particle system case, we only need indirect draw/ dispatch to do the particle system update and particle system draw; therefore, we only need one indirect dispatch and one indirect draw indexed command per particle system. We pack both commands into a buffer that can store 8 uint32_t: 
 
-```txt
+```cpp
 // Buffer stores args for 1 draw-indexed indirect and 1 dispatch  
 // indirect. The first 5 UINTs store D3D12_DRAW_INDEXED.ArgUMENTS, the  
 // next 3 store D3D12_DISPATCH.ArgUMENTS. 
 ```
 
-```txt
+```cpp
 Microsoft::WRL::ComPtr<ID3D12Resource> mIndirectArgsBuffer = nullptr;  
 std::array<int32_t, 8> initIndirect{0,0,0,0,0,0,0,0};  
 CreateStaticBuffer Md3dDevice, uploadBatch,  
@@ -494,7 +494,7 @@ This buffer can be written to in any way the D3D12 API supports. It can be fille
 
 indirect draw command buffer. Such a small thread group will underutilize the GPU, but it is better than copying GPU memory to CPU memory. We also use this opportunity to reset the alive buffer count in preparation for the next frame. 
 
-```txt
+```cpp
 [numthreads(1, 1, 1)]  
 void PostUpdateCS( uint3 groupThreadID : SV_GroupThreadID, uint3 dispatchThreadID : SV_DispatchThreadID)  
 { RWStructuredBuffer<int>prevAliveCountBuffer = ResourceDescriptorHeap[gPrevAliveCountUavIndex]; RWStructuredBuffer<int>currAliveCountBuffer = ResourceDescriptorHeap[gCurrAliveCountUavIndex]; RWStructuredBuffer<int> indirectArgsBuffer = ResourceDescriptorHeap[gIndirectArgsUavIndex]; // This is effectively clearing counter for // gCurrAliveIndexBuffer in the next frame // because after drawing, we swap(prevAlive, currAlive) buffer; prevAliveCountBuffer[0] = 0; /* Update draw indirect args. typedef struct D3D12_DRAW_INDEXED.ArgUMENTS { UINT IndexCountPerInstance; UINT InstanceCount; UINT StartIndexLocation; INT BaseVertexLocation; UINT StartInstanceLocation; } D3D12_DRAW_INDEXED.ArgUMENTS; */ indirectArgsBuffer[0] = currAliveCountBuffer[0] * 6; indirectArgsBuffer[1] = 1; indirectArgsBuffer[2] = 0; indirectArgsBuffer[3] = 0; indirectArgsBuffer[4] = 0; } Update dispatch indirect args. typedef struct D3D12_DISPATCH.ArgUMENTS { UINT ThreadGroupCountX; UINT ThreadGroupCountY; UINT ThreadGroupCountZ; } D3D12_DISPATCH.ArgUMENTS; */ uint numThreadGroupsX = (currAliveCountBuffer[0] + 127) / 128; indirectArgsBuffer[5] = numThreadGroupsX; indirectArgsBuffer[6] = 1; indirectArgsBuffer[7] = 1; } 
@@ -529,7 +529,7 @@ UINT64 CountBufferOffset
 
 In our particle system demo, we need to do only one indirect dispatch to update the particles per frame. Therefore, our command buffer only contains one dispatch command. Similarly, we only need one indirect draw command per frame. Also recall that we pack the dispatch arguments and draw arguments into the same buffer. Therefore, for the indirect dispatch we need to offset by 5 UINTs to get to the start of the dispatch arguments. Thus, for updating the particle system, we call ExecuteIndirect like so: 
 
-```txt
+```cpp
 const uint32_t numCommands = 1;  
 const uint32_t argOffset = 5 * sizeof(UINT);  
 cmdList->ExecuteIndirect( updateParticlesCommandSig, numCommands, mIndirectArgsBuffer.Get(), argOffset, nullptr, 0); 
@@ -629,7 +629,7 @@ uint particleIndex $=$ currAliveIndexBuffer[drawQuadIndex]; Particle particle $=
 
 float normalizedLifetime $=$ particle.Age / particle.Lifetime; 
 
-```txt
+```cpp
 // https://www.slideshare.net/DevCentralAMD/  
 // vertex-shader-tricks-bill-bilodeau  
 //  
@@ -639,7 +639,7 @@ float normalizedLifetime $=$ particle.Age / particle.Lifetime;
 // 2*----*3 
 ```
 
-```txt
+```cpp
 float3 quadVert;  
 quadVert.x = (vertexIndex % 2) == 0 ? -0.5f : +0.5f;  
 quadVert.y = (vertexIndex & 2) == 0 ? +0.5f : -0.5f;  
@@ -652,7 +652,7 @@ vout.TexC.x = quadVert.x + 0.5f;
 vout.TexC.y = 1.0f - (quadVert.y + 0.5f); 
 ```
 
-```txt
+```cpp
 // Rotate in 2d.  
 float sinRotation;  
 float cosRotation;  
@@ -668,7 +668,7 @@ float2 rotatedQuadVert = mul(quadVert.xy, rotation2d);
 // at $f(0.5) = 1.0$ .  
 vout.Fade = 4.0f * normalizedLifetime * (1 - normalizedLifetime); 
 
-```txt
+```cpp
 //  
 // Transform to world so that billboard faces the camera.  
 // 
@@ -680,7 +680,7 @@ float3 right = normalize(cross(float3(0,1,0), look));
 float3 up = cross(look, right); 
 ```
 
-```txt
+```cpp
 float2 posL = size * rotatedQuadVert;  
 float3 posW = particle.Position - posL.x * right + posL.y * up; 
 ```
@@ -689,7 +689,7 @@ float3 posW = particle.Position - posL.x * right + posL.y * up;
 vout_PosH = mul(float4(posW, 1.0f), gViewProj); 
 ```
 
-```txt
+```cpp
 voutTEXIndex = particle.BindlessTextureIndex;
 vout.Color = particle.Color;
 return vout;
@@ -830,7 +830,7 @@ Vector2(static_cast<float>(mClientWidth), static_cast<float>(mClientHeight)), mC
 }   
 void ParticlesCSApp::EmitExplosionParticles(const GameTimer& gt) TextureLib& texLib $\equiv$ TextureLib::GetLib(); Vector3 spawnPos $=$ mWorldRayPos $^+$ mWorldRayDir \* MathHelper::RandF(5.0f, 20.0f); uint32_t numParticlesEmitted $\equiv$ MathHelper::Rand(2000, 3000); if (mSpawnExplosion) { ParticleEmitCB explosionParticles; explosionParticles.gEmitBoxMin $\equiv$ spawnPos $^+$ Vector3(-0.1f, -0.1f, -0.1f); explosionParticles.gEmitBoxMax $\equiv$ spawnPos $^+$ Vector3(+0.1f, 0.1f, +0.1f); explosionParticles.gMinLifetime $\equiv$ 0.2f; explosionParticles.gMaxLifetime $\equiv$ 0.7f; explosionParticles.gEmitDirectionMin $\equiv$ Vector3(-1.0f, -1.0f, -1.0f); explosionParticles.gEmitDirectionMax $\equiv$ Vector3(+1.0f, +1.0f, +1.0f); explosionParticles.gEmitColorMin $\equiv$ Vector4(0.0f, 0.0f, 0.0f, 1.0f); explosionParticles.gEmitColorMax $\equiv$ Vector4(1.0f, 1.0f, 1.0f, 1.0f); explosionParticles.gMinInitialSpeed $\equiv$ 10.0f; explosionParticles.gMaxInitialSpeed $\equiv$ 50.0f; explosionParticles.gMinRotation $\equiv$ 0.0f; explosionParticles.gMaxRotation $\equiv$ 2.0f\*MathHelper::Pi; explosionParticles.gMinRotationSpeed $\equiv$ 1.0f; explosionParticles.gMaxRotationSpeed $\equiv$ 5.0f; explosionParticles.gMinScale $\equiv$ Vector2(0.4f); explosionParticles.gMaxScale $\equiv$ Vector2(0.8f); explosionParticles.gDragScale $\equiv$ 1.0f; explosionParticles.gEmitCount $\equiv$ numParticlesEmitted; explosionParticles.gBindlessTextureIndex $=$ texLib["explosionParticle"]->BindlessIndex; 
 
-```txt
+```cpp
 explosionParticles.gEmitRandomValues.x = MathHelper::RandF();
 explosionParticles.gEmitRandomValues.y = MathHelper::RandF();
 explosionParticles.gEmitRandomValues.z = MathHelper::RandF();

@@ -1,6 +1,5 @@
-Part 
 
-# Di rect3D Founda ti ons
+# Direct3D Foundations
 
 n this part, we study fundamental Direct3D concepts and techniques that are used throughout the rest of this book. With these fundamentals mastered, we can move on to writing more interesting applications. A brief description of the chapters in this part follows. 
 
@@ -26,12 +25,7 @@ Chapter 13, The Compute Shader: The Compute Shader is a programmable shader Dire
 
 Chapter 14, The Tessellation Stages: This chapter explores the tessellation stages of the rendering pipeline. Tessellation refers to subdividing geometry into smaller triangles and then offsetting the newly generated vertices in some way. The motivation to increase the triangle count is to add detail to the mesh. To illustrate the ideas of this chapter, we show how to tessellate a quad patch based on distance, and we show how to render cubic Bézier quad patch surfaces. 
 
-# Chapter
-
-# 4
-
-# Direct3D Initial ization
-
+# Chapter 4 Direct3D Initialization
 The initialization process of Direct3D requires us to be familiar with some basic Direct3D types and basic graphics concepts; the first and second sections of this chapter address these requirements. We then detail the necessary steps to initialize Direct3D. Next, a small detour is taken to introduce accurate timing and the time measurements needed for real-time graphics applications. Finally, we explore the sample framework code, which is used to provide a consistent interface that all demo applications in this book follow. 
 
 # Objectives:
@@ -68,7 +62,7 @@ To help manage the lifetime of COM objects, the Windows Runtime Library (WRL) pr
 
 1. Get: Returns a pointer to the underlying COM interface. This is often used to pass arguments to functions that take a raw COM interface pointer. For example: 
 
-```txt
+```cpp
 ComPtr<ID3D12RootSignature> mRootSignature;  
 ...  
 // SetGraphicsRootSignature expects ID3D12RootSignature* argument.  
@@ -294,11 +288,11 @@ The Count member specifies the number of samples to take per pixel, and the Qual
 
 We can query the number of quality levels for a given texture format and sample count using the ID3D12Device::CheckFeatureSupport method like so: 
 
-```txt
+```cpp
 typedef struct D3D12_FEATURE_DATA Multisample_QALITY_LEVELS { DXGI_format Format; UINT SampleCount; D3D12 MULTISAMPLE_QALITY_LEVELS_FLAG Flags; 
 ```
 
-```txt
+```cpp
 UINT NumQualityLevels;
 } D3D12_FEATURE_DATAMULTISAMPLE_QUALITY_LEVELS;  
 D3D12_FEATURE_DATAMULTISAMPLE QUALITY_LEVELS msQualityLevels;  
@@ -348,7 +342,7 @@ enum D3D_FEATURE_LEVEL
 } 
 ```
 
-```txt
+```cpp
 D3D_FEATURE_LEVEL_12_1 = 0xc100, D3D_FEATURE_LEVEL_12_2 = 0xc200 } D3D_FEATURE_LEVEL; 
 ```
 
@@ -625,7 +619,7 @@ mCommandList->DrawIndexedInstanced(36, 1, 0, 0, 0);
 
 The names of these methods suggest that the commands are executed immediately, but they are not. The above code just adds commands to the command list. The ExecuteCommandLists method adds the commands to the command queue, and the GPU processes commands from the queue. We will learn about the various commands ID3D12GraphicsCommandList supports as we progress through this book. When we are done adding commands to a command list, we must indicate that we are finished recording commands by calling the ID3D12GraphicsCommandLi st::Close method: 
 
-```txt
+```cpp
 // Done recording commands.  
 mCommandList->Close(); 
 ```
@@ -685,7 +679,7 @@ This method puts the command list in the same state as if it was just created, b
 
 After we have submitted the rendering commands for a complete frame to the GPU, we would like to reuse the memory in the command allocator for the next frame. The ID3D12CommandAllocator::Reset method may be used for this: 
 
-```txt
+```cpp
 HRESULT ID3D12CommandAllocator::Reset(void); 
 ```
 
@@ -760,7 +754,7 @@ To implement common rendering effects, it is common for the GPU to write to a re
 
 A resource transition is specified by setting an array of transition resource barriers on the command list; it is an array in case you want to transition multiple resources with one API call. In code, a resource barrier is represented by the D3D12_RESOURCE_BARRIER_DESC structure. The following helper function (defined in d3dx12.h) returns a transition resource barrier description for a given resource, and specifies the before and after states: 
 
-```txt
+```cpp
 struct CD3DX12Resource_BARRIER : public D3D12Resource_BARRIER {
     // [... ] convenience methods
 }
@@ -954,7 +948,7 @@ Microsoft::WRL::ComPtr<IDXGISwapChain4> mSwapChain;
 void D3DApp::CreateSwapChain()   
 { // Release the previous swapchain we will be recreating. mSwapChain Reset(); DXGI_swapCHAIN_DESC1 sd; sd.Width $=$ mClientWidth; sd.Height $=$ mClientHeight; sd.Format $=$ mBackBufferFormat; sd.Stereo $=$ false; sdSampleDesc.Count $= 1$ . sdSampleDesc.Quality $= 0$ . sd_bufferUsage $\equiv$ DXGI_USAGE_RENDER_TARGET_OUTPUT; sd_bufferCount $=$ SwapChainBufferCount; sd.Scaling $\equiv$ DXGI_SCALING_NONE; sd.SwapEffect $\equiv$ DXGI_swap_EFFECT_FLIP_DISCARD; sd ALPHAMode $\equiv$ DXGI ALPHA_MODE_UNSPECIFIED; sdFLAGS $\equiv$ DXGI_swapCHAIN_FLAG ALLOW_MODE_SWITCH; // Note: Swap chain uses queue to perform flush. ComPtr<IDXGISwapChain1> swapChain1; ThrowIfFailed(mdxgiFactory->CreateSwapChainForHwnd( mCommandQueue.Get(), mhMainWnd, &sd, 
 
-```txt
+```cpp
 nullptr,   
 nullptr,   
 swapChain1.GetAddressOf();   
@@ -994,7 +988,7 @@ void D3DApp::CreateRtvAndDsvDescriptorHeaps()
 
 In our application framework, we define: 
 
-```txt
+```cpp
 static const int SwapChainBufferCount = 2;  
 int mCurrBackBuffer = 0; 
 ```
@@ -1031,7 +1025,7 @@ The call to IDXGISwapChain::GetBuffer increases the COM reference count to the b
 
 To create the render target view, we use the ID3D12Device::CreateRenderTargetView method: 
 
-```txt
+```cpp
 void ID3D12Device::CreateRenderTargetView(ID3D12Resource *pResource, const D3D12_RENDER_TARGET.View_DESC *pDesc, D3D12_CPU DescriptorHandle DestDescriptor); 
 ```
 
@@ -1043,7 +1037,7 @@ void ID3D12Device::CreateRenderTargetView(ID3D12Resource *pResource, const D3D12
 
 Below is an example of calling these two methods where we create an RTV to each buffer in the swap chain: 
 
-```txt
+```cpp
 ComPtr<ID3D12Resource> mSwapChainBuffer[SwapChainBufferCount];  
 for (UINT i = 0; i < SwapChainBufferCount; i++)  
 {  
@@ -1056,7 +1050,7 @@ for (UINT i = 0; i < SwapChainBufferCount; i++)
 
 We now need to create the depth/stencil buffer. As described in $\ S 4 . 1 . 5$ , the depth buffer is just a 2D texture that stores the depth information of the nearest visible objects (and stencil information if using stenciling). A texture is a kind of GPU resource, so we create one by filling out a D3D12_RESOURCE_DESC structure describing the texture resource, and then calling the ID3D12Device::CreateCommi ttedResource method. The D3D12_RESOURCE_DESC structure is defined as follows: 
 
-```txt
+```cpp
 typedef struct D3D12.Resource_DESC
 {
     D3D12.Resource_DIMENSION Dimension;
@@ -1074,7 +1068,7 @@ typedef struct D3D12.Resource_DESC
 
 1. Dimension: The dimension of the resource, which is one of the following enumerated types: 
 
-```txt
+```cpp
 enum D3D12_RESOURCE_DIMENSION  
 {  
     D3D12.Resource_DIMENSION unknow = 0,  
@@ -1159,7 +1153,7 @@ struct D3D12_CLEAR_VALUE
 
 In addition, before using the depth/stencil buffer, we must create an associated depth/stencil view to be bound to the pipeline. This is done similarly to creating the render target view. The following code example shows how we create the depth/stencil texture and its corresponding depth/stencil view: 
 
-```txt
+```cpp
 // Create the depth/stencil buffer and view.  
 D3D12Resource_DESC depthStencilDesc;  
 depthStencilDesc.Dimension = D3D12Resource_DIMENSION-textSTANCE2D;  
@@ -1214,7 +1208,7 @@ Figure 4.11. By modifying the viewport, we can draw the 3D scene into a subrecta
 
 The subrectangle of the back buffer we draw into is called the viewport and it is described by the following structure: 
 
-```txt
+```cpp
 typedef struct D3D12_VIEWPORT{ FLOATTopLeftX; FLOATTopLeftY;FLOATWidth;FLOATHeight;FLOATMinDepth;FLOATMaxDepth;}D3D12_VIEWPORT; 
 ```
 
@@ -1224,7 +1218,7 @@ drawn with this viewport will have depth values of 0 and appear in front of all 
 
 Once we have filled out the D3D12_VIEWPORT structure, we set the viewport with Direct3D with the ID3D12CommandList::RSSetViewports method. The following example creates and sets a viewport that draws onto the entire back buffer: 
 
-```txt
+```cpp
 D3D12_VIEWPORT vp;  
 vp.TopLeftX = 0.0f;  
 vp.TopLeftY = 0.0f;  
@@ -1245,7 +1239,7 @@ We can define a scissor rectangle relative to the back buffer such that pixels o
 
 A scissor rectangle is defined by a D3D12_RECT structure which is typedefed to the following structure: 
 
-```txt
+```cpp
 typedef struct tagRECT   
 { LONG left; LONG top; LONG right; LONG bottom;   
 } RECT; 
@@ -1270,7 +1264,7 @@ For accurate time measurements, we use the performance timer (or performance cou
 
 The performance timer measures time in units called counts. We obtain the current time value, measured in counts, of the performance timer with the QueryPerformanceCounter function like so: 
 
-```txt
+```cpp
 int64 currTime;  
 QueryPerformanceCounter((LARGE_INTEGER*) & currTime); 
 ```
@@ -1279,7 +1273,7 @@ Observe that this function returns the current time value through its parameter,
 
 To get the frequency (counts per second) of the performance timer, we use the QueryPerformanceFrequency function: 
 
-```txt
+```cpp
 int64 countsPerSec;  
 QueryPerformanceFrequency((LARGE_countsPerSec); 
 ```
@@ -1294,7 +1288,7 @@ valueInSecs $=$ valueInCounts * mSecondsPerCount;
 
 The values returned by the QueryPerformanceCounter function are not particularly interesting in and of themselves. What we do is get the current time value using QueryPerformanceCounter, and then get the current time value a little later using QueryPerformanceCounter again. Then the time that elapsed between those two time calls is just the difference. That is, we always look at the relative difference between two time stamps to measure time, not the actual values returned by the performance counter. The following better illustrates the idea: 
 
-```txt
+```cpp
 int64 A = 0;  
 QueryPerformanceCounter((LARGE_INTEGER*) & A);  
 /* Do work */  
@@ -1319,7 +1313,7 @@ class GameTimer
 public: GameTimer(); float GameTime()const; // in seconds float DeltaTime(const; // in seconds void Reset(); // Call before message loop. void Start(); // Call when unpaused. void Stop(); // Call when paused. void Tick(); // Call every frame. 
 ```
 
-```txt
+```cpp
 private: double mSecondsPerCount; double mDeltaTime; int64 mBaseTime; int64 mPasedTime; int64 mStopTime; int64 mPrevTime; int64 mCurrTime; bool mStopped;   
 }; 
 ```
@@ -1423,7 +1417,7 @@ Figure 4.13. If we paused at $t _ { 1 }$ and unpaused at $t _ { 2 }$ , and count
 
 To implement total time, we use the following variables: 
 
-```txt
+```cpp
 int64 mBaseTime;  
 int64 mPausedTime;  
 int64 mStopTime; 
@@ -1542,7 +1536,7 @@ protected:
 static D3DApp* mApp;
 
 
-```txt
+```cpp
 HINSTANCE mhAppInst = nullptr; // application instance handle  
 HWND mhMainWnd = nullptr; // main window handle  
 bool mAppPurchased = false; // is the application paused?  
@@ -1576,7 +1570,7 @@ Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6> mCommandList;
 int mCurrBackBuffer $\qquad = \quad 0$ ; Microsoft::WRL::ComPtr<ID3D12Resource> mSwapChainBuffer[SwapChainBu fferCount]; Microsoft::WRL::ComPtr<ID3D12Resource> mDepthStencilBuffer;
 
 
-```txt
+```cpp
 // Utility that grows/shrinks GPU upload heap memory for fire  
 // and forget scenarios. This is particularly useful for  
 // per-draw constant buffers. This is explained in Chapter 7.  
@@ -1737,7 +1731,7 @@ This method would be called every frame to increment the frame count and update 
 
 In addition to computing the FPS, the above code also computes the number of milliseconds it takes, on average, to process a frame: 
 
-```txt
+```cpp
 float mspf = 1000.0f / fps; 
 ```
 
@@ -1754,7 +1748,7 @@ The window procedure we implement for our application framework does the bare mi
 
 The first message we handle is the WM_ACTIVATE message. This message is sent when an application becomes activated or deactivated. We implement it like so: 
 
-```txt
+```cpp
 case WM_ACTIVATE: if (LOWORD(wParam) == WA_INACTIVE) { mAppPased = true; mTimer_STOP(); } 
 ```
 
@@ -1775,7 +1769,7 @@ case WM_EXITSIZEMOVE: mAppPaused $=$ false; mResizing $\equiv$ false; mTimer.Sta
 
 The next three messages we handle are trivially implemented and so we just show the code: 
 
-```txt
+```cpp
 // WM_DESToy is sent when the window is being destroyed.   
 case WM_DESToy: PostQuitMessage(0); return 0;   
 // The WM MenuCHAR message is sent when a menu is active and the user presses   
@@ -1846,7 +1840,7 @@ void D3DApp::UpdateImgui(const GameTimer& gt)
 
 Derived implementations must invoke the base implementation. The following example illustrates how to make a GUI with text boxes, check boxes, and sliders. Our use of ImGUI in this book does not get much more complicated than this. 
 
-```txt
+```cpp
 void DemoApp::UpdateImgui(const GameTimer& gt)  
 { D3DApp::UpdateImgui(gt); // Define a panel to render GUI elements. ImGui::Begin("Options"); // Output some text. ImGui::Text("Application average %.3f ms/frame (%1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate); // Define a collapsable panel. if(ImGui::CollapsingHeader("Features")) { // Define checkboxes synced to member variables. ImGui::Checkbox("NormalMaps", &mNormalMapsEnabled); ImGui::Checkbox("Reflections", &mReflectionsEnabled); ImGui::Checkbox("Shadows", &mShadowsEnabled); } if(ImGui::CollapsingHeader("SSAO")) { // Define checkbox and sliders synced to member variables. // The sliders take a minimum and maximum range. ImGui::Checkbox("SsaOEnabled", &mSsaOEnabled); ImGui::SliderFloat("OcclusionRadius", &mOcclusionRadius, 0.1f, 2.0f); ImGui::SliderFloat("OcclusionFadeStart", &mOcclusionFadeStart, 0.0f, 4.0f); ImGui::SliderFloat("OcclusionFadeEnd", &mOcclusionFadeEnd, 0.0f, 4.0f); ImGui::SliderFloat("SurfaceEpsilon", &mSurfaceEpsilon, 0.0f, 10.0f); } ImGui::End(); ImGui::Render(); } 
 ```
@@ -1945,7 +1939,7 @@ D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL,
 1.0f, 0, 0, nullptr); 
 ```
 
-```txt
+```cpp
 // Specify the buffers we are going to render to.  
 mCommandList->OMSetRenderTargets(1, &CurrentBackBufferView(), true, &DepthStencilView()); 
 ```
@@ -1960,12 +1954,12 @@ ImGui_ImplDX12_CanvasData(ImGui::GetDrawData(), mCommandList.Get());
 mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE-render_TARGET, D3D12_RESOURCE_STATE_present)); 
 ```
 
-```txt
+```cpp
 //Done recording commands.   
 ThrowIfFailed(mCommandList->Close());; 
 ```
 
-```txt
+```cpp
 // Add the command list to the queue for execution.  
 ID3D12CommandList* cmdLists[] = { mCommandList.Get();  
 mCommandQueue->ExecuteCommandLists( countof(cmdLists), cmdLists); 
@@ -2056,7 +2050,7 @@ The L#x turns the ThrowIfFailed macro’s argument token into a Unicode string. 
 
 For a Direct3D function that returns an HRESULT, we use the macro like so: 
 
-```txt
+```cpp
 ThrowIfFailed Md3dDevice->CreateCommittedResource (&CD3D12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_MISC_NONE, &depthStencilDesc, D3D12_RESOURCE_USAGE_INITIAL, IID_PPV_args(&mDepthStencilBuffer)); 
 ```
 

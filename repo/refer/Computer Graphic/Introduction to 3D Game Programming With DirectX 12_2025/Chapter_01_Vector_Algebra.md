@@ -1,6 +1,5 @@
-Part 
 
-# Ma thema ti ca l Prerequi si tes
+# Mathematical Prerequisites
 
 Video games attempt to simulate a virtual world. However, computers, by their very nature, crunch numbers. Thus, the problem of how to convey a world to a computer arises. The answer is to describe our by their very nature, crunch numbers. Thus, the problem of how to convey a world to a computer arises. The answer is to describe our worlds, and the interactions therein, completely mathematically. Consequently, mathematics plays a fundamental role in video game development. 
 
@@ -14,12 +13,7 @@ Chapter 2, Matrix Algebra: Matrices provide an efficient and compact way of repr
 
 Chapter 3, Transformations: This chapter examines three fundamental geometric transformations: scaling, rotation, and translation. We use these transformations to manipulate 3D objects in space. In addition, we explain change of coordinate transformations, which are used to transform coordinates representing geometry from one coordinate system into another. 
 
-# Chapter
-
-# 1
-
-# Vector Al gebra
-
+# Chapter 1 Vector Algebra
 Vectors play a crucial role in computer graphics, collision detection, and physical simulation, all of which are common components in modern video games. Our approach here is informal and practical; for a book dedicated to 3D game/graphics math, we recommend [Verth04]. We emphasize the importance of vectors by noting that they are used in just about every demo program in this book. 
 
 # Objectives:
@@ -531,7 +525,7 @@ To use the DirectX Math library, you need to #include <DirectXMath.h>, and for s
 
 In DirectX Math, the core vector type is XMVECTOR, which maps to SIMD hardware registers. This is a 128-bit type that can process four 32-bit floats with a single SIMD instruction. When SSE2 is available, it is defined like so for $\mathbf { x } 8 6$ and x64 platforms: 
 
-```txt
+```cpp
 typedef __m128 XMVECTOR; 
 ```
 
@@ -539,7 +533,7 @@ where _ $\mathtt { m l } 2 8$ is a special SIMD type. When doing calculations, v
 
 XMVECTOR needs to be 16-byte aligned, and this is done automatically for local and global variables. For class data members, it is recommended to use XMFLOAT2 (2D), XMFLOAT3 (3D), and XMFLOAT4 (4D) instead; these structures are defined below: 
 
-```lisp
+```cpp
 struct XMFLOAT2
 {
     float x;
@@ -599,7 +593,7 @@ However, if we use these types directly for calculations, then we will not take 
 
 We use the following methods to load data from XMFLOATn into XMVECTOR: 
 
-```txt
+```cpp
 //Loads XMFLOAT2 into XMVECTOR   
 XMVECTOR XM_CALLCONV XMLoadFloat2(const XMFLOAT2 \*pSource);   
 //Loads XMFLOAT3 into XMVECTOR   
@@ -621,7 +615,7 @@ voidXM(CallCONVXMStoreFloat4(XMFLOAT4\*pDestination，FXMVECTORV);
 
 Sometimes we just want to get or set one component of an XMVECTOR; the following getter and setter functions facilitate this: 
 
-```txt
+```cpp
 float XM_CALLCONV XMVectorGetX(FXMVECTOR V);   
 float XM_CALLCONV XMVectorGetY(FXMVECTOR V);   
 float XM_CALLCONV XMVectorGetZ(FXMVECTOR V);   
@@ -677,7 +671,7 @@ This function takes 6 XMVECTOR parameters, but following the parameter passing r
 
 You can have non-XMVECTOR parameters between XMVECTOR parameters. The same rules apply and the XMVECTOR parameters are counted as if the non-XMVECTOR parameters were not there. For example, in the following function, the first three XMVECTOR parameters are of type FXMVECTOR as and the fourth XMVECTOR parameter is of type GXMVECTOR. 
 
-```txt
+```cpp
 inline XMMatrix XM_CALLCONV XMMatrixTransformation2D(FXMVECTOR ScalingOrigin, float ScalingOrientation, FXMVECTOR Scaling, FXMVECTOR RotationOrigin, float Rotation, GXMVECTOR Translation); 
 ```
 
@@ -687,7 +681,7 @@ The rules for passing XMVECTOR parameters apply to “input” parameters. “Ou
 
 Constant XMVECTOR instances should use the XMVECTORF32 type. Here are some examples from the DirectX SDK's CascadedShadowMaps11 sample: 
 
-```txt
+```cpp
 static const XMVECTORF32 g_vHalfVector = {0.5f, 0.5f, 0.5f, 0.5f};  
 static const XMVECTORF32 g_vZero = {0.0f, 0.0f, 0.0f, 0.0f};  
 XMVECTORF32 vRightTop = {vViewFrustRightslope, vViewFrust.TopSlope, 1.0f, 1.0f};  
@@ -698,7 +692,7 @@ Essentially, we use XMVECTORF32 whenever we want to use initialization syntax.
 
 XMVECTORF32 is a 16-byte aligned structure with a XMVECTOR conversion operator; it is defined as follows: 
 
-```txt
+```cpp
 // Conversion types for constants  
 declspec(align(16)) struct XMVECTORF32  
 {  
@@ -712,7 +706,7 @@ union
 
 You can also create a constant XMVECTOR of integer data using XMVECTORU32: 
 
-```txt
+```cpp
 static const XMVECTORU32 vGrabY = {0x00000000, 0xFFFFFFF, 0x00000000, 0x00000000}; 
 ```
 
@@ -720,7 +714,7 @@ static const XMVECTORU32 vGrabY = {0x00000000, 0xFFFFFFF, 0x00000000, 0x00000000
 
 The XMVECTOR has several overloaded operators for doing vector addition, subtraction, and scalar multiplication. 
 
-```txt
+```cpp
 XMVECTOR XM_CALLCONV operator+ (FXMVECTOR V);  
 XMVECTOR XM_CALLCONV operator- (FXMVECTOR V);  
 XMVECTOR& XM_CALLCONV operator+= (XMVECTOR& V1, FXMVECTOR V2);  
@@ -742,21 +736,21 @@ XMVECTOR XM_CALLCONV operator/ (FXMVECTOR V, float S);
 
 The DirectX Math library defined the following constants useful for approximating different expressions involving π: 
 
-```txt
+```cpp
 const float XM.PI = 3.141592654f;  
 const float XM_2PI = 6.283185307f;  
 const float XM_1DIVPI = 0.318309886f;  
 const float XM_1DIV2PI = 0.159154943f; 
 ```
 
-```txt
+```cpp
 const float XM_PIDIV2 = 1.570796327f;  
 const float XM_PIDIV4 = 0.785398163f; 
 ```
 
 In addition, it defines the following inline functions for converting between radians and degrees: 
 
-```txt
+```cpp
 inline float XMConvertToAxes(float fDegrees)  
 { return fDegrees * (XM.PI / 180.0f); }  
 inline float XMConvertToDegrees(float fAxes)  
@@ -868,7 +862,7 @@ int main()
 { cout.setfios_base::boolalpha); // Check support for SSE2 (Pentium4, AMD K8, and above). if (!XMVerifyCPUSupport()) { cout << "directx math not supported" << endl; return 0; } XMVECTOR n = XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f); XMVECTOR u = XMVectorSet(1.0f, 2.0f, 3.0f, 0.0f); XMVECTOR v = XMVectorSet(-2.0f, 1.0f, -3.0f, 0.0f); XMVECTOR w = XMVectorSet(0.707f, 0.707f, 0.0f, 0.0f); // Vector addition: XMVECTOR operator + XMVECTOR a = u + v; // Vector subtraction: XMVECTOR operator - XMVECTOR b = u - v; // Scalar multiplication: XMVECTOR operator * XMVECTOR c = 10.0f*u; // ||u|| XMVECTOR L = XMVector3Length(u); // d = u / ||u|| XMVECTOR d = XMVector3Normalize(u); // s = u dot v XMVECTOR s = XMVector3Dot(u, v); 
 ```
 
-```txt
+```cpp
 // e = u x v
 XMVECTOR e = XMVector3Cross(u, v);
 // Find projn(w) and perp_n(w)
@@ -934,7 +928,7 @@ int main()
 { cout precision(8); // Check support for SSE2 (Pentium4, AMD K8, and above). if (!XMVerifyCPUSupport()) { cout << "directx math not supported" << endl; return 0; } XMVECTOR u = XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f); XMVECTOR n = XMVector3Normalize(u); float LU = XMVectorGetX(XMVector3Length(n)); // Mathematically, the length should be 1. Is it numerically? cout << LU << endl; 
 ```
 
-```txt
+```cpp
 if (LU == 1.0f)  
     cout << "Length 1" << endl;  
 else  
@@ -952,7 +946,7 @@ Figure 1.20. Output for the above program.
 
 To compensate for floating-point imprecision, we test if two floating-point numbers are approximately equal. We do this by defining an Epsilon constant, which is a very small value we use as a “buffer.” We say two values are approximately equal if their distance is less than Epsilon. In other words, Epsilon gives us some tolerance for floating-point imprecision. The following function illustrates how Epsilon can be used to test if two floating-point values are equal: 
 
-```txt
+```cpp
 const float Epsilon = 0.001f;   
 bool Equals(float lhs, float rhs)   
 { // Is the distance between lhs and rhs less than EPSILON? return fabs(lhs - rhs) < Epsilon ? true : false;   
@@ -961,7 +955,7 @@ bool Equals(float lhs, float rhs)
 
 The DirectX Math library provides the XMVector3NearEqual function when testing the equality of vectors with an allowed tolerance Epsilon parameter: 
 
-```txt
+```cpp
 // Returns  
 // abs(U.x - V.x) <= Epsilon.x &&  
 // abs(U.y - V.y) <= Epsilon.y &&  
@@ -997,7 +991,7 @@ segment. A vector is in standard position when it is translated parallel to itse
 
 5. The XMVECTOR class overloads the arithmetic operators to do vector addition, subtraction, and scalar multiplication. Moreover, the DirectX Math library provides the following useful functions for computing the length of a vector, the squared length of a vector, computing the dot product of two vectors, computing the cross product of two vectors, and normalizing a vector: 
 
-```txt
+```cpp
 XMVECTOR XM_CALLCONV XMVector3Length(FXMVECTOR V);  
 XMVECTOR XM_CALLCONV XMVector3LengthSq(FXMVECTOR V);  
 XMVECTOR XM_CALLCONV XMVector3Dot(FXMVECTOR V1, FXMVECTOR V2);  
@@ -1155,7 +1149,7 @@ ostream& XM_CALLCONV operator<<(ostream& os, FXMVECTOR v)
 { 
 ```
 
-```txt
+```cpp
 XMFLOAT4 dest;   
 XMStoreFloat4(&dest,v);   
 os \(<  <   "(" <   <   dest.x <   <   ", " <   <   dest.y <   <   ", " <   <   dest.z <   <   ", " <   <   dest.w <   <   ")"); return os;   

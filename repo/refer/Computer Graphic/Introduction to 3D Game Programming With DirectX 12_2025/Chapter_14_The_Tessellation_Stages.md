@@ -73,7 +73,7 @@ In the following subsections, we explore the hull shader, which actually consist
 
 This constant hull shader is evaluated per patch, and is tasked with outputting the so-called tessellation factors of the mesh. The tessellation factors instruct the tessellation stage how much to tessellate the patch. Here is an example of a quad patch with four control points, where we tessellate it uniformly three times. 
 
-```txt
+```cpp
 struct PatchTess
 {
     float EdgeTess[4] : SV_TessFactor;
@@ -149,7 +149,7 @@ The control point hull shader inputs a number of control points and outputs a nu
 
 Drivers can detect and optimize pass-through shaders [Bilodeau10b]. 
 
-```txt
+```cpp
 struct HullOut
 {
     float3 PosL: POSITION;
@@ -227,14 +227,14 @@ The tessellation stage outputs all of our newly created vertices and triangles. 
 
 For a quad patch, the domain shader inputs the tessellation factors (and any other per patch information you output from the constant hull shader), the parametric $( u , \nu )$ coordinates of the tessellated vertex positions, and all the patch control points output from the control point hull shader. Note that the domain shader does not give you the actual tessellated vertex positions; instead it gives you the parametric $( u , \nu )$ coordinates (Figure 14.4) of these points in the patch domain space. It is up to you to use these parametric coordinates and the control points to derive the actual 3D vertex positions; in the code below, we do this via bilinear interpolation (which works just like texture linear filtering). 
 
-```txt
+```cpp
 struct DomainOut
 {
     float4 PosH: SV POSITION;
 }; 
 ```
 
-```txt
+```cpp
 // The domain shader is called for every vertex created by  
 // the tessellator. It is like the vertex shader after tessellation.  
 domain("quad")]  
@@ -268,7 +268,7 @@ std::unique_ptr<MeshGeometry> BasicTessellationApp::BuildQuadPatchGeometry()
 { std::array<XMFLOAT3, 4> vertices = { XMFLOAT3(-10.0f, 0.0f, +10.0f), XMFLOAT3(+10.0f, 0.0f, +10.0f), XMFLOAT3(-10.0f, 0.0f, -10.0f), XMFLOAT3(+10.0f, 0.0f, -10.0f) }; std::array<uint16_t, 4> indices = { 0, 1, 2, 3 }; const UINT vbByteSize = (UINT)vertices.size() * sizeof(XMFLOAT3); const UINT ibByteSize = (UINT)indices.size() * sizeof( uint16_t); auto geo = std::make_unique<MeshGeometry>(); geo->Name = "quadpatchGeo"; geo->VertexBufferCPU.resize(vbByteSize); CopyMemory(geo->VertexBufferCPU.data(), vertices.data(), vbByteSize); geo->IndexBufferCPU.resize(ibByteSize); CopyMemory(geo->IndexBufferCPU.data(), indices.data(), ibByteSize); CreateStaticBuffer (md3dDevice.Get(), *mUploadBatch, vertices.data(), vertices.size(), sizeof(XMFLOAT3), D3D12Resource_STATEvertex_and_constant_buffer, &geo->VertexBufferGPU); CreateStaticBuffer (md3dDevice.Get(), *mUploadBatch, indices.data(), indices.size(), sizeof uint16_t), D3D12Resource_STATE_INDEX_buffer, &geo->IndexBufferGPU); geo->VertexByteStride = sizeof(XMFLOAT3); geo->VertexBufferByteSize = vbByteSize; geo->IndexFormat = DXGI_FORMAT_R16_UID; geo->IndexBufferByteSize = ibByteSize; SubmeshGeometry quadSubmesh; quadSubmesh.IndexCount = 4; quadSubmesh.StartIndexLocation = 0; quadSubmesh.BaseVertexLocation = 0; quadSubmeshVertexCount = (UINT)vertices.size(); quadSubmesh.Bounds = BoundingBox(XMFLOAT3(0.0f, 0.0f, 0.0f), 
 ```
 
-```txt
+```cpp
 XMFLOAT3(10.0f, 10.0f, 10.0f)); geo->DrawArgs["quadpatch"] = quadSubmesh; return geo; 
 ```
 
@@ -317,7 +317,7 @@ We will now turn attention to the hull shader. The hull shader is similar to wha
 Figure 14.5. The mesh is tessellated more as the distance to the eye decreases.
 
 
-```txt
+```cpp
 struct VertexIn
 {
     float3 PosL : POSITION;
@@ -358,7 +358,7 @@ struct HullOut { float3 PosL:POSITION;
 
 Simply tessellating is not enough to add detail, as the new triangles just lie on the patch that was subdivided. We must offset those extra vertices in some way to better approximate the shape of the object we are modeling. This is done in the domain shader. In this demo, we offset the y-coordinates by the “hills” function we introduced in $\ S 6 . 1 1$ . 
 
-```txt
+```cpp
 struct DomainOut
 {
     float4 PosH:SV_POSITION;
@@ -555,7 +555,7 @@ float4 BernsteinBasis(float t)
 float4 dBernsteinBasis(float t)  
 { float invT = 1.0f - t; return float4( -3 * invT * invT, // $B_0^{3'}(t) = -3(1 - t)^2$ 3 * invT * invT - 6 * t * invT, // $B_1^{3'}(t) = 3(1 - t)^2 - 6t(1 - t)$ 6 * t * invT - 3 * t * t, // $B_2^{3'}(t) = 6t(1 - t) - 3t^2$ 3 * t * t); // $B_3^{3'}(t) = 3t^2$ } 
 
-```txt
+```cpp
 float3 CubicBezierSum(const OutputPatch<HullOut, 16> bezpatch, float4 basisU, float4 basisV)  
 {  
 float3 sum = float3(0.0f, 0.0f, 0.0f);  
@@ -686,7 +686,7 @@ addition to allowing us to draw smooth surfaces directly, Bézier surfaces are u
 
 4. Explore fractional tessellation. That is, try the “Basic Tessellation” demo with: 
 
-```txt
+```cpp
 [partitioning("fractional_even")]  
 [partitioning("fractional_odd")] 
 ```

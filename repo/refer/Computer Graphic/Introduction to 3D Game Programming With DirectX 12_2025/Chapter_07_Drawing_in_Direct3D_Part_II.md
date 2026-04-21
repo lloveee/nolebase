@@ -1,4 +1,4 @@
-# 7 Draw ing in Chapter Direct3D Part II
+# 7 Drawing in Chapter Direct3D Part II
 
 This chapter introduces a number of drawing patterns that we will use throughout the rest of this book. The chapter begins by introducing a drawing optimization, which we refer to as “frame resources.” With frame resources, we modify our render loop so that we do not have to flush the command queue every frame; this improves CPU and GPU utilization. Next, we look at a memory management tool called a linear allocator that will make it simpler to work with “set and forget” constant buffers. In addition, we examine root signatures in more detail and learn about the other root parameter types: root descriptors and root constants. Finally, we show how to draw some more complicated objects; by the end of this chapter, you will be able to draw a surface that resembles hills and valleys, cylinders, spheres, and an animated wave simulation. 
 
@@ -78,7 +78,7 @@ void ShapesApp::Update(const GameTimer& gt)
 void ShapesApp::Draw(const GameTimer& gt)   
 { // [...] Build and submit command lists for this frame. // Advance the fence value to mark commands up to this fence point. mCurrFrameResource->Fence $=$ ++mCurrentFence; // Add an instruction to the command queue to set a new fence point. // Because we are on the GPU timeline, the new fence point won't be // set until the GPU finishes processing all the commands prior to // this Signal(). mCommandQueue->Signal(mFence.Get(), mCurrentFence); 
 
-```txt
+```cpp
 // Note that GPU could still be working on commands from previous // frames, but that is okay, because we are not touching any frame // resources associated with those frames. } 
 ```
 
@@ -197,7 +197,7 @@ typedef struct D3D12_ROOT_PARAMETER
 
 1. ParameterType: A member of the following enumerated type indicating the root parameter type (descriptor table, root constant, CBV root descriptor, SRV root descriptor, or UAV root descriptor). 
 
-```txt
+```cpp
 enum D3D12_ROOT_PARAMETER_TYPE  
 {  
     D3D12_ROOT_PARAMETER_TYPE-describedSOR_TABLE = 0,  
@@ -231,7 +231,7 @@ This simply specifies an array of D3D12_DESCRIPTOR_RANGEs and the number of rang
 
 The D3D12_DESCRIPTOR_RANGE structure is defined like so: 
 
-```txt
+```cpp
 typedef struct D3D12 Descriptor_RANGE  
 {  
     D3D12 Descriptor_RANGE_TYPE RangeType;  
@@ -244,7 +244,7 @@ typedef struct D3D12 Descriptor_RANGE
 
 1. RangeType: A member of the following enumerated type indicating the type of descriptors in this range: 
 
-```txt
+```cpp
 enum D3D12 Descriptor_RANGE_TYPE
 {
     D3D12 Descriptor_RANGE_TYPE_SRV = 0,
@@ -260,7 +260,7 @@ Sampler descriptors are discussed in Chapter 9.
 
 3. BaseShaderRegister: Base shader register arguments are bound to. For example, if you set NumDescriptors to 3, BaseShaderRegister to 1 and the range type is CBV (for constant buffers), then you will be binding CBVs to HLSL registers: 
 
-```txt
+```cpp
 cbuffer cbA : register(b1) {...};  
 cbuffer cbB : register(b2) {...};  
 cbuffer cbC : register(b3) {...}; 
@@ -331,7 +331,7 @@ typedef struct D3D12_ROOT_DESCRIPTOR
 
 1. ShaderRegister: The shader register the descriptor will be bound to. For example, if you specify 2 and this root parameter is a CBV, then the parameter gets mapped to the constant buffer in register(b2): 
 
-```txt
+```cpp
 cbuffer cbPass : register(b2) {...}; 
 ```
 
@@ -355,7 +355,7 @@ typedef struct D3D12_ROOTCONSTANTS
     UINT RegisterSpace; 
 ```
 
-```txt
+```cpp
 UINT Num32BitValues;
 } D3D12_ROOTConstants; 
 ```
@@ -366,7 +366,7 @@ UINT Num32BitValues;
 
 3. Num32BitValues: The number of 32-bit constants this root parameter expects. Setting root constants still maps the data to a constant buffer from the shader’s perspective. The following example illustrates this: 
 
-```txt
+```cpp
 // Application code: Root signature definition. CD3DX12_ROOT_PARAMETER slotRootParameter[1]; UINT numConstants = 12; UINT shaderRegister = 0; slotRootParameter[0].InitAsConstants(numConstants, shaderRegister); // A root signature is an array of root parameters. CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(1, slotRootParameter, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_OPEN_INPUT_ASSEMBLER_INPUT_LAYOUT); // Application code: to set the constants to register b0. auto weights = CalcGaussWeights(2.5f); int blurRadius = (int)weights.size() / 2; cmdList->SetGraphicsRoot32BitConstants(0, 1, &blurRadius, 0); cmdList->SetGraphicsRoot32BitConstants(0, (UINT)weights.size(), weights.data(), 1); // HLSL code. cbuffer cbSettings : register(b0) { // We cannot have an array entry in a constant buffer that gets // mapped onto root constants, so list each element. int gBlurRadius; // Support up to 11 blur weights. float w0; float w1; float w2; float w3; float w4; float w5; float w6; float w7; float w8; float w9; float w10; }; 
 ```
 
@@ -394,7 +394,7 @@ As with root descriptors, setting root constants bypasses the need for a descrip
 
 Consider a shader that expects the following resources: 
 
-```txt
+```cpp
 Texture2D gDiffuseMap : register(t0);  
 cbuffer cbPerObject : register(b0)  
 {  
@@ -467,7 +467,7 @@ In this section, we show how to create the geometry for ellipsoids, spheres, cyl
 
 We put our procedural geometry generation code in the MeshGen class (Common/ MeshGen.h/.cpp). MeshGen is a utility class for generating simple geometric shapes like grids, sphere, cylinders, and boxes, which we use throughout this book for our demo programs. This class generates the data in system memory, and we must then copy the data we want to our vertex and index buffers. MeshGen creates some vertex data that will be used in later chapters. We do not need this data in our current demos, and so we do not copy this data into our vertex buffers. The MeshGenData structure is a simple structure that stores a vertex and index list: 
 
-```txt
+```cpp
 struct MeshGenVertex
 {
     MeshGenVertex()
@@ -516,7 +516,7 @@ MeshGenData MeshGen::CreateCylinder(
     // Build Stacks. 
 ```
 
-```lisp
+```cpp
 float stackHeight = height / stackCount;  
 // Amount to increment radius as we move up each stack level  
 // from bottom to top.  
@@ -558,7 +558,7 @@ for (uint32_t i = 0; i < ringCount; ++i)
 vertex.TangentU = XMFLOAT3(-s, 0.0f, c); 
 ```
 
-```txt
+```cpp
 float dr = bottomRadius-topRadius;   
 XMFLOAT3 bitangent(dr*c, -height, dr*s);   
 XMVECTOR T = XMLoadFloat3(&vertex.TangentU);   
@@ -594,7 +594,7 @@ $$
 
 where $n$ is the number of vertices per ring. The main idea is to loop over every slice in every stack and apply the above formulas. 
 
-```txt
+```cpp
 // Add one because we duplicate the first and last vertex per ring // since the texture coordinates are different. uint32_t ringVertexCount = sliceCount + 1;   
 // Compute indices for each stack.   
 for (uint32_t i = 0; i < stackCount; ++i) { for (uint32_t j = 0; j < sliceCount; ++j) { meshData.Indices32.push_back(i*ringVertexCount + j); meshData.Indices32.push_back((i+1)*ringVertexCount + j); meshData.Indices32.push_back((i+1)*ringVertexCount + j+1); meshData.Indices32.push_back(i*ringVertexCount + j); meshData.Indices32.push_back((i+1)*ringVertexCount + j+1); meshData.Indices32.push_back(i*ringVertexCount + j+1); } } BuildCylinderTopCap(bottomRadius, topRadius, height, sliceCount, stackCount, meshData); BuildCylinderBottomCap(bottomRadius, topRadius, height, sliceCount, stackCount, meshData); return meshData; 
@@ -677,7 +677,7 @@ Figure 7.5. Subdividing a triangle into four triangles of equal area.
 
 # The code is given below:
 
-```txt
+```cpp
 void MeshGen::Subdivide(MeshGenData& meshData)  
 { // Save a copy of the input geometry. MeshGenData inputCopy = meshData;  
 meshDataVertices resize(0);  
@@ -699,7 +699,7 @@ MeshGenVertex m1 = MidPoint(v1, v2);
 MeshGenVertex m2 = MidPoint(v0, v2); // Add new geometry. 
 ```
 
-```txt
+```cpp
 //   
 meshData.Contents.push_back(v0); // 0   
 meshData.Contents.push_back(v1); // 1   
@@ -825,7 +825,7 @@ std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> mGeometries;
 
 This is a common pattern we employ for the rest of this book. It is cumbersome to create a new variable name for each geometry, PSO, texture, shader, etc., so we use unordered maps for constant time lookup and reference our objects by name. Here are some more examples: 
 
-```txt
+```cpp
 std::unordered_map<std::string, ComPtr<IDxcBlob >> mShaders; std::unordered_map<std::string, ComPtr<ID3D12PipelineState>> mPSOs; 
 ```
 
@@ -1025,7 +1025,7 @@ $$
 
 The corresponding code: 
 
-```txt
+```cpp
 meshData.Indices32resize(faceCount*3); // 3 indices per face  
 // Iterate over each quad and compute indices.  
 uint32_t k = 0;  

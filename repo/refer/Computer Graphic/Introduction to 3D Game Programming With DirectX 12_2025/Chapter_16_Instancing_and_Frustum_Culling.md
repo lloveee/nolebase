@@ -34,7 +34,7 @@ Why the concern about API overhead? It was common for Direct3D 11 applications t
 
 Perhaps surprisingly, we have already been drawing instanced data in all the previous chapter demos. However, the instance count has always been 1 (second parameter): 
 
-```txt
+```cpp
 const uint32_t instanceof = 1;  
 cmdList->DrawIndexedIndexed(ri->IndexCount, instanceof, ri->StartIndexLocation, ri->BaseVertexLocation, 0); 
 ```
@@ -69,7 +69,7 @@ struct VertexIn
 }; 
 ```
 
-```lisp
+```cpp
 struct VertexOut {
     float4 PosH : SV POSITION;
     float4 ShadowPosH : POSITION0;
@@ -123,7 +123,7 @@ vout.NormalW = mul(vin.NormalL, (float3x3)world);
 vout.TangentW = mul(vin.TangentU, (float3x3)world); // Transform to homogeneous clip space. vout_PosH = mul(posW, gViewProj); if( gSsaoEnabled ) { // Generate projective tex-coords to project SSAO map // onto scene. vout.SsaoPosH = mul(posW, gViewProjTex); } // Output vertex attributes for interpolation across triangle. float4 texC = mul(float4(vin.TexC, 0.0f, 1.0f), texTransform); vout.TexC = mul(texC, Data.matTransform).xy; if( gShadowsEnabled ) { // Generate projective tex-coords to project shadow map // onto scene. vout.ShadowPosH = mul(posW, gShadowTransform); } return vout; } // DefaultPS.hls1 // Include common HLSL code. #include "Shaders/Common.hls1" struct VertexOut { float4 PosH : SV POSITION; float4 ShadowPosH : POSITION0; float4 SsaoPosH : POSITION1; float3 PosW : POSITION2; float3 NormalW : NORMAL; float3 TangentW : TANGENT; float2 TexC : TEXCOORD; #if DRAW_INSTANCED // nointerpolation is used so the index is not interpolated // across the triangle. nointerpolation uint MatIndex : MATINDEX; nointerpolation uint CubeMapIndex : CUBEMAP_INDEX; #endif }; float4 PS(TVertexOut pin) : SV_Target { // Fetch the material data. #if DRAW_INSTANCED MaterialData matData = gMaterialData[pin(MatIndex)]; uint cubeMapIndex = pin.CubeMapIndex; 
 ```
 
-```txt
+```cpp
 else
     MaterialData.matData = gMaterialData[gMaterialIndex];
     uint cubeMapIndex = gCubeMapIndex;
@@ -191,7 +191,7 @@ buffer variables to switch features on and off. Therefore, in DefaultGeo/Default
 
 For completeness, the corresponding root signature description that adds an instance buffer is shown below that corresponds to the above shader programs. Shaders that do not use instancing will naturally ignore the instance buffer that is bound. We could have defined two root signatures, one for instancing and one for not, but our root signature is still relatively small (root signatures have a max size of 64 DWORDs), so we make the trade-off to use a single root signature so that we do not have to maintain multiple root signatures and call SetGraphicsRootSignature multiple times. 
 
-```txt
+```cpp
 CD3DX12_ROOT_PARAMETER gfxRootParameters[GFX_ROOT.Arg_COUNT]; //Performance TIP: Order from most frequent to least frequent.  
 gfxRootParameters[GFX_ROOT.Arg_OBJECT_CBV].InitAsConstantBufferView(0)  
 gfxRootParameters[GFX_ROOT.Arg_PASS_CBV].InitAsConstantBufferView(1);  
@@ -300,7 +300,7 @@ Figure 16.2. The AABB of a set of points using minimum and maximum point represe
 Figure 16.3. The AABB of a set of points using center and extents representation.
 
 
-```txt
+```cpp
 XMFLOAT3 Center; // Center of the box.  
 XMFLOAT3 Extents; // Distance from the center to each side. 
 ```
@@ -360,7 +360,7 @@ Figure 16.4. The bounding box is axis aligned with the xy-frame, but not with th
 Figure 16.5. The bounding box is axis aligned with the XY-frame.
 
 
-```txt
+```cpp
 struct BoundingOrientedBox
 {
     static const size_t CORNER_COUNT = 8;
@@ -383,14 +383,14 @@ void BoundingOrientedBox::CreateFromPoints( _Out_BoundingOrientedBox& Out, _In_s
 
 If your vertex structure looks like this: 
 
-```txt
+```cpp
 struct Basic32
 {
     XMFLOAT3 Pos;
     XMFLOAT3 Normal; 
 ```
 
-```txt
+```cpp
 XMFLOAT2TexC;   
 }； 
 ```
@@ -434,7 +434,7 @@ of the game world. This way, models will not need to be rescaled once loaded int
 
 The DirectX collision library provides the following structure for representing a bounding sphere: 
 
-```txt
+```cpp
 struct BoundingSphere   
 { XMFLOAT3 Center; //Center of the sphere. float Radius; //Radius of the sphere. 
 ```
@@ -466,7 +466,7 @@ Figure 16.6. The intersection of the positive half spaces of the frustum planes 
 
 One easy way to construct the frustum planes is in view space, where the frustum takes on a canonical form centered at the origin looking down the positive $z$ -axis. Here, the near and far planes are trivially specified by their distances along the $z$ -axis, the left and right planes are symmetric and pass through the origin (see Figure 16.6 again), and the top and bottom planes are symmetric and pass through the origin. Consequently, we do not even need to store the full plane equations to represent the frustum in view space, we just need the plane slopes for the top/bottom/left/right planes, and the $z$ distances for the near and far plane. The DirectX collision library provides the following structure for representing a frustum: 
 
-```txt
+```cpp
 struct BoundingFrustum {
     static const size_t CORNER_COUNT = 8;
     XMFLOAT3 Origin; // Origin of the frustum (and projection).
@@ -492,7 +492,7 @@ static XMVECTORF32 HomogeneousPoints[6] = {
 { 0.0f, -1.0f, 1.0f, 1.0f }, // bottom 
 ```
 
-```txt
+```cpp
 {0.0f，0.0f，0.0f，1.0f}， //near{0.0f，0.0f，1.0f，1.0f} //far}; 
 ```
 
@@ -517,7 +517,7 @@ Out-Origin $=$ XMFLOAT3( 0.0f, 0.0f, 0.0f );
 Out,Orientation $=$ XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f );   
 // Compute the slopes. 
 
-```txt
+```cpp
 Points[0] = Points[0] * XMVectorReciprocal(XMVectorSplatZ(Points[0]));  
 Points[1] = Points[1] * XMVectorReciprocal(XMVectorSplatZ(Points[1]));  
 Points[2] = Points[2] * XMVectorReciprocal(XMVectorSplatZ(Points[2]));  
@@ -609,7 +609,7 @@ Finding $P Q$ most aligned with the plane normal vector n can be done with the f
 Figure 16.8. AABB/plane intersection test. The diagonal $\overrightarrow { P Q }$ is always the diagonal most directed with the plane normal.
 
 
-```txt
+```cpp
 // For each coordinate axis x, y, z...  
 for(int j = 0; j < 3; ++j)  
 { // Make PQ point in the same direction as // the plane normal on this axis. if( planeNormal[j] >= 0.0f ) { P[j] = box.minPt[j]; Q[j] = box.maxPt[j]; } else { P[j] = box.maxPt[j]; Q[j] = box.minPt[j]; } 
@@ -680,7 +680,7 @@ skullRitem->Instances[index].MaterialIndex = index % matLib. GetMaterialCount();
 
 Even though our instanced buffer has room for every instance, we only draw the visible instances which correspond to instances from 0 to visibleInstanceCount-1: 
 
-```txt
+```cpp
 cmdList->DrawIndexedInstanced(ri->IndexCount, ri->InstanceCount, ri->StartIndexLocation, ri->BaseVertexLocation, 0); 
 ```
 

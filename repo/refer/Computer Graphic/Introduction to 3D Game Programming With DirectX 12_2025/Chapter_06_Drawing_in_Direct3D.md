@@ -2,7 +2,7 @@ Chapter
 
 # 6
 
-# Draw ing i n Direct3D
+# Drawing i n Direct3D
 
 In the previous chapter, we mostly focused on the conceptual and mathematical aspects of the rendering pipeline. This chapter, in turn, focuses on the Direct3D API interfaces and methods needed to configure the rendering pipeline, define vertex and pixel shaders, and submit geometry to the rendering pipeline for drawing. By the end of this chapter, you will be able to draw a 3D box with solid coloring or in wireframe mode. 
 
@@ -49,7 +49,7 @@ An input layout description is simply an array of D3D12_INPUT_ELEMENT_DESC eleme
 
 Each element in the D3D12_INPUT_ELEMENT_DESC array describes and corresponds to one component in the vertex structure. So if the vertex structure has two components, then the corresponding D3D12_INPUT_ELEMENT_DESC array will have two elements. The D3D12_INPUT_ELEMENT_DESC structure is defined as: 
 
-```txt
+```cpp
 typedef struct D3D12_INPUT_element_DESC   
 { LPCSTR SemanticName; UINT SemanticIndex; DXGI_FORMAT Format; UINT InputSlot; UINT AlignedByteOffset; D3D12_INPUT_CLASSIFICATION InputSlotClass; UINT InstanceDataStepRate; } D3D12_INPUT_element_DESC; 
 ```
@@ -83,7 +83,7 @@ DXGI_FORMAT_R8G8B8A8_UID // 4D 8-bit unsigned integer vector
 
 5. AlignedByteOffset: The offset, in bytes, from the start of the $\mathrm { C } { + + }$ vertex structure of the specified input slot to the start of the vertex component. For example, in the following vertex structure, the element Pos has a 0-byte offset since its start coincides with the start of the vertex structure; the element Normal has a 12-byte offset because we have to skip over the bytes of Pos to get to the start of Normal; the element Tex0 has a 24-byte offset because we need to skip over the bytes of Pos and Normal to get to the start of Tex0; the element Tex1 has a 32-byte offset because we need to skip over the bytes of Pos, Normal, and Tex0 to get to the start of Tex1. 
 
-```txt
+```cpp
 struct Vertex2
 {
     XMFLOAT3 Pos; // 0-byte offset
@@ -182,7 +182,7 @@ CreateStaticBuffer( device, uploadBatch, vertices.data(), vertices.size(), sizeo
 
 where the ColorVertex type is defined as follows: 
 
-```txt
+```cpp
 struct ColorVertex {
     XMFLOAT3 Pos;
     XMFLOAT4 Color;
@@ -389,7 +389,7 @@ are relative to the corresponding local vertex buffer. Now suppose that we conca
 
 But after the merger, they run from 
 
-```txt
+```cpp
 firstBoxVertexPos,  
 firstBoxVertexPos+1,  
 ...  
@@ -416,7 +416,7 @@ The “Shapes” demo project in the next chapter uses this technique.
 
 Below in an implementation of the simple vertex shader (recall §5.6): 
 
-```lisp
+```cpp
 cbuffer cbPerObject : register(b0)  
 {  
     float4x4 gWorldViewProj;  
@@ -440,7 +440,7 @@ The output parameters also have attached semantics (“:SV_POSITION” and “:C
 
 The first line transforms the vertex position from local space to homogeneous clip space by multiplying by the $4 \times 4$ matrix gWorldViewProj: 
 
-```txt
+```cpp
 // Transform to homogeneous clip space.  
 oPosH = mul(float4(iPosL, 1.0f), gWorldViewProj); 
 ```
@@ -449,13 +449,13 @@ The constructor syntax float4(iPosL, 1.0f) constructs a 4D vector and is equival
 
 input color to the output parameter so that the color will be fed into the next stage of the pipeline: 
 
-```txt
+```cpp
 oColor = iColor; 
 ```
 
 We can equivalently rewrite the above vertex shader above using structures for the return type and input signature (as opposed to a long parameter list): 
 
-```txt
+```cpp
 cbuffer cbPerObject : register(b0) { float4x4 gWorldViewProj; } ;   
 struct VertexIn { float3 PosL : POSITION; float4 Color : COLOR; } ;   
 struct VertexOut { float4 PosH : SV POSITION; float4 Color : COLOR; } ;   
@@ -510,7 +510,7 @@ D3D12_INPUT_element_DESC desc[] = { {"POSITION",0，DXGI_FORMAT_R32G32B32_FLOAT�
 struct VertexIn 
 ```
 
-```txt
+```cpp
 float3PosL:POSITION; float4Color:COLOR; float3Normal:NORMAL;   
 };   
 struct VertexOut { float4PosH:SV POSITION; float4Color:COLOR; }；   
@@ -538,7 +538,7 @@ struct VertexIn
 }； 
 ```
 
-```lisp
+```cpp
 struct VertexOut
 {
     float4 PosH : SV POSITION;
@@ -613,7 +613,7 @@ In this example, the pixel shader simply returns the interpolated color value. N
 
 We can equivalently rewrite the above vertex and pixel shaders using input/ output structures. The notation varies in that we attach the semantics to the members of the input/output structures, and that we use a return statement for output instead of output parameters. 
 
-```txt
+```cpp
 cbuffer cbPerObject : register(b0) { float4x4 gWorldViewProj; } ;   
 struct VertexIn { float3 Pos : POSITION; float4 Color : COLOR; } ;   
 struct VertexOut { float4 PosH : SV POSITION; float4 Color : COLOR; } ;   
@@ -625,7 +625,7 @@ float4 PS(VertexOut pin) : SV_Target { return pin.Color; }
 
 A constant buffer is an example of a GPU resource (ID3D12Resource) whose data contents can be read in shader programs. As we will learn throughout this book, textures and other types of buffer resources can also be referenced in shader programs. The example vertex shader in the $\ S 6 . 4$ had the code: 
 
-```txt
+```cpp
 cbuffer cbPerObject : register(b0)  
 {  
     float4x4 gWorldViewProj;  
@@ -699,7 +699,7 @@ struct ObjectConstants
 
 Here the data elements of the constant buffer are just defined in a separate structure, and then a constant buffer is created from that structure. Fields of the constant buffer are then accessed in the shader using data member syntax: 
 
-```txt
+```cpp
 uint index = gObjConstants.matIndex; 
 ```
 
@@ -707,7 +707,7 @@ uint index = gObjConstants.matIndex;
 
 Because a constant buffer is created with the heap type D3D12_HEAP_TYPE_UPLOAD, we can upload data from the CPU to the constant buffer resource. To do this, we first must obtain a pointer to the resource data, which can be done with the Map method: 
 
-```txt
+```cpp
 ComPtr<ID3D12Resource> mUploadBuffer;  
 BYTE* mMappedData = nullptr;  
 mUploadBuffer->Map(0, nullptr, reinterpret_cast<void**>(&mMappedData)); 
@@ -723,7 +723,7 @@ Note:
 
 When doing a memcpy, we need to be careful to take into account that the constant data is allocated in multiples of 256 bytes. If the source data elements are not a multiple of 256, then we cannot just memcpy an array (source) to mapped data (destination) because their byte sizes would not match and the elements would be misaligned. We would have to do it element-by-element like this: 
 
-```txt
+```cpp
 // T data[n];
 for(int i = 0; i < n; ++i)
 {
@@ -774,7 +774,7 @@ struct PassConstants { DirectX::XMFLOAT4X4 ViewProj = MathHelper::Identity4x4();
 
 We could have still kept the combined world-view-projection matrix as part of the per-object constant buffer, but as we will see in later chapters, we often want to do some work in world space anyway. The updated shader code would look like this: 
 
-```txt
+```cpp
 cbuffer cbPerObject : register(b0)  
 {  
     float4x4 gWorld;  
@@ -960,7 +960,7 @@ D3D12 ERROR: ID3D12Device::CreateConstantBufferView: Pointer 142512192 is incorr
 
 Generally, different shader programs will expect different resources to be bound to the rendering pipeline before a draw call is executed. Resources are bound to particular register slots, where they can be accessed by shader programs. For example, the previous vertex and pixel shaders shown at the end of $\ S 6 . 6 . 3$ expect constant buffers bound to register b0 (cbPerObject) and b1 (cbPerPass). A more advanced set of vertex and pixel shaders that we use later in this book expect several constant buffers, textures, and samplers to be bound to various register slots: 
 
-```txt
+```cpp
 // Texture resource bound to texture register slot 0. Texture2D gDiffuseMap : register(t0);   
 // Sampler resources bound to sampler register slots 0-5. SamplerState gsamPointWrap : register(s0); SamplerState gsamPointClamp : register(s1); SamplerState gsamLinearWrap : register(s2); SamplerState gsamLinearClamp : register(s3); SamplerState gsamAnisotropicWrap : register(s4); SamplerState gsamAnisotropicClamp : register(s5);   
 // cbuffer resource bound to cbuffer register slots 0-2 cbuffer cbPerObject : register(b0) { float4x4 gWorld; float4x4 gTexTransform; };   
@@ -984,7 +984,7 @@ enum ROOTArg
 void BoxApp::BuildRootSignature()   
 { // Root parameter can be a table, root descriptor or root constants. CD3DX12_ROOT_PARAMETER slotRootParameter[ROOT.Arg_COUNT] $= \{\}$ ： // Create a table for per-object constants. Arguments would need to be // set once per object. CD3DX12 Descriptor_RANGE objectCbvTable; UINT numDescriptors $= 1$ ; UINT baseRegister $= 0$ . objectCbvTable Init(D3D12 Descriptor_RANGE_TYPE_CBV, numDescriptors, baseRegister); // Create a table for per-pass constants. Arguments would need to be // set once per pass. CD3DX12 Descriptor_RANGE passCbvTable; baseRegister $= 1$ . passCbvTable Init(D3D12 Descriptor_RANGE_TYPE_CBV, numDescriptors, baseRegister); slotRootParameter[ROOT.Arg_OBJECT_CBV].InitAsDescriptorTable(1, &objectCbvTable); slotRootParameter[ROOT.Arg_PASS_CBV].InitAsDescriptorTable(1, &passCbvTable); // A root signature is an array of root parameters. CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc( ROOT.Arg_COUNT, slotRootParameter, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAGAllow_INPUT_ASSEMBLER_INPUT_LAYOUT); 
 
-```txt
+```cpp
 // create a root signature
 ComPtr<ID3DBlob> serializedRootSig = nullptr;
 ComPtr<ID3DBlob> errorBlob = nullptr;
@@ -1020,7 +1020,7 @@ The root signature only defines what resources the application will bind to the 
 
 ist::SetGraphicsRootDescriptorTable to bind a descriptor table to the pipeline: 
 
-```txt
+```cpp
 void ID3D12GraphicsCommandList::SetGraphicsRootDescriptorTable(  
     UINT RootParameterIndex,  
     D3D12_GPU DescriptorHandle BaseDescriptor); 
@@ -1064,13 +1064,13 @@ The release package of DXC also includes dxc.exe, which is a command line tool. 
 
 The first step to using DXC is to include the header files: 
 
-```txt
+```cpp
 include "dxc/inc/dxcapi.h" #include "dxc/inc/d3d12shi er.h" 
 ```
 
 Once we have that, we can obtain pointers to the DXC interfaces we need: 
 
-```txt
+```cpp
 ComPtr<IDxcUtilities>utils = nullptr;  
 ComPtr<IDxcCompiler3> compiler = nullptr;  
 ComPtr<IDxcIncludeHandler> defaultIncludeHandler = nullptr; 
@@ -1170,7 +1170,7 @@ std::vector<LPCWSTR>psArgs $=$ std::vector<LPCWSTR> { L"-E"，L"PS"，L"-T"，L"
 std::vector<LPCWSTR>psAlphaTestedArgs $=$ std::vector<LPCWSTR> { L"-E"，L"PS"，L"-T"，L"ps_6_6"，L"-D ALPHA_TEST=1"COMMA_DEBUG ARGs}；   
 std::vector<LPCWSTR> vsSkinnedArgs $=$ std::vector<LPCWSTR> { 
 
-```txt
+```cpp
 L"-E", L"VS", L"-T", L"vs_6_6", L"-D SKINNED=1" COMMA_DEBUG_
 ARGS };  
 mShaders["standardVS"] = d3dUtil::CompileShader( L"Shaders\Default.hlsl", vsArgs);  
@@ -1210,7 +1210,7 @@ h) lib_6_6: shader library (used for ray tracing)
 
 3. -D: Defines a macro. This is often used to enable/disable shader code. For example, the vertex shader used to render skinned meshes (i.e., animated characters) is almost the same as rendering static meshes with the exception of the animation code. Instead of duplicating the code and adding some animation code, we write the code once but can compile the code with and without skinned animation by defining a macro: 
 
-```txt
+```cpp
 if SKINNED ApplySkinning(vin.BoneWeights,vin.BoneIndices, vin_PosL，vin.NormalL，vin.TangentU.xyz); #endif 
 ```
 
@@ -1226,7 +1226,7 @@ Compiling a shader does not bind it to the rendering pipeline for use. We will s
 
 While many parts of the rendering pipeline are programmable, some parts are only configurable. The rasterizer state group, represented by the D3D12_ RASTERIZER_DESC structure, is used to configure the rasterization stage of the rendering pipeline: 
 
-```txt
+```cpp
 typedef struct D3D12_RASTERIZER_DESC {
     D3D12 fills_MODE FillMode; // Default: D3D12 fills_solID
     D3D12_fill_MODE CullMode; // Default: D3D12_fill_BACK
@@ -1254,7 +1254,7 @@ Most of these members are advanced or not used very often; therefore, we refer y
 
 The following code shows how to create a rasterize state that turns on wireframe mode and disables backface culling: 
 
-```txt
+```cpp
 CD3DX12_RASTERIZER_DESC rsDesc(D3D12_DEFAULT);  
 rsDesc.FillMode = D3D12_fill_WIREFRAME;  
 rsDesc.CullMode = D3D12_CULL_NONE; 
@@ -1273,7 +1273,7 @@ D3D12_DEFAULT is used in several of the Direct3D convenience classes.
 
 We have shown, for example, how to describe an input layout description, how to create vertex and pixel shaders, and how to configure the rasterizer state group. However, we have not yet shown how to bind any of these objects to the graphics pipeline for actual use. Most of the objects that control the state of the graphics pipeline are specified as an aggregate called a pipeline state object (PSO), which is represented by the ID3D12PipelineState interface. To create a PSO, we first describe it by filling out a D3D12_GRAPHICS_PIPELINE_STATE_DESC instance: 
 
-```txt
+```cpp
 typedef struct D3D12 grafICS_PIPELINE_STATE_DESC { ID3D12RootSignature \*pRootSignature; D3D12_SHADER_BYTECODE VS; D3D12_SHADER_BYTECODE PS; D3D12_SHADER_BYTECODE DS; D3D12_SHADER_BYTECODE HS; 
 ```
 
@@ -1360,7 +1360,7 @@ ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState( &basePsoDesc, IID_PPV_arg
 D3D12raphics_pipeLINE_STATE_DESC wireframePsoDesc = basePsoDesc; wireframePsoDesc.RasterizerState.FillMode = D3D12 fills_MODE_WIREFRAME; 
 ```
 
-```txt
+```cpp
 ThrowIfFailed Md3dDevice->CreateGraphicsPipelineState( &wireframePsoDesc, IID_PPV Arguments(&mWireframePSO)); 
 ```
 
@@ -1375,7 +1375,7 @@ Not all rendering states are encapsulated in a PSO. Some states like the viewpor
 
 Direct3D is basically a state machine. Things stay in their current state until we change them. If some objects you are drawing use one PSO, and other objects you are drawing require a different PSO, then you need to structure your code like this: 
 
-```txt
+```cpp
 //Reset specifies initial PSO.   
 mCommandList->Reset(mDirectCmdListAlloc.Get(),mPSO1.Get())   
 /\*...draw objects using PSO 1...\*/   
@@ -1581,7 +1581,7 @@ mBoxGeo $=$ std::make_unique<MeshGeometry $\rightharpoondown$ ); mBoxGeo->Name $
 }   
 void BoxApp::BuildPSO() { D3D12graphics_pipeLINE_STATE_DESC basePsoDesc = d3dUtil::InitDefaultPso( mBackBufferFormat, mDepthStencilFormat, mInputLayout, mRootSignature.Get(), mvsByteCode.Get(), mpsByteCode.Get()); 
 
-```txt
+```cpp
 ThrowIfFailed Md3dDevice->CreateGraphicsPipelineState( &basePsoDesc, IID_PPV_args(&mSolidPSO)); // Create a new PSO based off the default PSO: D3D12_GRAPHICS_PIPELINE_STATE_DESC wireframePsoDesc = basePsoDesc; wireframePsoDesc.RasterizerState.FillMode = D3D12 fills_MODE_ WIREFRAME; ThrowIfFailed (md3dDevice->CreateGraphicsPipelineState( &wireframePsoDesc, IID_PPV_args(&mWireframePSO)); } 
 ```
 
@@ -1614,7 +1614,7 @@ A buffer that stores vertices is called a vertex buffer and a buffer that stores
 
 1. Write down the D3D12_INPUT_ELEMENT_DESC array for the following vertex structure: 
 
-```txt
+```cpp
 struct Vertex
 {
     XMFLOAT3 Pos;
@@ -1628,7 +1628,7 @@ struct Vertex
 
 2. Redo the Colored Cube demo, but this time use two vertex buffers (and two input slots) to feed the pipeline with vertices, one that stores the position element and the other that stores the color element. For this you will use two vertex structures to store the split data: 
 
-```txt
+```cpp
 struct VPosData
 {
     XMFOAT3 Pos;
@@ -1715,7 +1715,7 @@ We use the DXGI_FORMAT_B8G8R8A8_UNORM format (8-bits red, green, blue, and alpha
 
 11. Consider the following $\mathrm { C } { + + }$ vertex structure: 
 
-```txt
+```cpp
 struct Vertex
 {
     XMFLOAT3 Pos;
@@ -1731,7 +1731,7 @@ D3D12_INPUT ELEMENT_DESC vertexDesc[] = { {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_
 
 b) Does the corresponding vertex shader structure order need to match the $\mathrm { C } { + } { + }$ vertex structure order? That is, does the following vertex shader structure work with the above $\mathrm { C } { + } { + }$ vertex structure? Do an experiment to find out. Then give reasoning for why you think it works or does not work. 
 
-```txt
+```cpp
 struct VertexIn
 {
     float4 Color : COLOR;
@@ -1747,7 +1747,7 @@ struct VertexIn
 
 15. Modify the pixel shader in the Box demo to be the following: 
 
-```txt
+```cpp
 float4 PS(VertexOut pin) : SV_Target  
 {  
     clip(pin.Color.r - 0.5f);  
@@ -1759,7 +1759,7 @@ Run the demo and make a conjecture of what the built-in clip function does.
 
 16. Modify the pixel shader in the Box demo to smoothly pulse between the interpolated vertex color and a gPulseColor specified through the constant buffer. You will also need to update the constant buffer on the application side. The constant buffer and pixel shader in the HLSL code should look like the following: 
 
-```txt
+```cpp
 cbuffer cbPerPass : register(b1)  
 {  
     float4x4 gViewProj;  
@@ -1772,7 +1772,7 @@ float4 PS(VertexOut pin) : SV_Target
     // Oscillate a value in [0,1] over time using a sine function. float s = 0.5f*sin(2*gTime - 0.25f*pi) + 0.5f; 
 ```
 
-```txt
+```cpp
 // Linearly interpolate between pin.Color and gPulseColor based on parameter s. float4 c = lerp(pin.Color, gPulseColor, s); return c; } 
 ```
 

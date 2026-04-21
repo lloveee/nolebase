@@ -81,7 +81,7 @@ void AmbientOcclusionApp::BuildVertexAmbientOcclusion(
     for (UINT i = 0; i < tcount; ++i) 
 ```
 
-```txt
+```cpp
 {   
 UINT i0 = indices[i*3+0];   
 UINT i1 = indices[i*3+1];   
@@ -154,14 +154,14 @@ The strategy of screen space ambient occlusion (SSAO) is, for every frame, rende
 
 First we render the view space normal vectors of the scene objects to a screen sized DXGI_FORMAT_R16G16B16A16_FLOAT texture map, while the usual depth/stencil buffer is bound to lay down the scene depth. The vertex/pixel shaders used for this pass are as follows: 
 
-```txt
+```cpp
 // Include common HLSL code. #include "Shaders/Common.hls1"   
 struct VertexIn { float3 PosL : POSITION; float3 NormalL : NORMAL; float2 TexC : TEXCOORD; float3 TangentU : TANGENT; #if SKINNED float3 BoneWeights : WEIGHTS; uint4 BoneIndices : BONEINDICES; #endif } ;   
 struct VertexOut { float4 PosH : SV POSITION; float3 NormalW : NORMAL; float3 TangentW : TANGENT; float2 TexC : TEXCOORD; } ;   
 VertexOut VS (VertexIn vin) { VertexOut vout = (VertexOut)0.0f; // Fetch the material data. MaterialData matData = gMaterialData[gMaterialIndex]; #if SKINNED ApplySkinning( vin.BoneWeights, vin.BoneIndices, vin(PosL, 
 ```
 
-```txt
+```cpp
 vin.NormalL, vin.TangentU.xyz);
 #endif
 // Assumes nonuniform scaling; otherwise, need to use
@@ -316,7 +316,7 @@ return saturate(pow(access,6.0f));
 
 The previous section outlined the key ingredients for generating the SSAO map. Below are the HLSL programs: 
 
-```txt
+```cpp
 // Include common HLSL code. #include "Shaders/Common.hls1"   
 DEFINE_CBUFFER(SsaoCB,b0) { float4 gOffsetVectors[14]; // For SsaoBlur.hsl float4 gBlurWeights[3]; // Coordinates given in view space. float gOcclusionRadius; float gOcclusionFadeStart; float gOcclusionFadeEnd; 
 ```
@@ -333,7 +333,7 @@ VertexOut VS(void : SV VertexID) { VertexOut vout; vout.TexC = gTexCoords[vid]; 
 // as a function of distZ.   
 float OcclusionFunction(float distZ) { /\* // If depth(q) is "behind" depth(p), then q cannot occlude p. // Moreover, if depth(q) and depth(p) are sufficiently close, // then we also assume q cannot occlude p because q needs // to be in front of p by Epsilon to occlude p. 
 
-```lisp
+```cpp
 // We use the following function to determine the occlusion.  
 //  
 //  
@@ -367,7 +367,7 @@ float4 PS(VertexOut pin) : SV_Target
 // Find t such that p = t*pin(PosV. 
 ```
 
-```lisp
+```cpp
 // p.z = t*pin(PosV.z
 // t = p.z / pin(PosV.z
 //float3 p = (pz/pin(PosV.z) *pin(PosV;
@@ -420,7 +420,7 @@ For scenes with large viewing distances, rendering errors can result due to the 
 
 Figure 21.7 shows what our ambient occlusion map currently looks like. The noise is due to the fact that we have only taken a few random samples. Taking enough samples to hide the noise is impractical for real-time. The common solution is to apply an edge preserving blur (i.e., bilateral blur) to the SSAO map to smooth it out. If we used a non-edge preserving blur, then we lose definition in the scene as sharp discontinuities become smoothed out. The edge preserving blur is similar to the blur we implemented in Chapter 13, except we add a conditional statement so that we do not blur across edges (edges are detected from the normal/depth map): 
 
-```txt
+```cpp
 //  
 // Performs a bilateral edge preserving blur of the ambient map. We use  
 // a pixel shader instead of compute shader to avoid the switch from  
@@ -444,7 +444,7 @@ static const int gSsaoBlurRadius = 5;
 static const float2 gTexCoords[6] = { float2(0.0f, 1.0f), float2(0.0f, 0.0f), float2(1.0f, 0.0f), float2(0.0f, 1.0f), float2(1.0f, 0.0f), float2(1.0f, 1.0f); } 
 ```
 
-```lisp
+```cpp
 struct VertexOut {
     float4 PosH : SV POSITION;
     float2 TexC : TEXCOORD;

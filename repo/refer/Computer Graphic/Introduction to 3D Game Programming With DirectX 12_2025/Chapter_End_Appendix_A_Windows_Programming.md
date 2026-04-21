@@ -1,6 +1,6 @@
 Appendix A
 
-# Introducti on to Wi ndows Progra mmi ng
+# Introduction to Windows Programming
 
 To use the Direct3D API (Application Programming Interface), it is necessary to create a Windows (Win32) application with a main window, upon which we will render our 3D scenes. This appendix serves as an introduction to writing Windows applications using the native Win32 API. Loosely, the Win32 API is a set of low-level functions and structures exposed to us in the C programming language that enables us to create Windows applications. For example, to define a window class, we fill out an instance of the Win32 API WNDCLASS structure; to create a window, we use the Win32 API CreateWindow function; to notify Windows to show a particular window, we use the Win32 API function ShowWindow.
 
@@ -61,7 +61,7 @@ const wchar t* wcstrPtr = L"Hello, World!";
 
 The L tells the compiler to treat the string literal as a string of wide-characters (i.e., as wchar_t instead of char). The other important issue is that we need to use the wide-character versions of the string functions. For example, to get the length of a string we need to use wcslen instead of strlen; to copy a string we need to use wcscpy instead of strcpy; to compare two strings we need to use wcscmp instead of strcmp. The wide-character versions of these functions work with wchar_t pointers instead of char pointers. The $\mathrm { C } { + + }$ standard library also provides a wide-character version of its string class: std::wstring. The Windows header file WinNT.h also defines:
 
-```txt
+```cpp
 typedef wchar_t WCHAR; // wc, 16-bit UNICODE character 
 ```
 
@@ -110,7 +110,7 @@ bool InitWindowsApp(HINSTANCE instanceHandle, int show)
 
 // The first task to creating a window is to describe some of its // characteristics by filling out a WNDCLASS structure. WNDCLASS wc;
 
-```txt
+```cpp
 wc.style = CS_HREDRAW | CS_VREDRAW;  
 wc.lpfnWndProc = WndProc;  
 wc.cbClsExtra = 0;  
@@ -123,7 +123,7 @@ wc.lpszClassName = 0;
 wc.lpszClassName = L"BasicWndClass"; 
 ```
 
-```txt
+```cpp
 // Next, we register this WNDCLASS instance with Windows so  
 // that we can create a window based on it.  
 if(!RegisterClass(&wc))  
@@ -171,19 +171,19 @@ We will examine the code from top to bottom, stepping into any function that get
 
 The first thing we do is include the windows.h header file. By including the windows.h file we obtain the structures, types, and function declarations needed for using the basic elements of the Win32 API.
 
-```txt
+```cpp
 include <windows.h> 
 ```
 
 The second statement is an instantiation of a global variable of type HWND. This stands for “handle to a window” or “window handle.” In Windows programming, we often use handles to refer to objects maintained internally by Windows. In this sample, we will use an HWND to refer to our main application window maintained by Windows. We need to hold onto the handles of our windows because many calls to the API require that we pass in the handle of the window we want the API call to act on. For example, the call UpdateWindow takes one argument that is of type HWND that is used to specify the window to update. If we did not pass in a handle to it, the function would not know which window to update.
 
-```txt
+```cpp
 HWND ghMainWnd = 0; 
 ```
 
 The next three lines are function declarations. Briefly, InitWindowsApp creates and initializes our main application window; Run encapsulates the message loop for our application; and WndProc is our main window’s window procedure. We will examine these functions in more detail when we come to the point where they are called.
 
-```txt
+```cpp
 bool InitWindowsApp(HINSTANCE instanceHandle, int show);  
 int Run();  
 LRESULT callback  
@@ -194,7 +194,7 @@ WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 WinMain is the Windows equivalent to the main function in normal $\mathrm { C } { + + }$ programming. WinMain is prototyped as follows:
 
-```txt
+```cpp
 int WINAPI  
 WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nShowCmd) 
 ```
@@ -206,7 +206,7 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nShowCm
 
 If WinMain succeeds, it should return the wParam member of the WM_QUIT message. If the function exits without entering the message loop, it should return zero. The WINAPI identifier is defined as:
 
-```txt
+```cpp
 define WINAPI __cdecl 
 ```
 
@@ -216,7 +216,7 @@ This specifies the calling convention of the function, which means how the funct
 
 Inside WinMain we call the function InitWindowsApp. As you can guess, this function does all the initialization of our program. Let us take a closer look at this function and its implementation. InitWindowsApp returns either true or false: true if the initialization was a success and false otherwise. In the WinMain definition, we pass as arguments a copy of our application instance and the show command variable into InitWindowsApp. Both are obtained from the WinMain parameter list.
 
-```txt
+```cpp
 if(!InitWindowsApp(hInstance, nShowCmd)) 
 ```
 
@@ -334,7 +334,7 @@ If we made it this far in InitWindowsApp, then the initialization is complete; w
 
 Having successfully completed initialization we can begin the heart of the program—the message loop. In our Basic Windows Application, we have wrapped the message loop in a function called Run.
 
-```txt
+```cpp
 int Run()
 {
     MSG msg = {0};
@@ -393,7 +393,7 @@ Our window procedure handles three messages: WM_LBUTTONDOWN, WM_KEYDOWN, and WM_
 
 Our code is quite simple; when we receive a WM_LBUTTONDOWN message we display a message box that prints out “Hello, World”:
 
-```txt
+```cpp
 case WM_LBUTTONDOWN:  
     MessageBox(0, L"Hello, World", L"Hello", MB_OK);  
     return 0; 
@@ -419,7 +419,7 @@ At the end of our window procedure, we call another function named DefWindowProc
 
 There is one last API function we have not yet covered, and that is the MessageBox function. This function is a very handy way to provide the user with information and to get some quick input. The declaration to the MessageBox function looks like this:
 
-```txt
+```cpp
 int MessageBox( HWND hWnd, // Handle of owner window, may specify null. LPCTSTR lpText, // Text to put in the message box. LPCTSTR lpCaption, // Text to put for the title of the message box. UINT uType // Style of the message box. ); 
 ```
 
@@ -432,7 +432,7 @@ A.5. Yes/No message box.
 
 Games are very different application than traditional Windows applications such as office type applications and web browsers. Typically, games do not sit around waiting for a message, but are constantly being updated. This presents a problem, because if there are no messages in the message queue, the function GetMessage puts the thread to sleep and waits for a message. For a game, we do not want this behavior; if there are no Windows messages to be processed, then we want to run our own game code. The fix is to use the PeekMessage function instead of GetMessage. The PeekFunction message returns immediately if there are no messages. Our new message loop is as follows:
 
-```txt
+```cpp
 int Run()
 {
     MSG msg = {0};
@@ -501,7 +501,7 @@ You can create vectors where the components are of a type other than float. For 
 
 We can initialize a vector using an array like syntax or constructor like syntax:
 
-```lisp
+```cpp
 float3 v = {1.0f, 2.0f, 3.0f};  
 float2 w = float2(x, y);  
 float4 u = float4(w, 3.0f, 4.0f); // u = (w.x, w.y, 3.0f, 4.0f) 
@@ -529,7 +529,7 @@ v = u.wyyx; // v = {4.0f, 2.0f, 2.0f, 1.0f}
 
 Another example:
 
-```txt
+```cpp
 float4 u = {1.0f, 2.0f, 3.0f, 4.0f};  
 float4 v = {0.0f, 0.0f, 5.0f, 6.0f};  
 v = u.wzyx; // v = {4.0f, 3.0f, 2.0f, 1.0f} 
@@ -541,7 +541,7 @@ When copying vectors, we do not have to copy every component over. For example, 
 float4 u = {1.0f, 2.0f, 3.0f, 4.0f}; 
 ```
 
-```txt
+```cpp
 float4 v = {0.0f, 0.0f, 5.0f, 6.0f};  
 v.xy = u; // v = {1.0f, 2.0f, 5.0f, 6.0f} 
 ```
@@ -573,7 +573,7 @@ In addition, we can refer to the entries of a matrix M as we would access the me
 
 One-Based Indexing:
 
-```txt
+```cpp
 M._11 = M._12 = M._13 = M._14 = 0.0f;  
 M._21 = M._22 = M._23 = M._24 = 0.0f;  
 M._31 = M._32 = M._33 = M._34 = 0.0f;  
@@ -582,7 +582,7 @@ M._41 = M._42 = M._43 = M._44 = 0.0f;
 
 Zero-Based Indexing:
 
-```txt
+```cpp
 M._m00 = M._m01 = M._m02 = M._m03 = 0.0f;  
 M._m10 = M._m11 = M._m12 = M._m13 = 0.0f;  
 M._m20 = M._m21 = M._m22 = M._m23 = 0.0f;  
@@ -595,7 +595,7 @@ float3ithRow $=$ M[i]；//get theith row vector in M
 
 In this next example, we insert three vectors into the first, second and third row of a matrix:
 
-```txt
+```cpp
 float3 N = normalize(pIn.normalW);  
 float3 T = normalize(pIn.tangentW - dot(pIn.tangentW, N) * N);  
 float3 B = cross(N, T);  
@@ -618,7 +618,7 @@ float3x3 TBN = float3x3(T, B, N);
 
 Instead of using float4 and float4x4 to represent 4D vectors and $4 \times 4$ matrices, you can equivalently use the vector and matrix type:
 
-```txt
+```cpp
 vector u = {1.0f, 2.0f, 3.0f, 4.0f};  
 matrix M; // 4x4 matrix 
 ```
@@ -627,7 +627,7 @@ matrix M; // 4x4 matrix
 
 We can declare an array of a particular type using familiar $\mathrm { C } { + + }$ syntax, for example:
 
-```txt
+```cpp
 float M[4][4];  
 half p[4];  
 float3 v[12]; // 12 3D vectors 
@@ -637,7 +637,7 @@ float3 v[12]; // 12 3D vectors
 
 Structures are defined exactly as they are in $\mathrm { C } { + + }$ . However, structures in the HLSL cannot have member functions. Here is an example of a structure in the HLSL:
 
-```txt
+```cpp
 struct SurfaceInfo {
     float3 pos;
     float3 normal;
@@ -711,7 +711,7 @@ asrm, bool, compile, const, decl, do, double, else, extern, false, float, for, h
 
 This next set of keywords displays identifiers that are reserved and unused, but may become keywords in the future:
 
-```txt
+```cpp
 auto, break, case, catch, char, class, const_cast, continue, default, delete, dynamic_cast, enum, explicit, friend, goto, long, mutable, namespace, new, operator, private, protected, public, register, reinterpret_cast, short, signed, sizeof, static_cast, switch, template, this, throw, try, typename, union, unsigned, using, virtual 
 ```
 
@@ -729,7 +729,7 @@ Note:
 
 The operators behave as expected for scalars, that is, in the usual $C + +$ way.
 
-```lisp
+```cpp
 float4 u = {1.0f, 0.0f, -3.0f, 1.0f};  
 float4 v = {-4.0f, 2.0f, 1.0f, 0.0f};  
 // adds corresponding components  
@@ -738,14 +738,14 @@ float4 sum = u + v; // sum = (-3.0f, 2.0f, -2.0f, 1.0f)
 
 Incrementing a vector increments each component:
 
-```txt
+```cpp
 // before increment: sum = (-3.0f, 2.0f, -2.0f, 1.0f)  
 sum++; // after increment: sum = (-2.0f, 3.0f, -1.0f, 2.0f) 
 ```
 
 Multiplying vectors component wise:
 
-```lisp
+```cpp
 float4 u = {1.0f, 0.0f, -3.0f, 1.0f};  
 float4 v = {-4.0f, 2.0f, 1.0f, 0.0f};  
 // multiply corresponding components  
@@ -762,7 +762,7 @@ The syntax $\tt { A } ^ { \star } \tt { B }$ does componentwise multiplication, 
 
 Comparison operators are also done per component and return a vector or matrix where each component is of type bool. The resulting “bool” vector contains the results of each compared component. For example:
 
-```lisp
+```cpp
 float4 u = { 1.0f, 0.0f, -3.0f, 1.0f};  
 float4 v = {-4.0f, 0.0f, 1.0f, 1.0f};  
 float4 b = (u == v); // b = (false, true, false, true) 
@@ -795,7 +795,7 @@ if(condition)
 
 The for statement:
 
-```txt
+```cpp
 for(initial; condition; increment)  
 { statement(s); } 
 ```
@@ -808,7 +808,7 @@ while(condition) { statement(s); }
 
 The do…while statement:
 
-```txt
+```cpp
 do  
 {statement(s);}while(condition); 
 ```
@@ -826,7 +826,7 @@ Functions in the HLSL have the following properties:
 
 Furthermore, the HLSL adds some extra keywords that can be used with functions. For example, consider the following function written in the HLSL:
 
-```lisp
+```cpp
 bool foo(in const bool b, // input bool
 out int r1, // output int
 inout float r2) // input/output float
@@ -850,7 +850,7 @@ The function is almost identical to a $\mathrm { C } { + } { + }$ function excep
 
 1. in: Specifies that the argument (particular variable we pass into a parameter) should be copied to the parameter before the function begins. It is not necessary to explicitly specify a parameter as in because a parameter is in by default. For example, the following are equivalent:
 
-```txt
+```cpp
 float square(in float x)  
 {  
     return x * x;  
@@ -859,7 +859,7 @@ float square(in float x)
 
 And without explicitly specifying in:
 
-```lisp
+```cpp
 float square(float x)  
 {  
     return x * x;  
@@ -868,7 +868,7 @@ float square(float x)
 
 2. out: Specifies that the parameter should be copied to the argument when the function returns. This is useful for returning values through parameters. The out keyword is necessary because the HLSL doesn’t allow us to pass by reference or to pass a pointer. We note that if a parameter is marked as out the argument is not copied to the parameter before the function begins. In other words, an out parameter can only be used to output data—it can’t be used for input.
 
-```txt
+```cpp
 void square(in float x, out float y)  
 {  
     y = x * x;  
@@ -879,7 +879,7 @@ Here we input the number to be squared through $_ \textrm { x }$ and return the 
 
 3. inout: Shortcut that denotes a parameter as both in and out. Specify inout if you wish to use a parameter for both input and output.
 
-```txt
+```cpp
 void square (inout float x)  
 {  
     x = x * x;  
@@ -917,7 +917,7 @@ For further reference, the complete list of the built in HLSL functions can be f
 
 In the HLSL, constant buffer padding occurs so that elements are packed into 4D vectors, with the restriction that a single element cannot be split across two 4D vectors. Consider the following example:
 
-```txt
+```cpp
 // HLSL  
 cbuffer cb : register(b0)  
 {  
@@ -928,14 +928,14 @@ cbuffer cb : register(b0)
 
 If we have to pack the data into 4D vectors, you might think it is done like this:
 
-```txt
+```cpp
 vector 1: (Pos.x, Pos.y, Pos.z, Dir.x)  
 vector 2: (Dir.y, Dir.z, empty, empty) 
 ```
 
 However, this splits the element dir across two 4D vectors, which is not allowed by the HLSL rules—an element is not allowed to straddle a 4D vector boundary. Therefore, it has to be packed like this in shader memory:
 
-```txt
+```cpp
 vector 1: (Pos.x, Pos.y, Pos.z, empty)  
 vector 2: (Dir.x, Dir.y, Dir.z, empty) 
 ```
@@ -953,14 +953,14 @@ struct Data
 
 If we did not pay attention to these packing rules, and just blindly called copied the bytes over when writing to the constant buffer with a memcpy, then we would end up with the incorrect first situation and the constant values would be wrong:
 
-```txt
+```cpp
 vector 1: (Pos.x, Pos.y, Pos.z, Dir.x)  
 vector 2: (Dir.y, Dir.z, empty, empty) 
 ```
 
 Thus we must define our $\mathrm { C } { + } { + }$ structures so that the elements copy over correctly into the HLSL constants based on the HLSL packing rules; we use “pad” variables for this. We redefine the constant buffer to make the padding explicit:
 
-```txt
+```cpp
 cbuffer cb : register(b0)  
 {  
     float3 Pos;  
@@ -985,7 +985,7 @@ struct Data
 
 If we do a memcpy now, the data gets copied over correctly to the constant buffer:
 
-```txt
+```cpp
 vector 1: (Pos.x, Pos.y, Pos.z, __pad0)  
 vector 2: (Dir.x, Dir.y, Dir.z, __pad1) 
 ```
@@ -1005,7 +1005,7 @@ struct Light {
 
 When written to a constant buffer, these data elements will tightly pack three 3D vectors:
 
-```txt
+```cpp
 vector 1: (Strength.x, Strength.y, Strength.z, FalloffStart)  
 vector 2: (Direction.x, Direction.y, Direction.z, FalloffEnd)  
 vector 3: (Position.x, Position.y, Position.z, SpotPower) 
@@ -1017,7 +1017,7 @@ You should define your $C { + + }$ constant buffer data structures to match the 
 
 Just to make the HLSL packing/padding clearer, let us look at a few more examples of how HLSL constants are packed. If we have a constant buffer like this:
 
-```lisp
+```cpp
 cbuffer cb : register(b0)  
 {  
     float3 v;  
@@ -1029,7 +1029,7 @@ cbuffer cb : register(b0)
 
 The structure would be padded and the data will be packed into three 4D vectors like so:
 
-```txt
+```cpp
 vector 1: (v.x, v.y, v.z, s)  
 vector 2: (p.x, p.y, empty, empty)  
 vector 3: (q.x, q.y, q.z, empty) 
@@ -1039,7 +1039,7 @@ Here we can put the scalar $\boldsymbol { \mathsf { S } }$ in the fourth compone
 
 As another example, consider the constant buffer:
 
-```txt
+```cpp
 cbuffer cb : register(b0)  
 {  
     float2 u;  
@@ -1052,7 +1052,7 @@ cbuffer cb : register(b0)
 
 This would be padded and packed like so:
 
-```txt
+```cpp
 vector 1: (u.x, u.y, v.x, v.y)  
 vector 2: (a0, a1, a2, empty) 
 ```
@@ -1069,7 +1069,7 @@ float4 TexOffsets[8];
 
 Therefore, from the $C { + + }$ code you would need to set an array of 8 XMFLOAT4s, not an array of 8 XMFLOAT2s for things to work properly. Each element wastes two floats of storage since we really just wanted a float2 array. The SDK documentation points out that you can use casting and additional address computation instructions to make it more memory efficient:
 
-```txt
+```cpp
 float4 array[4];  
 static float2 aggressivePackArray[8] = (float2[8])array; 
 ```
@@ -1205,7 +1205,7 @@ float x $=$ XMVectorGetX(XMPlaneDotCoord(p, v));
 ![](images/3c0db15ebf0eaf86dfdfe4a4178b8b861a34bcada5017ff0f90961aac97e96e4.jpg)  
 Figure C.8. Point/plane spatial relation.
 
-```txt
+```cpp
 if( x approximately equals 0.0f ) // v is coplanar to the plane.  
 if( x > 0 ) // v is in positive half-space.  
 if( x < 0 ) // v is in negative half-space. 

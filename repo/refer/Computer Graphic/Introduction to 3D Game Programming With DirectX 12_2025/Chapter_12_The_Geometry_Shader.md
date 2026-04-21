@@ -1,6 +1,6 @@
 Chapter 
 
-# 12 The Geom etry Shader
+# 12 The Geometry Shader
 
 Assuming we are not using the tessellation stages, the geometry shader stage is an optional stage that sits between the vertex and pixel shader stages. While the vertex shader inputs vertices, the geometry shader inputs entire primitives. For example, if we were drawing triangle lists, then conceptually the geometry shader program would be executed for each triangle T in the list: 
 
@@ -28,7 +28,7 @@ The primitives output from the geometry shader are defined by a vertex list. Ver
 
 Programming geometry shaders is a lot like programming vertex or pixel shaders, but there are some differences. The following code shows the general form: 
 
-```txt
+```cpp
 [maxvertexcount(N)]  
 void ShaderName(
     PrimitiveType InputVertexType InputName [NumElements],
@@ -40,7 +40,7 @@ void ShaderName(
 
 We must first specify the maximum number of vertices the geometry shader will output for a single invocation (the geometry shader is invoked per primitive). This is done by setting the max vertex count before the shader definition using the following attribute syntax: 
 
-```txt
+```cpp
 [maxvertexcount(N)] 
 ```
 
@@ -87,7 +87,7 @@ For example, if you wanted to output triangle lists, then you would call Restart
 
 Below are some specific examples of geometry shader signatures: 
 
-```txt
+```cpp
 // EXAMPLE 1: GS outputs at most 4 vertices. The input primitive  
 // is a line. The output is a triangle strip.  
 //  
@@ -119,7 +119,7 @@ void GS(point VertexOut gin[1],
 
 The following geometry shader illustrates the Append and RestartStrip methods; it inputs a triangle, subdivides it (Figure 12.1) and outputs the four subdivided triangles: 
 
-```txt
+```cpp
 struct VertexOut
 {
     float3 PosL : POSITION;
@@ -138,7 +138,7 @@ struct VertexOut
 Figure 12.1. Subdividing a triangle into four equally sized triangles. Observe that the three new vertices are the midpoints along the edges of the original triangle.
 
 
-```txt
+```cpp
 float4 PosH : SV POSITION; float3 PosW : POSITION; float3 NormalW : NORMAL; float2 Tex : TEXCOORD;   
 };   
 void Subdivide(VertexOut inVertices[3], out VertexOut outVertices[6]) { // v1 // \ / \ // / \ \m0\*--\*m1 // /\/ \ \/ /\/ \ \m0\*--\*m1 // / \ /\/ \ \m0\*--\*m1 // v0 m2 v2 VertexOut m[3]; // Compute edge midpoints. m[0].PosL = 0.5f\*(inVertices[0].PosL+inVertices[1].PosL); m[1].PosL = 0.5f\*(inVertices[1].PosL+inVertices[2].PosL); m[2].PosL = 0.5f\*(inVertices[2].PosL+inVertices[0].PosL); //Project onto unit sphere m[0].PosL = normalize(m[0].PosL); m[1].PosL = normalize(m[1].PosL); m[2].PosL = normalize(m[2].PosL); // Derive normals. m[0].NormalL = m[0].PosL; m[1].NormalL = m[1].PosL; m[2].NormalL = m[2].PosL; //Interpolate texture coordinates. m[0].Tex = 0.5f\*(inVertices[0].Tex+inVertices[1].Tex); m[1].Tex = 0.5f\*(inVertices[1].Tex+inVertices[2].Tex); m[2].Tex = 0.5f\*(inVertices[2].Tex+inVertices[0].Tex); outVertices[0] = inVertices[0]; 
@@ -152,7 +152,7 @@ inout TriangleStream<GeoOut> triStream)
 [maxvertexcount(8)]   
 void GS(triangle VertexOut gin[3], inout TriangleStream<GeoOut>) 
 
-```txt
+```cpp
 { VertexOut v[6]; Subdivide(gin, v); OutputSubdivision(v, triStream); } 
 ```
 
@@ -290,7 +290,7 @@ Excepting texture arrays (§12.3), the other $\mathrm { C } { + + }$ code in the
 
 Since this is our first demo with a geometry shader, we will show the entire HLSL file here so that you can see how it fits together with the vertex and pixel shaders. This effect also introduces some new objects that we have not discussed yet (SV_ PrimitiveID and Texture2DArray); these items will be discussed next. For now, mainly focus on the geometry shader program GS; this shader expands a point into a quad aligned with the world’s y-axis that faces the camera, as described in $\$ 12.2.1$ . 
 
-```txt
+```cpp
 // Include common HLSL code. #include "Shaders/Common.hls1"   
 struct VertexIn { float3 PosW : POSITION; float2 SizeW : SIZE; } ;   
 struct VertexOut { float3 CenterW : POSITION; float2 SizeW : SIZE; } ;   
@@ -306,7 +306,7 @@ void GS(point VertexOut gin[1], uint primID : SV_PrimitiveID, inout TriangleStre
 }   
 float4 PS(GeoOut pin) : SV_Target { MaterialData matData = gMaterialData[gMaterialIndex]; float4 diffuseAlbedo = matData.DiffuseAlbedo; float3 fresnelR0 = matData.FresnelR0; float roughness = matData.Roughness; uint diffuseMapIndex = matData.DiffuseMapIndex; //Dynamically look up the texture in the heap. float3 uvw = float3(pin.TexC, pin.PrimID % 3); Texture2DArray diffuseMap = ResourceDescriptorHeap[diffuseMapIndex ex]; diffuseAlbedo $\ast =$ diffuseMap_SAMPLE(GetAnisoWrapSampler(), uvw); #ifdef ALPHA_TEST //Discard pixel if texture alpha $<  0.25f$ .We do this test as soon //as possible in the shader so that we can potentially exit the //shader early, thereby skipping the rest of the shader code. clip(diffuseAlbedo.a - 0.25f); #endif // Interpolating normal can unnormalize it, so renormalize it. float3 normalW $=$ normalize(pin.NormalW); // Vector from point being lit to eye. float3 toEyeW $=$ gEyePosW - pin(PosW; float distToEye $=$ length(toEyeW); toEyeW $= =$ distToEye; // normalize // Light terms. float4 ambient $=$ gAmbientLight\*diffuseAlbedo; const float shininess $= (1.0f -$ roughness); Material mat $=$ { diffuseAlbedo,fresnelR0, shininess }; float4 directLight $=$ ComputeLighting(gLights,mat, pin(PosW, normalW,toEyeW); float4 litColor $=$ ambient + directLight; if( gFogEnabled ) { float fogAmount $=$ saturate((distToEye-gFogStart)/ gFogRange); litColor $=$ lerp(litColor,gFogColor,fogAmount); } // Common convention to take alpha from diffuse albedo. litColor.a $=$ diffuseAlbedo.a; 
 
-```txt
+```cpp
 returnlitColor; 
 ```
 
@@ -314,7 +314,7 @@ returnlitColor;
 
 The geometry shader in this example takes a special unsigned integer parameter with semantic SV_PrimitiveID. 
 
-```txt
+```cpp
 [maxvertexcount(4)]  
 void GS(point VertexOut gin[1], uint primID : SV_PrimitiveID, inout TriangleStream<GeoOut> triStream) 
 ```
@@ -325,7 +325,7 @@ When this semantic is specified, it tells the input assembler stage to automatic
 
 If a geometry shader is not present, the primitive ID parameter can be added to the parameter list of the pixel shader: 
 
-```txt
+```cpp
 float4 PS(VertexOut pin, uint primID : SV_PrimitiveID) : SV_Target  
 { // Pixel Shader body... 
 ```
@@ -338,11 +338,11 @@ It is also possible to have the input assembler generate a vertex ID. To do this
 
 The following vertex shader signature shows how this is done: 
 
-```txt
+```cpp
 VertexOut VS (VertexIn vin, uint vertID : SV_VertexID) { 
 ```
 
-```txt
+```cpp
 //vertexshaderbody... 
 ```
 
@@ -363,7 +363,7 @@ if(texResource->GetDesc().DepthOrArraySize > 1)
 { CreateSrv2dArray( md3dDevice.Get(), texResource, texResource->GetDesc().Format, texResource->GetDesc().MipLevels, texResource->GetDesc().DepthOrArraySize, hDescriptor); } else { CreateSrv2d( md3dDevice.Get(), texResource, texResource->GetDesc().Format, texResource->GetDesc().MipLevels, hDescriptor); } inline void CreateSrv2dArray( 
 ```
 
-```txt
+```cpp
 ID3D12Device* device, ID3D12Resource* resource, DXGI_FORMAT format, UINT mipLevels, UINT arraySize, CD3DX12_CPU_DESCRIPTOR_handle hDescriptor) { D3D12_SHADER_RESOURCE(View_DESC srvDesc = {}; srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4 ComponentMapping; srvDesc.ViewDimension = D3D12_SRV_DIMENSION-textURE2ARRAY; srvDesc.Texture2Array MostDetailedMip = 0; srvDesc.Texture2Array.FirstArraySlice = 0; srvDesc.Texture2Array.Size = arraySize; srvDesc.Texture2Array.ResourceMinLODClamp = 0.0f; srvDesc.Format = format; srvDesc.Texture2Array.MipLevels = mipLevels; device->CreateShaderResourceView(resource, &srvDesc, hDescriptor); } 
 ```
 
@@ -424,7 +424,7 @@ Figure 12.9. Subresources in a texture array labeled with a linear index.
 
 The following utility function is used to compute the linear subresource index given the mip level, array index, and the number of mipmap levels: 
 
-```txt
+```cpp
 inline UINT D3D12CalcSubresource( UINT MipSlice, UINT ArraySlice,  
     UINT PlaneSlice, UINT MipLevels, UINT ArraySize)  
 {  
@@ -439,7 +439,7 @@ inline UINT D3D12CalcSubresource( UINT MipSlice, UINT ArraySlice,
 
 3. A special parameter of type uint and semantic SV_PrimitiveID can be added to the parameter list of a geometry shader as the following example shows: 
 
-```txt
+```cpp
 [maxvertexcount(4)]  
 void GS(point VertexOut gin[1], uint primID: SV_PrimitiveID, inout TriangleStream<GeoOut> triStream); 
 ```

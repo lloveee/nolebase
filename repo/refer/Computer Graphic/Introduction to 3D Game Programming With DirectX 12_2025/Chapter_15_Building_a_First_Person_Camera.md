@@ -1,6 +1,5 @@
-Part 
 
-# III Topi cs
+# III Topics
 
 n this part, we focus on applying Direct3D to implement various rendering effects to make our scenes more realistic, such as sky rendering, ambient occlusion, character animation, environment mapping, normal mapping, shadow mapping, particle systems, and ray tracing. A brief description of the chapters in this part follows. 
 
@@ -125,7 +124,7 @@ void Camera::SetLens(floatfovY, float aspect, float zn, float zf)
 { // cache properties mFovY =fovY; mAspect = aspect; mNearZ =zn; mFarZ =zf; mNearWindowHeight = 2.0f * mNearZ * tanf(0.5f*mFovY); mFarWindowHeight = 2.0f * mFarZ * tanf(0.5f*mFovY); 
 ```
 
-```txt
+```cpp
 XMMMATRIX P = XMMatrixPerspectiveFovLH(mFovY, mAspect, mNearZ, mFarZ);  
 XMStoreFloat4x4(&mProj, P); 
 ```
@@ -271,7 +270,7 @@ XMMatrix view $=$ mCamera.View(); XMMatrix proj $=$ mCamera.Proj();
 
 Similar to what we did in Chapter 9 with textures and materials, we are going to use a simple library for PSOs. For this, we implement a utility class PsoLib in Common/PsoLib.h/.cpp. We are going to put all the PSOs used for the demo application of Part III in this library so that we do not have to duplicate PSO definitions across demo applications. As with TextureLib, this class is mostly a wrapper around an unordered map of PSOs so that we can look up a PSO by name. Creating the PSOs now comes from calling the PsoLib::Init method: 
 
-```txt
+```cpp
 void TestApp::BuildPSOs()
 {
     PsoLib::GetLib().Init(

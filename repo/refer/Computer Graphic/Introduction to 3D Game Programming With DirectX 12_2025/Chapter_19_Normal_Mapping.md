@@ -1,6 +1,6 @@
 # Chapter
 
-# 19 Norm al Mapp ing
+# 19 Normal Mapp ing
 
 In Chapter 9, we introduced texture mapping, which enabled us to map fine details from an image onto our triangles. However, our normal vectors are still defined at the coarser vertex level and interpolated over the triangle. For part of this chapter, we study a popular method for specifying surface normals at a higher resolution. Specifying surface normals at a higher resolution increases the detail of the lighting, but the mesh geometry detail remains unchanged. Displacement mapping, combined with tessellation, allows us to increase the detail of our meshes. 
 
@@ -92,7 +92,7 @@ $$
 
 In code, we apply this function to each color component like this: 
 
-```txt
+```cpp
 // Uncompress each component from [0,1] to [-1,1].  
 normalT = 2.0f*normalT - 1.0f; 
 ```
@@ -179,7 +179,7 @@ Generally, after averaging, the TBN-bases will generally need to be orthonormali
 
 In our system, we will not store the bitangent vector B directly in memory. Instead, we will compute $\mathbf { B } = \mathbf { N } \times \mathbf { T }$ when we need B, where N is the usual averaged vertex normal. Hence, our vertex structure looks like this: 
 
-```txt
+```cpp
 struct Vertex
 {
     XMFLOAT3 Pos;
@@ -241,7 +241,7 @@ We summarize the general process for normal mapping:
 
 To help us implement normal mapping, we have added the following function to Common.hlsl: 
 
-```txt
+```cpp
 // Transforms a normal map sample to world space.
 // 
 float3 NormalSampleToWorldSpace(float3 normalMapSample,
@@ -262,7 +262,7 @@ float3x3 TBN $=$ float3x3(T,B,N); //Transform from tangent space to world space.
 
 This function is used like this in the pixel shader: 
 
-```txt
+```cpp
 Texture2D normalMap = ResourceDescriptorHeap[normalMapIndex];  
 float3 normalMapSample = normalMap_SAMPLE(GetAnisoWrapSampler(), pin. TexC).rgb;  
 bumpedNormalW = NormalSampleToWorldSpace( normalMapSample, pin.NormalW, pin.TangentW); 
@@ -270,7 +270,7 @@ bumpedNormalW = NormalSampleToWorldSpace( normalMapSample, pin.NormalW, pin.Tang
 
 Two lines that might not be clear are these: 
 
-```txt
+```cpp
 float3 N = unitNormalW;  
 float3 T = normalize(tangentW - dot(tangentW, N) * N); 
 ```
@@ -279,7 +279,7 @@ After the interpolation, the tangent vector and normal vector may not be orthono
 
 Once we have the normal from the normal map, which we call the “bumped normal,” we use it for all the subsequent calculation involving the normal vector (e.g., lighting, cube mapping). The entire normal mapping effect is shown below for completeness, with the parts relevant to normal mapping in bold. 
 
-```txt
+```cpp
 // Include common HLSL code. #include "Shaders/Common.hls1" struct VertexIn { float3 PosL : POSITION; float3 NormalL : NORMAL; 
 ```
 
@@ -290,7 +290,7 @@ Once we have the normal from the normal map, which we call the “bumped normal,
 Figure 19.6. Since $| | \mathsf { N } | | = 1$ , $\mathsf { p r o j } _ { \mathsf { N } } ( \mathsf { T } ) = ( \mathsf { T } { \cdot } \mathsf { N } ) \mathsf { N }$ . The vector T-projN (T) is the portion of T orthogonal to N.
 
 
-```txt
+```cpp
 float2 TexC : TEXCOORD; float3 TangentU : TANGENT; #if SKINNED float3 BoneWeights : WEIGHTS; uint4 BoneIndices : BONEINDICES; #endif };   
 struct VertexOut { float4 PosH : SV POSITION; float4 ShadowPosH : POSITION0; float4 SsaoPosH : POSITION1; float3 PosW : POSITION2; float3 NormalW : NORMAL; float3 TangentW : TANGENT; float2 TexC : TEXCOORD; #if DRAW_INSTANCED // nointerpolation is used so the index is not interpolated // across the triangle. nointerpolation uint MatIndex : MATINDEX; #endif };   
 VertexOut VS(VertexIn vin #if DRAW_INSTANCED , uint instanceID : SV InstanceID #endif } { VertexOut vout = (VertexOut)0.0f;   
@@ -300,7 +300,7 @@ VertexOut VS(VertexIn vin #if DRAW_INSTANCED , uint instanceID : SV InstanceID #
 
 // Transform to world space. float4 posW = mul(float4(vin(PosL, 1.0f), world); voutPosW = posW.xyz; // Assumes nonuniform scaling; otherwise, need to use // inverse-transpose of world matrix. vout.NormalW = mul(vin.NormalL, (float3x3)world); vout.TangentW = mul(vin.TangentU, (float3x3)world); // Transform to homogeneous clip space. vout_PosH = mul(posW, gViewProj); if( gSsaoEnabled ) { // Generate projective tex-coords to project SSAO map // onto scene. vout.SsaoPosH = mul(posW, gViewProjTex); } // Output vertex attributes for interpolation across triangle. float4 texC = mul(float4(vin.TexC, 0.0f, 1.0f), texTransform); vout.TexC = mul(texC, DataMatTransformation).xy; if( gShadowsEnabled ) { // Generate projective tex-coords to project shadow map // onto scene. vout.ShadowPosH = mul(posW, gShadowTransform); } return vout; } float4 PS(VertexOut pin): SV_Target { // Fetch the material data. #if DRAW_INSTANCED MaterialData matData = gMaterialData[pin.matIndex]; #else MaterialData matData = gMaterialData[gMaterialIndex]; #endif float4 diffuseAlbedo = matData.DiffuseAlbedo; float3 fresnelR0 = matData.FresnelR0; float roughness = matData.Roughness; uint diffuseMapIndex = matData.DiffuseMapIndex; uint normalMapIndex = matData.NormalMapIndex; uint glossHeightAoMapIndex = matData.GlossHeightAoMapIndex; // Dynamically look up the texture in the array. Texture2D diffuseMap = ResourceDescriptorHeap[diffuseMapIndex]; diffuseAlbedo $\ast =$ diffuseMap_SAMPLE(GetAnisoWrapSampler(), pin. TexC); 
 
-```txt
+```cpp
 def ALPHA_TEST
 // Discard pixel if texture alpha < 0.1. We do this test as soon
 // as possible in the Shader so that we can potentially exit the
@@ -422,7 +422,7 @@ To integrate displacement mapping into our rendering, we need to support tessell
 
 When using hardware tessellation, recall that the vertex shader operates per patch control point. It is like a shader for control points rather than vertices. In our implementation, the only vertex shader work we do is transform the attributes to world space and propagate the texture coordinates. 
 
-```lisp
+```cpp
 struct VertexIn
 {
     float3 PosL : POSITION;
@@ -458,7 +458,7 @@ float CalcTessFactor(float3 p)
 { float d $=$ distance(p,gEyePosW); float s $=$ saturate((d-gMeshMinTessDist)/(gMeshMaxTessDist-gMeshMinTessDist)); return pow(2,(lerp(gMeshMaxTess,gMeshMinTess,s))）;   
 } 
 
-```txt
+```cpp
 struct PatchTess {
     float EdgeTess[3] : SV_TessFactor;
     float InsideTess[1] : SV_InsideTessFactor;
@@ -506,7 +506,7 @@ PatchTess ConstantHS(InputPatch<vertex out, 3> patch, uint patchID : SV_Primitiv
 
 The constant buffer values are as follows: 
 
-```txt
+```cpp
 float gMeshMinTessDist;  
 float gMeshMaxTessDist;  
 float gMeshMinTess;  
@@ -546,7 +546,7 @@ eye and triangle centroid. Then we propagate the interior tessellation factor to
 
 Recall that the control point hull shader inputs the control points for a patch and outputs the control points for a patch (possibly different from the input patch size). The control point hull shader is invoked once per control point output but has access to the entire input patch. In our case, we input a triangle patch and output a triangle patch, and the control point hull shader is simply a “pass through” shader: 
 
-```lisp
+```cpp
 struct HullOut
 {
     float3 PosW : POSITION;
@@ -572,7 +572,7 @@ HullOut HS(InputPatch<vertexOut, 3> p, uint i : SV_OutputControlPointID, uint pa
 
 While the vertex shader is executed for each input patch control point, the domain shader is invoked for each vertex created by the tessellation stage. It is here that we do the displacement mapping by sampling the heightmap and offsetting the vertices in the normal direction according to the formula discussed in $\$ 19.7$ . 
 
-```lisp
+```cpp
 struct DomainOut
 {
     float4 PosH : SV_POSITION;
@@ -632,7 +632,7 @@ a) Tile the heightmaps differently so that one set can be used to model broad lo
 
 b) The normal map textures should be tiled more than the heightmap textures. The heightmaps give the shape of the waves, and the normal maps are used to light the waves per pixel. As with the heightmaps, the normal maps should translate over time and in different directions to give the illusion of new waves forming and fading. The two normals can then be combined using code similar to the following: 
 
-```txt
+```cpp
 float3 normalMapSample0 = gNormalMap0SAMPLE(samLinear, pin. WaveNormalTex0).rgb;   
 float3 bumpedNormalW0 = NormalSampleToWorldSpace( normalMapSample0, pin.NormalW, pin.TangentW);   
 float3 normalMapSample1 = gNormalMap1SAMPLE(samLinear, pin. WaveNormalTex1).rgb;   

@@ -123,7 +123,7 @@ Thus, in Figure 27.5, $n _ { 2 } > n _ { 1 }$ , since the ray bends toward the n
 
 Refraction with ray tracing is done just like reflection. When we intersect an object that is refractive, we can cast out a refraction ray into the scene. As with reflections, if the surface the refraction ray hits is also refractive then this process can continue in a recursive fashion up to some specified recursion limit. Furthermore, a surface is usually not solely refractive. Typically, when we intersect a refractive surface, we compute the shaded color value there and cast the refraction ray into the scene. Then we do some sort of blend between the shaded surface and the refraction color. 
 
-```txt
+```cpp
 if( transparencyScale > 0.0f )  
 { float3 refractionAmt = transparencyScale * (1.0f - reflectionAmt); float3 refractDir = refract(WorldRayDirection(), bumpedNormalW, indexOfRefraction); float4 refractColor = CastColorRay(hitPosW, refractDir, rayPayload.RecursionDepth + 1); litColor.rgb = lerp(litColor.rgb, refractColor.rgb, refractionAmt); } 
 ```
@@ -190,7 +190,7 @@ Figure 27.9. (Left) Transforming a ray from world space into the local space of 
 
 If you use nonuniform scaling in the world matrix, then to transform normals you will need to use the inverse-transpose. 
 
-```txt
+```cpp
 float3x3 toWorld = (float3x3)ObjectToWorld4x3();  
 float3x3 toWorldInvTranspose = transpose(inverse(toWorld)); 
 ```
@@ -366,13 +366,13 @@ $$
 
 If the ray lies inside the box, then $t _ { m i n }$ will be behind the ray. In this case, we want to return $t _ { m a x }$ as the nearest intersection point: 
 
-```txt
+```cpp
 t0 = tmin < MIN_T ? tmax : tmin; 
 ```
 
 Another possible situation is if the ray is parallel to a slab (Figure 27.15b). If the ray lies inside the slab, then we can continue to the next slab. If the ray lies outside the slab, then the ray misses the box. To determine if a ray lies inside a slab, all we need to do is check if its origin point is bounded between the slab. 
 
-```txt
+```cpp
 // The box is [-1, 1]^3 in local space.  
 bool RayAABBIntersection(float3 rayOriginL, float3 rayDirL, out float3 normal, out float3 tangentU, out float2 texC, out float t_hit) 
 ```
@@ -431,7 +431,7 @@ For now, let us ignore the CPU side of the ray tracing API and focus on the shad
 
 The ray generation shader is where we spawn our initial rays. It looks similar to a compute shader where we dispatch a grid of threads. Typically, we would dispatch a thread per pixel, construct a ray from the eye through each pixel, and then call the intrinsic function TraceRay to cast the ray into the scene which will return a filled out payload structure with the ray traced color value. We then write the color to an output image UAV. 
 
-```txt
+```cpp
 // Scene data structures will be discussed later, but this basically  
 // stores the scene geometry in an efficient way the GPU can intersect  
 // a ray against.  
@@ -466,7 +466,7 @@ uint2rayIndex $=$ DispatchRaysIndex().xy; uint2 imageSize $=$ DispatchRaysDimens
 
 The RayDesc type is a built-in HLSL structure for defining a ray: 
 
-```txt
+```cpp
 RayDesc rayDesc;  
 rayDescOrigin = rayOrigin;  
 rayDesc.Direction = rayDir;  
@@ -505,7 +505,7 @@ data, the intersection attributes data structure should be kept as small as poss
 
 In the example code below, we pass a primitive type ID per object via the local constants. Then based on the primitive type, we execute the appropriate intersection test function, which determines if there is an intersection and, if there is an intersection, outputs the intersection attributes. Finally, if we did intersect geometry, we call the intrinsic ReportHit function to let DXR know we hit something. If we do not report a hit, it means we missed this object. The anyhit or closest-hit shader will not be called for this object along this ray. 
 
-```txt
+```cpp
 struct GeoAttributes {
     float3 Normal;
     float3 TangentU;
@@ -539,7 +539,7 @@ switch (primitiveType)
 } 
 ```
 
-```txt
+```cpp
 default:
     break;
 }
@@ -596,7 +596,7 @@ The following code snippet is long, but much of it should be familiar from our d
 // L----> reflect 
 ```
 
-```txt
+```cpp
 struct ColorRayPayload
 {
     float4 Color;
@@ -657,7 +657,7 @@ void ClosestHit(inout ColorRayPayload rayPayload, in GeoAttributes attr)
 { // This is very similar code to our "Default.hlsl" pixel // shader that shades models. // Use intrinsic functions to get the ray in world space, // as well as the intersection parameter. const float t = RayTCurrent(); float3 hitPosW = WorldRayOrigin() + t * WorldRayDirection(); // Fetch the material data. uint materialIndex = gLocalConstants.MaterialIndex; MaterialData matData = gMaterialData[materialIndex]; float4 diffuseAlbedo = matData.DiffuseAlbedo; float3 fresnelR0 = matData.FresnelR0; float roughness = matData.Roughness; float transparencyScale = matData.TransparencyWeight; float indexOfRefraction = matData.IndexOfRefraction; uint diffuseMapIndex = matData.DiffuseMapIndex; uint normalMapIndex = matData.NormalMapIndex; uint glossHeightAoMapIndex = matData.GlossHeightAoMapIndex; float2 texScale = gLocalConstants.TexScale; float2 texC = attr.TexC * texScale; // Dynamically look up the texture in the array. Texture2D diffuseMap = ResourceDescriptorHeap[diffuseMapIndex]; diffuseAlbedo *= diffuseMapSAMPLELevel(GetAnisoWrapSampler(), texC, 0.0f); if( diffuseAlbedo.a < 0.1f ) { return; } float3x3 toWorld = (float3x3)ObjectToWorld4x3(); float3x3 toWorldInvTranspose = transpose(inverse(toWorld)); float3 normalW = normalize(mul(att.Normal, toWorldInvTranspose)); float3 tangentW = mul(att.TangentU, toWorld); Texture2D normalMap = ResourceDescriptorHeap[normalMapIndex]; float3 normalMapSample = normalMapSAMPLELevel(GetAnisoWrapSampler(), texC, 0.0f).rgb; float3 bumpedNormalW = NormalSampleToWorldSpace(normalMapSample, normalW, tangentW); 
 ```
 
-```txt
+```cpp
 Texture2D glossHeightAoMap = DescriptorHeap[glossHeightAoMapIndex];  
 float3 glossHeightAo = glossHeightAoMap/sampleLevel(GetAnisoWrapSampler(), texC, 0.0f).rgb; // Uncomment to turn off normal mapping. // bumpedNormalW = normalW;  
 // Vector from point being lit to eye.  
@@ -694,7 +694,7 @@ Some important points to consider are as follows:
 
 1. We mentioned any hit shaders are useful for shadow rays; however, we can actually specify flags to basically get the same optimization without using an any hit shader: 
 
-```txt
+```cpp
 // For shadows we just care if we hit something. // So optimize the ray trace. const uint shadowRayFlags = RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH | RAY_FLAG FORCE_OPAQUE | RAY_FLAG_SKIP_CLOSEST_HIT_SHADER; 
 ```
 
@@ -706,7 +706,7 @@ In addition, these flags indicate to skip the closest hit shader for shadows as 
 
 The miss shader is called for a ray if it does not intersect anything in the scene. Typically, this is used to set a background color or sample a skybox. 
 
-```txt
+```cpp
 [shade("miss")]  
 void Color_MissShader(inout ColorRayPayload rayPayload)  
 { TextureCube gCubeMap = ResourceDescriptorHeap[gSkyBoxIndex]; rayPayload.Color = gCubeMap/sampleLevel(GetLinearWrapSampler(), WorldRayDirection(), 0.0f); } // If shadow ray misses, then we must not be in shadow. [shade("miss")]  
@@ -726,7 +726,7 @@ mShaders["rayTracingLib"] $=$ d3dUtil::CompileShader( L"Shaders\RayTracing.hls1"
 
 With rasterization, we draw meshes one-by-one, and can specify a different pipeline state object (PSO) if the objects need to be drawn with different shaders or state. For example, 
 
-```txt
+```cpp
 SetTerrainPSO();   
 DrawTerrainMesh();   
 SetStaticOpaqueMeshPSO();   
@@ -737,14 +737,14 @@ DrawParticles();
 
 Ray tracing is more complicated because when view rays are generated, we do not know which geometries they will intersect, and each geometry may require a distinct set of shader programs. Furthermore, different rays (color versus shadow) also require different shader programs. Therefore, RTX needs to know all possible shaders that might need to be run per ray dispatch. This information is specified by the shader binding table (SBT). The SBT is just a GPU buffer of shader records that we fill out. There is an implicit agreement that it has been filled out correctly such that it matches how the scene and ray tracing pipeline is configured for the dispatch. This would be a source of bugs if not filled out correctly. As a reminder, a scene is composed of instances of models, where each model is made up of at least one geometry. Furthermore, we might have multiple types of rays being cast (e.g., primary color and shadow rays). Therefore, each geometry will have an entry for each ray type. From [RTGEMS2], the general formula is as follows: 
 
-```txt
+```cpp
 HG_index = I_offset + R_offset + R_stride * G_id  
 HG_byteOffset = HG_stride * HG_index 
 ```
 
 Where 
 
-```txt
+```cpp
 I_offset: Index to the starting record in the shimmer table for the instance.  
 R_offset: ray index from [0, RayTypeCount).  
 G_id: instance geometry index from [0, GeometryCount.instanceId)).  
@@ -858,7 +858,7 @@ HRESULT hr $=$ D3D12SerializerRootSignature( &rtLocalRootSigDesc，D3D_ROOT_SIGN
 
 5. The CD3DX12_GLOBAL_ROOT_SIGNATURE_SUBOBJECT sub-object configures the global root signature, which is similar to the root signatures we have been using so far with the exception of per-object constants, which come from the local root signature. Here we would specify the scene constants, global material buffer, and, in the case of ray tracing, the acceleration structure (§27.5.2) that defines our scene geometry to DXR. 
 
-```txt
+```cpp
 // Define shader parameters global to all ray-trace shaders.  
 CD3DX12_ROOT_PARAMETER rayTraceRootParameters[RT_ROOT.Arg_COUNT];  
 rayTraceRootParameters[RT_ROOT.Arg_PASS_CBV].InitAsConstantBufferView(1);  
@@ -1031,7 +1031,7 @@ AccelerationStructureBuffers ProceduralRayTracer::BuildPrimitiveBias()
     D3D12_GPU_VIRTUAL_ADDRESS boundsBasePtr =
         mGeoBoundsBuffer->Resource()->GetGPUVirtualAddress(); 
 
-```txt
+```cpp
 D3D12_RAYTRACINGGEOMETRY_DESC geoDesc[1];  
 geoDesc[0].Type = D3D12_RAYTRACINGGEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS;  
 geoDesc[0].Flags = D3D12_RAYTRACINGGEOMETRY_FLAG_OPAQUE;  
@@ -1163,7 +1163,7 @@ sizeof(LocalRootArguments));
 
 In this way, when we intersect a triangle in the shader, we can access the vertex and index buffers, and offset to the appropriate positions based on the geometry. 
 
-```txt
+```cpp
 [shade("closesthit")]  
 void ClosestHit(  
     inout ColorRayPayload rayPayload,  
@@ -1256,7 +1256,7 @@ HybridRayTracer::RTModelDef columnSquareModel = MakeRtModel(
     mColumnSquareIndexBufferBindlessIndex); 
 ```
 
-```txt
+```cpp
 mRayTracer->AddModel("sphereModel", sphere);  
 mRayTracer->AddModel("orbBaseModel", orbBaseModel);  
 mRayTracer->AddModel("columnRoundBrokenModel", columnRoundBrokenModel);  
@@ -1278,14 +1278,14 @@ struct RTInstance
 
 Now, at the same time we add a render item for rasterization rendering, we add the corresponding instance to the scene for ray tracing. For example, 
 
-```txt
+```cpp
 XMStoreFloat4x4(&worldTransform, XMMatrixScaling(6.0f, 6.0f, 6.0f));  
 XMStoreFloat4x4(&texTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));  
 AddRenderItem(RenderLayer::Opaque, worldTransform, texTransform, matLib["orbBase"], mGeometries["orbBase"].get(), mGeometries["orbBase"]->DrawArgs["subset0"]);  
 mRayTracer->AddInstance("orbBaseModel", worldTransform, XMFLOAT2(1.0f, 1.0f), matLib["orbBase"]->MatIndex); 
 ```
 
-```txt
+```cpp
 XMStoreFloat4x4(&worldTransform, XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(0.0f, 1.75f, 0.0f));  
 texTransform = MathHelper::Identity4x4();  
 AddRenderItem(RenderLayer::Opaque, worldTransform, texTransform, matLib["mirror1"], mGeometries["shapeGeo"].get(), mGeometries["shapeGeo"]->DrawArgs["sphere"]);  
@@ -1316,7 +1316,7 @@ biasDesc.Inputs.NumDescs $=$ numGeometries;
 biasDesc.Inputs.pGeometryDescs $=$ geoDesc;   
 // Query some info that is device dependent for building the BLAS. D3D12_RAYTRACING_ACCELERATIONSTRUCTURE_PREBUILD_INFO prebuildInfo $= \{\}$ mdxrDevice->GetRaytracingAccelerationStructurePrebuildInfo( &biasDesc.Inputs, &prebuildInfo); assert(prebuildInfo.ResultDataMaxSizeInBytes > 0); 
 
-```txt
+```cpp
 ComPtr<ID3D12Resource> scratch;   
 AllocateUAVBuffer(mdxrDevice, prebuildInfo.ScratchDataSizeInBytes, &scratch, D3D12RESOURCE_STATE_UNORDERED_ACCESS, L"ScratchResource");   
 ComPtr<ID3D12Resource> bias;   
@@ -1350,7 +1350,7 @@ Note that the implementations for CastShadowRay and CastColorRay are in $\ S 2 7
 
 When the ray hits the closest triangle, the closest hit shader is called. DXR has built-in support for triangles, and therefore we do not need an intersection shader for ray tracing triangles. Furthermore, for triangles, we do not need to define a custom geometric attributes structure; instead DXR defines the following: 
 
-```txt
+```cpp
 struct BuiltInTriangleIntersectionAttributes {
     float2 barycentrics;
 }; 
@@ -1360,7 +1360,7 @@ Barycentric coordinates (see Appendix C.3) are essentially coordinates relative 
 
 Once we have hit a triangle, we use the intrinsic PrimitiveIndex() to get the triangle that was hit. From that, the vertex/index buffer bindless indices and the vertex/index offsets we can obtain the triangle vertices. Then we use the barycentric coordinates to interpolate the vertex attributes at the hit location and shade the point as usual. We recursively cast out another shadow and reflection ray. Note that because we skip the closest hit shaders for shadow rays, it means the closest-hit shader is just being called for reflection rays. 
 
-```txt
+```cpp
 [shade("closeesthit")]  
 void ClosestHit(  
     inout ColorRayPayload rayPayload,  
@@ -1434,7 +1434,7 @@ In the final step, once the screen reflection/shadow map is generated by ray tra
 float4 PS(VertexOut pin) : SV_Target   
 { // Fetch the material data. MaterialData.matData = gMaterialData[gMaterialIndex]; float4 diffuseAlbedo = matData.DiffuseAlbedo; float3 fresnelR0 =.matData.FresnelR0; float roughness $=$ matData.Roughness; uint diffuseMapIndex $=$ matData.DiffuseMapIndex; uint normalMapIndex $=$ matData.NormalMapIndex; uint glossHeightAoMapIndex $=$ matData.GlossHeightAoMapIndex; //Dynamically look up the texture in the array. Texture2D diffuseMap $=$ ResourceDescriptorHeap[diffuseMapIndex]; diffuseAlbedo $\star =$ diffuseMap.Sample(GetAnisoWrapSampler(), pin. TexC); 
 
-```txt
+```cpp
 def Alpha_TEST
 // Discard pixel if texture alpha < 0.1. We do this test as soon
 // as possible in the Shader so that we can potentially exit the

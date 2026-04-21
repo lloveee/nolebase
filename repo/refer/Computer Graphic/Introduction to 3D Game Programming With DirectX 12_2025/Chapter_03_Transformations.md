@@ -1,6 +1,4 @@
-# Chapter 3
-
-# Transform ations
+# Chapter 3 Transformations
 
 We describe objects in our 3D worlds geometrically; that is, as a collection of triangles that approximate the exterior surfaces of the objects. It would be an uninteresting world if our objects remained motionless. Thus we are interested in methods for transforming geometry; examples of geometric transformations are translation, rotation, and scaling. In this chapter, we develop matrix equations, which can be used to transform points and vectors in 3D space. 
 
@@ -678,7 +676,7 @@ XMMatrix XM_CALLCONV XMMatrixRotationZ(float Angle); // Clockwise angle $\theta$
 // Constructs an arbitrary axis rotation matrix $\mathbf{R}_{\mathrm{n}}$ ..   
 XMMatrix XM_CALLCONV XMMatrixRotationAxis( FXMVECTOR Axis, // Axis n to rotate about float Angle); //Clockwise angle $\theta$ to rotate 
 
-```txt
+```cpp
 Constructs a translation matrix:  
 XMMatrix XM_CALLCONV XMMatrixTranslation( float OffsetX, float OffsetY, float OffsetZ); // Translation factors 
 ```

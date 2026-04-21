@@ -26,7 +26,7 @@ public: ShadowMap(ID3D12Device* device, UINT width, UINT height); ShadowMap(cons
 private: void BuildDescriptors(); void BuildResource();   
 private: ID3D12Device\* md3dDevice $=$ nullptr; D3D12(ViewPORT mViewport; D3D12_RECT mScissorRect; UINT mWidth $= 0$ ; UINT mHeight $= 0$ . DXGI_FORMAT mFormat $\equiv$ DXGI_FORMAT_R24G8_TYPELESS; uint32_t mBindlessIndex $= -1$ CD3DX12_CPU DescriptorHandle mhCpuSrv; CD3DX12_CPU DescriptorHandle mhGpuSrv; CD3DX12_CPU DescriptorHandle mhCpuDsv; 
 
-```txt
+```cpp
 Microsoft::WRL::ComPtr<ID3D12Resource> mShadowMap = nullptr; 
 ```
 
@@ -206,7 +206,7 @@ Let us call the above matrix T for “texture matrix” that transforms from NDC
 
 The code for generating projective texture coordinates is shown below: 
 
-```lisp
+```cpp
 struct VertexOut
 {
     float4 PosH : SV POSITION;
@@ -318,7 +318,7 @@ Figure 20.8. The shadow map samples the depth of the scene. Observe that due to 
 Figure 20.9. By biasing the depth values in the shadow map, no false shadowing occurs. We have that $d ( p _ { 1 } ) \leq s$ and $d ( p _ { 2 } ) \leq s$ . Finding the right depth bias is usually done by experimentation.
 
 
-```txt
+```cpp
 typedef struct D3D12_RASTERIZER_DESC {  
     [...]  
     INT DepthBias;  
@@ -350,7 +350,7 @@ Figure 20.11. Polygons with large slopes, relative to the light source, require 
 
 Note that we apply the slope-scaled-bias when we are rendering the scene to the shadow map. This is because we want to bias based on the polygon slope with respect to the light source. Consequently, we are biasing the shadow map values. In our demo we use the values: 
 
-```txt
+```cpp
 // [From MSDN]
 // If the depth buffer currently bound to the output-merger stage
 // has a UNORM format or no depth buffer is bound the bias value
@@ -394,7 +394,7 @@ Figure 20.12. Taking four shadow map samples.
 
 texels. With color texturing, this is solved with bilinear interpolation (§9.5.1). However, [Kilgard01] points out that we should not average depth values, as it can lead to incorrect results about a pixel being flagged in shadow. (For the same reason, we also cannot generate mipmaps for the shadow map.) Instead of interpolating the depth values, we interpolate the results—this is called percentage closer filtering (PCF). That is, we use point filtering (MIN_MAG_MIP_POINT) and sample the texture with coordinates $( u , \nu )$ , $( u + \Delta x , \nu )$ , $( u , \nu + \Delta x )$ , $( u + \Delta x , \nu +$ $\Delta x )$ ), where Δx = 1/SHADOW_MAP_SIZE. Since we are using point sampling, these four points will hit the nearest four texels ${ \bf s } _ { 0 } , { \bf s } _ { 1 } , { \bf s } _ { 2 } ,$ and $\mathbf { s } _ { 3 }$ , respectively, surrounding $( u , \nu )$ , as shown in Figure 20.12. We then do the shadow map test for each of these sampled depths and bilinearly interpolate the shadow map results: 
 
-```lisp
+```cpp
 static const float SMAP_SIZE = 2048.0f;   
 static const float SMAP_DX = 1.0f / SMAP_SIZE;   
 ...   
@@ -402,7 +402,7 @@ static const float SMAP_DX = 1.0f / SMAP_SIZE;
 // Is the pixel depth <= shadow map value? float result0 = depth <= s0; float result1 = depth <= s1; float result2 = depth <= s2; 
 ```
 
-```lisp
+```cpp
 float result3 = depth <= s3;  
 // Transform to texel space.  
 float2 texelPos = SMAP_SIZE*projTexC.xy;  
@@ -435,7 +435,7 @@ Figure 20.13. In the top image, observe the “stair-stepping” artifacts on th
 
 not improved as much as the raw computational power of GPUs [Möller08]. Fortunately, Direct3D $1 1 +$ graphics hardware has built in support for PCF via the SampleCmpLevelZero method: 
 
-```txt
+```cpp
 Texture2D gShadowMap : register(t1);   
 SamplerComparisonState gsamShadow : register(s6);   
 // Complete projection by doing division by w.   
@@ -448,7 +448,7 @@ gShadowMap/sampleCmpLevelZero(gsamShadow, shadowPosH.xy, depth).r;
 
 The LevelZero part of the method name means that it only looks at the top mipmap level, which is fine because that is what we want for shadow mapping (we do not generate a mipmap chain for the shadow map). This method does not use a typical sampler object, but instead uses a so-called comparison sampler. This is so that the hardware can do the shadow map comparison test, which needs to be done before filtering the results. For PCF, you need to use the filter D3D12_FILTER_ COMPARISON_MIN_MAG_LINEAR_MIP_POINT and set the comparison function to LESS_ EQUAL (LESS also works since we bias the depth). The first and second parameters are the comparison sampler and texture coordinates, respectively. The third parameter is the value to compare against the shadow map samples. So settings the compare value to depth, and the comparison function to LESS_EQUAL we are doing the comparisons: 
 
-```lisp
+```cpp
 float result0 = depth <= s0;  
 float result1 = depth <= s1;  
 float result2 = depth <= s2;  
@@ -506,7 +506,7 @@ ShadowMapApp::ShadowMapApp(HINSTANCE hInstance) : D3DApp(hInstance)
 void ShadowMapApp::Update(const GameTimer& gt)   
 { [...] // Animate the lights (and hence shadows). // mLightRotationAngle $+ =$ 0.1f\*gt.DeltaTime(); XMMATRIX R $=$ XMMatrixRotationY(mLightRotationAngle); for(int i $= 0$ ; i $<  3$ ++i) 
 
-```txt
+```cpp
 { XMVECTOR lightDir = XmlLoadFloat3(&mBaseLightDirections[i]); lightDir = XMVector3TransformNormal(lightDir, R); XMStoreFloat3(&mRotatedLightDirections[i], lightDir); } AnimateMaterials(gt); UpdatePerObjectCB(gt); UpdateMaterialBuffer(gt); UpdateShadowTransform(gt); UpdateMainPassCB(gt); UpdateShadowPassCB(gt); } void ShadowMapApp::UpdateShadowTransform(const GameTimer& gt) { // Only the first "main" light casts a shadow. XMVECTOR lightDir = XmlLoadFloat3(&mRotatedLightDirections[0]); XMVECTOR lightPos = -2.0f*mSceneBounds.Radius*lightDir; XMVECTOR targetPos = XmlLoadFloat3(&mSceneBoundsCENTER); XMVECTOR lightUp = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f); XMMatrix lightView = XMMatrixLookAtLH(lightPos, targetPos, lightUp); XMStoreFloat3(&mLightPosW, lightPos); // Transform bounding sphere to light space. XMFLOAT3 sphereCenterLS; XMStoreFloat3(&sphereCenterLS, XMVector3TransformCoord(targetPos, lightView)); // Ortho frustum in light space encloses scene. float l = sphereCenterLS.x - mSceneBounds.Radius; float b = sphereCenterLS.y - mSceneBounds.Radius; float n = sphereCenterLS.z - mSceneBounds.Radius; float r = sphereCenterLS.x + mSceneBounds.Radius; float t = sphereCenterLS.y + mSceneBounds.Radius; float f = sphereCenterLS.z + mSceneBounds.Radius; mLightNearZ = n; mLightFarZ = f; XMMatrix lightProj = XMMatrixOrthographicOffCenterLH(l, r, b, t, n, f); // Transform NDC space [-1,+1]^2 to texture space [0,1]^2 XMMatrix T( 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.5f, 0.5f, 0.0f, 1.0f); XMMatrix S = lightView*lightProj*T; XMStoreFloat4x4(&mLightView, lightView); XMStoreFloat4x4(&mLightProj, lightProj); 
 ```
 
@@ -554,7 +554,7 @@ ThrowIfFailed(device->CreateGraphicsPipelineState( &smapPsoDesc, IID_PPV_args(&m
 
 The shader programs we use for rendering the scene from the perspective of the light is quite simple because we are only building the shadow map, so we do not need to do any complicated pixel shader work. 
 
-```txt
+```cpp
 // Include common HLSL code. #include "Shaders/Common.hls1"   
 struct VertexIn { float3 PosL : POSITION; float2 TexC : TEXCOORD; #if SKINNED float3 BoneWeights : WEIGHTS; uint4 BoneIndices : BONEINDICES; #endif } ;   
 struct VertexOut { float4 PosH : SV POSITION; float2 TexC : TEXCOORD; } ;   
@@ -562,7 +562,7 @@ VertexOut VS (VertexIn vin) { VertexOut vout = (VertexOut)0.0f; MaterialData mat
 // This is only used for alpha cut out geometry, so that shadows 
 ```
 
-```lisp
+```cpp
 // show up correctly. Geometry that does not need to sample a
 // texture can use a NULL pixel shader for depth pass.
 void PS(VertexOut pin)
@@ -616,7 +616,7 @@ The shadow factor does not affect ambient light since that is indirect light, an
 
 After we have built the shadow map by rendering the scene from the perspective of the light, we can sample the shadow map in our main rendering pass to determine if a pixel is in shadow or not. The key issue is computing $d ( p )$ and $s ( \boldsymbol p )$ for each pixel $\boldsymbol { p }$ . The value $d ( p )$ is found by transforming the point to the NDC space of the light; then the $z$ -coordinate gives the normalized depth value of the point from the light source. The value $s ( \boldsymbol p )$ is found by projecting the shadow map onto the scene through the light’s view volume using projective texturing. Note that with this setup, both $d ( p )$ and $s ( \boldsymbol p )$ are measured in the NDC space of the light, so they can be compared. The transformation matrix gShadowTransform transforms from world space to the shadow map texture space (§20.3). 
 
-```lisp
+```cpp
 struct VertexOut
 {
     float4 PosH : SV POSITION;
