@@ -13,7 +13,6 @@ export default defineConfig({
   vue: {
     template: {
       compilerOptions: {
-        // Safe elements for LaTeX and other custom syntaxes
         isCustomElement: (tag) => tag.includes('-') || tag.includes(':') || tag.includes('$'),
       },
     },
@@ -25,6 +24,15 @@ export default defineConfig({
   themeConfig: {
     search: {
       provider: 'local',
+      options: {
+        // Vercel OOM optimization: index only the first 500 chars
+        _render(src, env, md) {
+          const { frontmatter } = env
+          if (frontmatter?.search === false)
+            return ''
+          return `${frontmatter?.title || ''} ${src.slice(0, 500)}`
+        },
+      },
     },
     nav: [
       { text: 'Home', link: '/' },
