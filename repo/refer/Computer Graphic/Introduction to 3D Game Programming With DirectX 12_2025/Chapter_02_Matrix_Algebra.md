@@ -226,8 +226,13 @@ $$
 
 The identity matrix acts as a multiplicative identity; that is, if A is an $m \times n$ matrix, B is an $n \times p$ matrix, and I is the $n \times n$ identity matrix, then 
 
+::: v-pre
+
 $$
-\mathbf {A I} = \mathbf {A} \text {a n d} \mathbf {I B} = \mathbf {B}
+\\mathbf {A I} = \\mathbf {A} \\text { a n d } \\mathbf {I B} = \\mathbf {B}
+$$
+
+:::
 $$
 
 In other words, multiplying a matrix by the identity matrix does not change the matrix. The identity matrix can be thought of as the number 1 for matrices. In particular, if M is a square matrix, then multiplication with the identity matrix is commutative: 

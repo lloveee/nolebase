@@ -6,56 +6,24 @@ import Components from 'unplugin-vue-components/vite'
 import { defineConfig } from 'vite'
 import Inspect from 'vite-plugin-inspect'
 
-import { creators, githubRepoLink } from './metadata'
+const nolebaseVite = presetVite()
 
-export default defineConfig(async () => {
-  const nolebase = presetVite({
-    gitChangelog: {
-      options: {
-        gitChangelog: {
-          repoURL: () => githubRepoLink,
-          mapAuthors: creators,
-        },
-        markdownSection: {
-          excludes: [
-            join('repo', 'toc.md'),
-            join('repo', 'index.md'),
-          ],
-        },
-      },
-    },
-    pageProperties: {
-      options: {
-        markdownSection: {
-          excludes: [
-            join('repo', 'toc.md'),
-            join('repo', 'index.md'),
-          ],
-        },
-      },
-    },
-    thumbnailHash: false,
-  })
-
-  return {
-    assetsInclude: [
-      '**/*.mov',
+export default defineConfig({
+  plugins: [
+    nolebaseVite,
+    Inspect(),
+    Components({
+      include: [/\.vue$/],
+      // Do not exclude .md here to ensure VitePress can handle them
+      dirs: '.vitepress/theme/components',
+      dts: '.vitepress/components.d.ts',
+    }),
+    UnoCSS(),
+  ],
+  // Optimized dependencies for VitePress
+  optimizeDeps: {
+    exclude: [
+      'vitepress',
     ],
-    optimizeDeps: {
-      exclude: [
-        'vitepress',
-      ],
-    },
-    plugins: [
-      Inspect(),
-      Components({
-        include: [/\.vue$/],
-        exclude: [/\.md$/],
-        dirs: '.vitepress/theme/components',
-        dts: '.vitepress/components.d.ts',
-      }),
-      UnoCSS(),
-      nolebase,
-    ],
-  }
+  },
 })

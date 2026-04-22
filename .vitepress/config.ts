@@ -1,19 +1,22 @@
 import { presetMarkdownIt } from '@nolebase/integrations/vitepress/markdown-it'
 import { transformHeadMeta } from '@nolebase/vitepress-plugin-meta'
 import { calculateSidebar } from '@nolebase/vitepress-plugin-sidebar'
-// import { buildEndGenerateOpenGraphImages } from '@nolebase/vitepress-plugin-og-image/vitepress'
 import MarkdownItFootnote from 'markdown-it-footnote'
 import { defineConfig } from 'vitepress'
 
 import { discordLink, githubRepoLink, siteDescription, siteName } from '../metadata'
 import head from './head'
 
-const nolebase = presetMarkdownIt({ unlazyImages: false })
+const nolebaseMd = presetMarkdownIt({ unlazyImages: false })
 
 export default defineConfig({
   vue: {
-    // Exclude .md files from Vue template compilation to prevent LaTeX ${} being parsed as JS expressions
-    exclude: [/\.md$/],
+    template: {
+      compilerOptions: {
+        // Safe elements for LaTeX and other custom syntaxes
+        isCustomElement: (tag) => tag.includes('-') || tag.includes(':') || tag.includes('$'),
+      },
+    },
   },
   title: siteName,
   description: siteDescription,
@@ -22,104 +25,22 @@ export default defineConfig({
   themeConfig: {
     search: {
       provider: 'local',
-      options: {
-        locales: {
-          root: {
-            translations: {
-              button: {
-                buttonText: 'Searching',
-                buttonAriaLabel: 'Searching',
-              },
-              modal: {
-                noResultsText: '无法找到相关结果',
-                resetButtonTitle: '清除查询条件',
-                footer: {
-                  selectText: '选择',
-                  navigateText: '切换',
-                },
-              },
-            },
-          },
-        },
-
-        // Add title ang tags field in frontmatter to search
-        // You can exclude a page from search by adding search: false to the page's frontmatter.
-        _render(src, env, md) {
-          // without `md.render(src, env)`, the some information will be missing from the env.
-          let html = md.render(src, env)
-          let tagsPart = ''
-          let headingPart = ''
-          let contentPart = ''
-          let fullContent = ''
-          const sortContent = () => [headingPart, tagsPart, contentPart] as const
-          let { frontmatter, content } = env
-
-          if (!frontmatter)
-            return html
-
-          if (frontmatter.search === false)
-            return ''
-
-          contentPart = content ||= src
-
-          const headingMatch = content.match(/^# .*/m)
-          const hasHeading = !!(headingMatch && headingMatch[0] && headingMatch.index !== undefined)
-
-          if (hasHeading) {
-            const headingEnd = headingMatch.index! + headingMatch[0].length
-            headingPart = content.slice(0, headingEnd)
-            contentPart = content.slice(headingEnd)
-          }
-          else if (frontmatter.title) {
-            headingPart = `# ${frontmatter.title}`
-          }
-
-          const tags = frontmatter.tags
-          if (tags && Array.isArray(tags) && tags.length)
-            tagsPart = `Tags: #${tags.join(', #')}`
-
-          fullContent = sortContent().filter(Boolean).join('\n\n')
-
-          html = md.render(fullContent, env)
-
-          return html
-        },
-      },
     },
-  },
-  locales: {
-    root: {
-      lang: 'en',
-      label: 'repository',
-      dir: '/repo',
-      link: '/repo',
-      themeConfig: {
-        nav: [
-          { text: 'Home', link: '/repo/' },
-          { text: 'Notes', link: '/repo/notes/' },
-          { text: 'Refer', link: '/repo/refer/' },
-          { text: 'Recent Updates', link: '/repo/toc' },
-        ],
-        socialLinks: [
-          { icon: 'github', link: githubRepoLink },
-          { icon: 'discord', link: discordLink },
-        ],
-        darkModeSwitchLabel: '切换主题',
-        outline: { label: 'Outline', level: 'deep' },
-        editLink: {
-          pattern: `${githubRepoLink}/tree/main/:path`,
-          text: '编辑本页面',
-        },
-        sidebar: calculateSidebar([
-          { folderName: 'repo/notes', separate: true },
-          { folderName: 'repo/refer', separate: true },
-        ], 'repo'),
-        footer: {
-          message: '用 <span style="color: #e25555;">&#9829;</span> 撰写',
-          copyright:
-        '<a class="footer-cc-link" target="_blank" CC BY-SA 4.0</a> © 2025-PRESENT lloveee-blog ',
-        },
-      },
+    nav: [
+      { text: 'Home', link: '/' },
+      { text: 'Notes', link: '/repo/notes/' },
+      { text: 'Refer', link: '/repo/refer/' },
+    ],
+    socialLinks: [
+      { icon: 'github', link: githubRepoLink },
+    ],
+    sidebar: calculateSidebar([
+      { folderName: 'repo/notes', separate: true },
+      { folderName: 'repo/refer', separate: true },
+    ], 'repo'),
+    footer: {
+      message: '用 <span style="color: #e25555;">&#9829;</span> 撰写',
+      copyright: '© 2025 lloveee-blog',
     },
   },
   markdown: {
@@ -127,47 +48,16 @@ export default defineConfig({
       light: 'github-light',
       dark: 'one-dark-pro',
     },
-    preConfig: async (md) => {
-      // Escape ${ in rendered HTML to prevent Vue template compiler from
-      // interpreting LaTeX ${...} as JS template expressions.
-      // This works because vitepress uses a JS template literal to embed
-      // the rendered HTML: `<template><div>${html}</div></template>`
-      const originalRender = md.render.bind(md)
-      const originalRenderAsync = md.renderAsync.bind(md)
-      md.render = function (...args: any[]) {
-        const result = originalRender(...args)
-        return escapeTemplateLiterals(result)
-      }
-      md.renderAsync = async function (...args: any[]) {
-        const result = await originalRenderAsync(...args)
-        return escapeTemplateLiterals(result)
-      }
-
-      function escapeTemplateLiterals(html: string): string {
-        return html.replace(/\$\{/g, '$\\{')
-      }
-
-      await nolebase.install(md)
-    },
     config: (md) => {
       md.use(MarkdownItFootnote)
+      nolebaseMd.install(md)
     },
   },
   async transformHead(context) {
     let head = [...context.head]
-
     const returnedHead = await transformHeadMeta()(head, context)
     if (typeof returnedHead !== 'undefined')
       head = returnedHead
-
     return head
   },
-  // async buildEnd(siteConfig) {
-  //   await buildEndGenerateOpenGraphImages({
-  //     baseUrl: targetDomain,
-  //     category: {
-  //       byLevel: 2,
-  //     },
-  //   })(siteConfig)
-  // },
 })

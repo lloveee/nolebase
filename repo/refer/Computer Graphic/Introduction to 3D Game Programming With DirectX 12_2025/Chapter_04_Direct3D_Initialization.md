@@ -579,11 +579,11 @@ If the command queue gets empty, the GPU will idle because it does not have any 
 In Direct3D 12, the command queue is represented by the ID3D12CommandQueue interface. It is created by filling out a D3D12_COMMAND_QUEUE_DESC structure describing the queue and then calling ID3D12Device::CreateCommandQueue. The way we create our command queue in this book is as follows: 
 
 ```cpp
-Microsoft::WRL::ComPtr<ID3D12CommandQueue> mCommandQueue;  
+Microsoft::WRL::ComPtr&lt;ID3D12CommandQueue&gt; mCommandQueue;  
 D3D12_COMMAND_queue_DESC queueDesc = {};  
 queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;  
 queueDesc Flags = D3D12_COMMAND_queue_FLAG_NONE;  
-ThrowIfFailed Md3dDevice->CreateCommandQueue(&queueDesc, IID_PPV_args(&mCommandQueue)); 
+ThrowIfFailed Md3dDevice-&gt;CreateCommandQueue(&amp;queueDesc, IID_PPV_args(&amp;mCommandQueue)); 
 ```
 
 In this book, we use a single command queue of type D3D12_COMMAND_LIST_TYPE_ DIRECT. This is perfectly fine for demos and many kinds of 3D applications. However, for a commercial level product, there are two other queues that would be used concurrently. One is called the copy queue (D3D12_COMMAND_LIST_TYPE_ COPY). The copy queue is a special queue optimized for copying data from the CPU to the GPU asynchronously. For example, to avoid long load times, your game might start rendering with low resolution textures using the main (direct) queue and asynchronously load higher resolution textures using the copy queue. Another use case would be to preemptively asynchronously load data that the game will need soon. The other type of queue you will often hear about is the compute queue (D3D12_COMMAND_LIST_TYPE_COMPUTE). The idea of the compute queue is to implement a technique called async compute. We are jumping ahead, but a typical game frame will do a lot of work: generate shadow maps, do a prepass, update particles, calculate effects like ambient occlusion and tone mapping, draw opaque objects, draw particle systems, and do post processing effects. At some point in this sequence, the entire GPU might not be fully utilized. The idea is to feed the GPU some other compute task (Compute is covered in Chapter 13) that is done in parallel to typical graphics processing (that is, work done on the direct queue). For example, in the above frame description, the GPU could work on updating particles (work from the compute queue) while generating shadow maps and doing the prepass (work from the direct queue). Ideally, the particle update will be finished by the time we are ready to draw the particles on the direct queue. If not, then we would have to block, which would ruin some of the parallelism. 
