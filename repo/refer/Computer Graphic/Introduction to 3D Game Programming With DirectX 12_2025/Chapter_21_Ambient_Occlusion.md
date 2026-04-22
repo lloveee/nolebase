@@ -1,3 +1,5 @@
+﻿# Chapter 21 Ambient Occlusion
+
 # Chapter
 
 # 21 Am bient Occl usion
@@ -8,7 +10,7 @@ $$
 \mathbf {c} _ {a} = \mathbf {A} _ {L} \otimes \mathbf {m} _ {d}
 $$
 
-The color $\mathbf { A } _ { L }$ specifies the total amount of indirect (ambient) light a surface receives from a light source, and the diffuse albedo $\mathbf { m } _ { d }$ specifies the amount of incoming light that the surface reflects due to diffuse reflectance. All the ambient term does is uniformly brighten up the object a bit so that it does not go completely black in shadow—there is no real physics calculation at all. The idea is that the indirect light has scattered and bounced around the scene so many times that it strikes the object equally in every direction. Figure 21.1 shows that if we draw a model using only the ambient term, it is rendered out as a constant color. 
+The color $\mathbf { A } _ { L }$ specifies the total amount of indirect (ambient) light a surface receives from a light source, and the diffuse albedo $\mathbf { m } _ { d }$ specifies the amount of incoming light that the surface reflects due to diffuse reflectance. All the ambient term does is uniformly brighten up the object a bit so that it does not go completely black in shadow鈥攖here is no real physics calculation at all. The idea is that the indirect light has scattered and bounced around the scene so many times that it strikes the object equally in every direction. Figure 21.1 shows that if we draw a model using only the ambient term, it is rendered out as a constant color. 
 
 Figure 21.1 makes it clear that our ambient term could use some improvement. In this chapter, we discuss the popular technique of ambient occlusion to improve our ambient term. 
 
@@ -27,7 +29,7 @@ Figure 21.1. A mesh rendered with only the ambient term appears as a solid color
 
 # 21.1 AMBIENT OCCLUSION VIA RAY CASTING
 
-The idea of ambient occlusion is that the amount of indirect light a point p on a surface receives is proportional to how occluded it is to incoming light over the hemisphere about p—see Figure 21.2. 
+The idea of ambient occlusion is that the amount of indirect light a point p on a surface receives is proportional to how occluded it is to incoming light over the hemisphere about p鈥攕ee Figure 21.2. 
 
 One way to estimate the occlusion of a point p is via ray casting. We randomly cast rays over the hemisphere about p, and check for intersections against the mesh (Figure 21.3). If we cast $N$ rays, and $h$ of them intersect the mesh, then the point has the occlusion value: 
 
@@ -54,13 +56,13 @@ Figure 21.3. Estimating ambient occlusion via ray casting.
 
 Only rays with an intersection point q whose distance from p is less than some threshold value $d$ should contribute to the occlusion estimate; this is because an intersection point q far away from p is too far to occlude it. 
 
-The occlusion factor measures how occluded the point is (i.e., how much light it does not receive). For the purposes of calculations, we like to work with the inverse of this. That is, we want to know how much light the point does receive—this is called accessibility (or we call it ambient-access) and is derived from occlusion as: 
+The occlusion factor measures how occluded the point is (i.e., how much light it does not receive). For the purposes of calculations, we like to work with the inverse of this. That is, we want to know how much light the point does receive鈥攖his is called accessibility (or we call it ambient-access) and is derived from occlusion as: 
 
 $$
 a c c e s s i b l i t y = 1 - o c c l u s i o n \in [ 0, 1 ]
 $$
 
-The following code performs the ray cast per triangle, and then averages the occlusion results with the vertices that share the triangle. The ray origin is the triangle’s centroid, and we generate a random ray direction over the hemisphere of the triangle. 
+The following code performs the ray cast per triangle, and then averages the occlusion results with the vertices that share the triangle. The ray origin is the triangle鈥檚 centroid, and we generate a random ray direction over the hemisphere of the triangle. 
 
 ```cpp
 void AmbientOcclusionApp::BuildVertexAmbientOcclusion(
@@ -129,7 +131,7 @@ vertices[i].AmbientAccess /= vertexSharedCount[i];
 
 
 
-Figure 21.4. The mesh is rendered only with ambient occlusion—there are no scene lights. Notice how the crevices are darker; this is because when we cast rays out they are more likely to intersect geometry and contribute to occlusion. On the other hand, the skull cap is white (unoccluded) because when we cast rays out over the hemisphere for points on the skull cap, they will not intersect any geometry of the skull.
+Figure 21.4. The mesh is rendered only with ambient occlusion鈥攖here are no scene lights. Notice how the crevices are darker; this is because when we cast rays out they are more likely to intersect geometry and contribute to occlusion. On the other hand, the skull cap is white (unoccluded) because when we cast rays out over the hemisphere for points on the skull cap, they will not intersect any geometry of the skull.
 
 
 ![](images/db5a78eb4fbf41d7a738f0f2feb5234112a7457b73f0f9790eb00ad123d8ad5f.jpg)
@@ -137,9 +139,9 @@ Figure 21.4. The mesh is rendered only with ambient occlusion—there are no sce
 
 The demo uses an octree to speed up the ray/triangle intersection tests. For a mesh with thousands of triangles, it would be very slow to test each random ray with every mesh triangle. An octree sorts the triangles spatially, so we can quickly find only the triangles that have a good chance of intersecting the ray; this reduces the number of ray/triangle intersection tests substantially. An octree is a classic spatial data structure, and Exercise 1 asks you to research them further. 
 
-Figure 21.4 shows a screenshot of a model rendered only with ambient occlusion generated by the previous algorithm (there are no light sources in the scene). The ambient occlusion is generated as a precomputation step during initialization and stored as vertex attributes. As we can see, it is a huge improvement over Figure 21.1—the model actually looks 3D now. 
+Figure 21.4 shows a screenshot of a model rendered only with ambient occlusion generated by the previous algorithm (there are no light sources in the scene). The ambient occlusion is generated as a precomputation step during initialization and stored as vertex attributes. As we can see, it is a huge improvement over Figure 21.1鈥攖he model actually looks 3D now. 
 
-Precomputing ambient occlusion works well for static models; there are even tools (http://www.xnormal.net) that generate ambient occlusion maps—textures that store ambient occlusion data. However, for animated models these static approaches break down. If you load and run the “Ambient Occlusion” demo, you will notice that it takes a few seconds to precompute the ambient occlusion for just one model. Hence, casting rays at runtime to implement dynamic ambient occlusion is not feasible. In the next section, we examine a popular technique for computing ambient occlusion in real-time using screen space information. 
+Precomputing ambient occlusion works well for static models; there are even tools (http://www.xnormal.net) that generate ambient occlusion maps鈥攖extures that store ambient occlusion data. However, for animated models these static approaches break down. If you load and run the 鈥淎mbient Occlusion鈥?demo, you will notice that it takes a few seconds to precompute the ambient occlusion for just one model. Hence, casting rays at runtime to implement dynamic ambient occlusion is not feasible. In the next section, we examine a popular technique for computing ambient occlusion in real-time using screen space information. 
 
 ![](images/832beaf5bb70dce8b172c3a68838678c93d7da951bb1a79bbbe71b27e106c5bc.jpg)
 
@@ -239,7 +241,7 @@ float4 PS(VertexOut pin) : SV_Target { // Get z-coord of this pixel in NDC space
 
 This step is analogous to the random ray cast over the hemisphere. We randomly sample $N$ points $\mathbf { q }$ about $\mathbf { p }$ that are also in front of p and within a specified occlusion radius. The occlusion radius is an artistic parameter to control how far away from p we want to take the random sample points. Choosing to only sample points in front of p is analogous to only casting rays over the hemisphere instead of the whole sphere when doing ray casted ambient occlusion. 
 
-The next question is how to generate the random samples. We can generate random vectors and store them in a texture map, and then sample this texture map at $N$ different positions to get $N$ random vectors. However, since they are random we have no guarantee that the vectors we sample will be uniformly distributed—they may all clump together in roughly the same direction, which would give a bad occlusion estimate. To overcome this, we do the following trick. In our implementation, we use $N = 1 4$ samples, and we generate fourteen equally distributed vectors in the $\mathrm { C } { + + }$ code: 
+The next question is how to generate the random samples. We can generate random vectors and store them in a texture map, and then sample this texture map at $N$ different positions to get $N$ random vectors. However, since they are random we have no guarantee that the vectors we sample will be uniformly distributed鈥攖hey may all clump together in roughly the same direction, which would give a bad occlusion estimate. To overcome this, we do the following trick. In our implementation, we use $N = 1 4$ samples, and we generate fourteen equally distributed vectors in the $\mathrm { C } { + + }$ code: 
 
 ```cpp
 void Ssao::BuildOffsetVectors()
@@ -286,7 +288,7 @@ Now, in the pixel shader we just sample the random vector texture map once, and 
 
 # 21.2.2.3 Generate the Potential Occluding Points
 
-We now have random sample points q surrounding p. However, we know nothing about them—whether they occupy empty space or a solid object; therefore, we cannot use them to test if they occlude p. To find potential occluding points, we need depth information from the depth buffer. So what we do is generate projective texture coordinates for each q with respect to the camera, and use these to sample the depth buffer to get the depth in NDC space, and then transform to view space to obtain the depth $r _ { z }$ of the nearest visible pixel along the ray from the eye to q. With the $z$ -coordinates $r _ { z }$ known, we can reconstruct the full 3D view space position r in an analogous way we did in §21.2.2.1. Because the vector from the eye to q passes through r there exists a $t$ such that $\mathbf { r } = t \mathbf { q }$ . In particular, $r _ { z } =$ $t q _ { z }$ so $t = r _ { z } / q _ { z }$ . Therefore, $\begin{array} { r } { \mathbf { r } = \frac { r _ { z } } { q _ { z } } \mathbf { q } } \end{array}$ . The points r, one generated for each random sample point q, are our potential occluding points. 
+We now have random sample points q surrounding p. However, we know nothing about them鈥攚hether they occupy empty space or a solid object; therefore, we cannot use them to test if they occlude p. To find potential occluding points, we need depth information from the depth buffer. So what we do is generate projective texture coordinates for each q with respect to the camera, and use these to sample the depth buffer to get the depth in NDC space, and then transform to view space to obtain the depth $r _ { z }$ of the nearest visible pixel along the ray from the eye to q. With the $z$ -coordinates $r _ { z }$ known, we can reconstruct the full 3D view space position r in an analogous way we did in 搂21.2.2.1. Because the vector from the eye to q passes through r there exists a $t$ such that $\mathbf { r } = t \mathbf { q }$ . In particular, $r _ { z } =$ $t q _ { z }$ so $t = r _ { z } / q _ { z }$ . Therefore, $\begin{array} { r } { \mathbf { r } = \frac { r _ { z } } { q _ { z } } \mathbf { q } } \end{array}$ . The points r, one generated for each random sample point q, are our potential occluding points. 
 
 # 21.2.2.4 Perform the Occlusion Test
 
@@ -326,7 +328,7 @@ float gSurfaceEpsilon; float2 gInvAmbientMapSize; uint gHorzBlur; uint gSsaoCB_P
 static const int gSampleCount $= 14$ static const float2 gTexCoords[6] $=$ { float2(0.0f, 1.0f), float2(0.0f, 0.0f), float2(1.0f, 0.0f), float2(0.0f, 1.0f), float2(1.0f, 0.0f), float2(1.0f, 1.0f)   
 };   
 struct VertexOut { float4 PosH : SV POSITION; float3 PosV : POSITION; float2 TexC : TEXCOORDO;   
-}；   
+}锛?  
 VertexOut VS(void : SV VertexID) { VertexOut vout; vout.TexC = gTexCoords[vid]; // Quad covering screen in NDC space. vout.PosH $=$ float4(2.0f*vout.TexC.x - 1.0f, 1.0f - 2.0f*vout. TexC.y, 0.0f, 1.0f); // Transform quad corners to view space near plane. float4 ph $=$ mul(vout.PosH, gInvProj); vout.PosV $=$ ph.xyz / ph.w; return vout;   
 }   
 // Determines how much the sample point q occludes the point p   
@@ -491,7 +493,7 @@ float4 PS( VertexOut pin) : SV_Target
 Texture2D inputMap $=$ ResourceDescriptorHeap[inputBindlessIndex];   
 // The center value always contributes to the sum. float4 color $=$ blurWeights[gSsaoBlurRadius] \* inputMap.SampleLevel(GetPointClampSampler(), pin.TexC, 0.0); float totalWeight $=$ blurWeights[gSsaoBlurRadius];   
 float3 centerNormal $=$ normalMap.SampleLevel(GetPointClampSampler(), pin.TexC, 0.0f).xyz; float centerDepth $=$ NdcDepthToViewDepth( depthMap.SampleLevel(GetPointClampSampler(), pin.TexC, 0.0f).r);   
-for(float i $=$ -gSsaoBlurRadius; i $<   =$ gSsaoBlurRadius; ++i) { // We already added in the center weight. if(i $= = 0$ ） continue; float2 tex $=$ pin.TexC + i\*texOffset; float3 neighborNormal $=$ normalMap.SampleLevel( GetPointClampSampler(), tex, 0.0f).xyz; float neighborDepth $=$ NdcDepthToViewDepth( depthMap.SampleLevel(GetPointClampSampler(), tex, 0.0f).r); // // If the center value and neighbor values differ too much / (either in normal or depth), then we assume we are sampling across a discontinuity. // We discard such samples from the blur.. // if( dot(neighborsormal, centerNormal) $> = 0.8f$ && abs(neighborsdepth - centerDepth) $<   = 0.2f$ ） { float weight $=$ blurWeights[i + gSsaoBlurRadius]; // Add neighbor pixel to blur. color $+ =$ weight\*inputMap.SampleLevel( GetPointClampSampler(), tex, 0.0); totalWeight $+ =$ weight; } }   
+for(float i $=$ -gSsaoBlurRadius; i $<   =$ gSsaoBlurRadius; ++i) { // We already added in the center weight. if(i $= = 0$ 锛?continue; float2 tex $=$ pin.TexC + i\*texOffset; float3 neighborNormal $=$ normalMap.SampleLevel( GetPointClampSampler(), tex, 0.0f).xyz; float neighborDepth $=$ NdcDepthToViewDepth( depthMap.SampleLevel(GetPointClampSampler(), tex, 0.0f).r); // // If the center value and neighbor values differ too much / (either in normal or depth), then we assume we are sampling across a discontinuity. // We discard such samples from the blur.. // if( dot(neighborsormal, centerNormal) $> = 0.8f$ && abs(neighborsdepth - centerDepth) $<   = 0.2f$ 锛?{ float weight $=$ blurWeights[i + gSsaoBlurRadius]; // Add neighbor pixel to blur. color $+ =$ weight\*inputMap.SampleLevel( GetPointClampSampler(), tex, 0.0); totalWeight $+ =$ weight; } }   
 // Compensate for discarded samples by making total   
 // weights sum to 1. return color / totalWeight; 
 
@@ -529,7 +531,7 @@ Figure 21.9. Screenshot of the demo. The affects are subtle as they only affect 
 
 ambient-access makes enough of a noticeable difference. The advantage of SSAO is most apparent when objects are in shadow. For when objects are in shadow, the diffuse and specular terms are killed; thus only the ambient term shows up. Without SSAO, objects in shadow will appear flatly lit by a constant ambient term, but with SSAO they will keep their 3D definition. 
 
-When we render the scene view space normals, we also build the depth buffer for the scene. Consequently, when we render the scene the second time with the SSAO map, we modify the depth comparison test to “EQUALS.” This prevents any overdraw in the second rendering pass, as only the nearest visible pixels will pass this depth comparison test. Moreover, the second rendering pass does not need to write to the depth buffer because we already wrote the scene to the depth buffer in the normal render target pass. 
+When we render the scene view space normals, we also build the depth buffer for the scene. Consequently, when we render the scene the second time with the SSAO map, we modify the depth comparison test to 鈥淓QUALS.鈥?This prevents any overdraw in the second rendering pass, as only the nearest visible pixels will pass this depth comparison test. Moreover, the second rendering pass does not need to write to the depth buffer because we already wrote the scene to the depth buffer in the normal render target pass. 
 
 ```javascript
 // Note: Because for SSAO we do a separate depth prepass, when we draw // the main opaque pass, we can change the depth test to EQUAL. D3D12graphics_pipeLINE_STATE_DESC opaqueWithPrepassPsoDesc = basePsoDesc; opaqueWithPrepassPsoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISONFUNC_EQUAL; opaqueWithPrepassPsoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO; ThrowIfFailed(device->CreateGraphicsPipelineState( &opaqueWithPrepassPsoDesc, IID_PPV Arguments(&mPSOs["opaque_wprepass"])); 
@@ -549,14 +551,15 @@ an object is in shadow and only ambient light is applied to the surface, the mod
 
 1. Research on the web: KD-Trees, quadtrees, and octrees. 
 
-2. Modify the “Ssao” demo to do a Gaussian blur instead of an edge preserving blur. Which one do you like better? 
+2. Modify the 鈥淪sao鈥?demo to do a Gaussian blur instead of an edge preserving blur. Which one do you like better? 
 
 3. Can SSAO be implemented on the compute shader? If yes, sketch out an implementation. 
 
-4. Figure 21.10 shows what happens to the SSAO map if we do not include a check for self-intersection (§21.2.2.4). Modify the “Ssao” demo to remove the self-intersection check and reproduce the results in Figure 21.10. 
+4. Figure 21.10 shows what happens to the SSAO map if we do not include a check for self-intersection (搂21.2.2.4). Modify the 鈥淪sao鈥?demo to remove the self-intersection check and reproduce the results in Figure 21.10. 
 
 ![](images/0dd07c7f52dbc367f657bb547565620f6405166da2ca1a9d16ec46eb5f4c64cf.jpg)
 
 
 
 Figure 21.10. False occlusions everywhere.
+

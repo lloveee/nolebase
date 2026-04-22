@@ -1,3 +1,5 @@
+﻿# Chapter 10 Blending
+
 # Chapter
 
 # 10 Bl ending
@@ -7,7 +9,7 @@ Consider Figure 10.1. We start rendering the frame by first drawing the terrain 
 ![](images/a92a2f53dc07ef395c1334d94ea1e5f85c08e8103c515df81ce443bbdfb6d703.jpg)
 
 
-For the sake of discussion, we specifically mention the back buffer as the render target. However, we will show later that we can render to “off screen” render targets as well. Blending applies to these render targets just the same, and the destination pixels are the pixel values that were previously rasterized to these off screen render targets. 
+For the sake of discussion, we specifically mention the back buffer as the render target. However, we will show later that we can render to 鈥渙ff screen鈥?render targets as well. Blending applies to these render targets just the same, and the destination pixels are the pixel values that were previously rasterized to these off screen render targets. 
 
 # Chapter Objectives:
 
@@ -34,7 +36,7 @@ $$
 \mathbf {C} = \mathbf {C} _ {s r c} \otimes \mathbf {F} _ {s r c} \boxplus \mathbf {C} _ {d s t} \otimes \mathbf {F} _ {d s t}
 $$
 
-The colors $\mathbf { F } _ { s r c }$ (source blend factor) and $\mathbf { F } _ { d s t }$ (destination blend factor) may be any of the values described in $\ S 1 0 . 3$ , and they allow us modify the original source and destination pixels in a variety of ways, allowing for different effects to be achieved. The $\otimes$ operator means componentwise multiplication for color vectors as defined in $\ S 5 . 3 . 1$ ; the  operator may be any of the binary operators defined in $\$ 10.2$ . 
+The colors $\mathbf { F } _ { s r c }$ (source blend factor) and $\mathbf { F } _ { d s t }$ (destination blend factor) may be any of the values described in $\ S 1 0 . 3$ , and they allow us modify the original source and destination pixels in a variety of ways, allowing for different effects to be achieved. The $\otimes$ operator means componentwise multiplication for color vectors as defined in $\ S 5 . 3 . 1$ ; the 飥?operator may be any of the binary operators defined in $\$ 10.2$ . 
 
 The above blending equation holds only for the RGB components of the colors. The alpha component is actually handled by a separate similar equation: 
 
@@ -50,7 +52,7 @@ Blending the alpha component is needed much less frequently than blending the RG
 
 # 10.2 BLEND OPERATIONS
 
-The binary  operator used in the blending equation may be one of the following: 
+The binary 飥?operator used in the blending equation may be one of the following: 
 
 typedef enum D3D12_BLEND_OP  
 {  
@@ -76,7 +78,7 @@ typedef
 enum D3D12_LOGIC_OP
 \{ $\mathrm{D}3\mathrm{D}{12}\_ \mathrm{{LOGIC\_OP\_CLEAR}} = 0$ , $\mathrm{D}3\mathrm{D}{12}\_ \mathrm{{LOGIC\_OP\_SET}} = \left( {\mathrm{D}3\mathrm{D}{12}\_ \mathrm{{LOGIC\_OP\_CLEAR}} + 1}\right)$ , $\mathrm{D}3\mathrm{D}{12}\_ \mathrm{{LOGIC\_OP\_COPY}} = \left( {\mathrm{D}3\mathrm{D}{12}\_ \mathrm{{LOGIC\_OP\_SET}} + 1}\right)$ , $\mathrm{D}3\mathrm{D}{12}\_ \mathrm{{LOGIC\_OP\_COPY\_INVERTED}} = \left( {\mathrm{D}3\mathrm{D}{12}\_ \mathrm{{LOGIC\_OP\_COPY}} + 1}\right)$ , $\mathrm{D}3\mathrm{D}{12}\_ \mathrm{{LOGIC\_OP\_NOOP}} = \left( {\mathrm{D}3\mathrm{D}{12}\_ \mathrm{{LOGIC\_OP\_COPY\_INVERTED}} + 1}\right)$ , $\mathrm{D}3\mathrm{D}{12}\_ \mathrm{{LOGIC\_OP\_INVERT}} = \left( {\mathrm{D}3\mathrm{D}{12}\_ \mathrm{{LOGIC\_OP\_NOOP}} + 1}\right)$ , $\mathrm{D}3\mathrm{D}{12}\_ \mathrm{{LOGIC\_OP\_AND}} = \left( {\mathrm{D}3\mathrm{D}{12}\_ \mathrm{{LOGIC\_OP\_INVERT}} + 1}\right)$ , $\mathrm{D}3\mathrm{D}{12}\_ \mathrm{{LOGIC\_OP\_NAND}} = \left( {\mathrm{D}3\mathrm{D}{12}\_ \mathrm{{LOGIC\_OP\_AND}} + 1}\right)$ , $\mathrm{D}3\mathrm{D}{12}\_ \mathrm{{LOGIC\_OP\_OR}} = \left( {\mathrm{D}3\mathrm{D}{12}\_ \mathrm{{LOGIC\_OP\_NAND}} + 1}\right)$ , $\mathrm{D}3\mathrm{D}{12}\_ \mathrm{{LOGIC\_OP\_NOR}} = \left( {\mathrm{D}3\mathrm{D}{12}\_ \mathrm{{LOGIC\_OP\_OR}} + 1}\right)$ , $\mathrm{D}3\mathrm{D}{12}\_ \mathrm{{LOGIC\_OP\_XOR}} = \left( {\mathrm{D}3\mathrm{D}{12}\_ \mathrm{{LOGIC\_OP\_NOR}} + 1}\right)$ , $\mathrm{D}3\mathrm{D}{12}\_ \mathrm{{LOGIC\_OP\_EQUIV}} = \left( {\mathrm{D}3\mathrm{D}{12}\_ \mathrm{{LOGIC\_OP\_XOR}} + 1}\right)$ , $\mathrm{D}3\mathrm{D}{12}\_ \mathrm{{LOGIC\_OP\_AND\_REVERSE}} = \left( {\mathrm{D}3\mathrm{D}{12}\_ \mathrm{{LOGIC\_OP\_EQUIV}} + 1}\right)$ , $\mathrm{D}3\mathrm{D}{12}\_ \mathrm{{LOGIC\_OP\_AND\_INVERTED}} = \left( {\mathrm{D}3\mathrm{D}{12}\_ \mathrm{{LOGIC\_OP\_AND\_REVERSE}} + 1}\right)$ , $\mathrm{D}3\mathrm{D}{12}\_ \mathrm{{LOGIC\_OP\_OR\_REVERSE}} = \left( {\mathrm{D}3\mathrm{D}{12}\_ \mathrm{{LOGIC\_OP\_AND\_INVERTED}} + 1}\right)$ , $\mathrm{D}3\mathrm{D}{12}\_ \mathrm{{LOGIC\_OP\_OR\_INVERTED}} = \left( {\mathrm{D}3\mathrm{D}{12}\_ \mathrm{{LOGIC\_OP\_OR\_REVERSE}} + 1}\right)$ 
 
-Note that you cannot use traditional blending and logic operator blending at the same time; you pick one or the other. Note also that in order to use logic operator blending the render target format must support—it should be a format of the UINT variety, otherwise you will get errors like the following: 
+Note that you cannot use traditional blending and logic operator blending at the same time; you pick one or the other. Note also that in order to use logic operator blending the render target format must support鈥攊t should be a format of the UINT variety, otherwise you will get errors like the following: 
 
 ```cpp
 D3D12 ERROR: ID3D12Device::CreateGraphicsPipelineState: The render target format at slot 0 is format (R8G8B8A8_UNORM). This format does not support logic ops. The Pixel Shader output signature indicates this output could be written, and the Blend State indicates logic op is enabled for this slot. [ STATE Creation ERROR #678: CREATEGRAPHICSPIPELINESTATE_ON-render_TARGET DOES_NOT_support_LOGICOPS] D3D12 WARNING: ID3D12Device::CreateGraphicsPipelineState: Pixel Shader output 'SV_Target0' has type that is NOT unsigned int, while the corresponding Output Merger RenderTarget slot [0] has logic op enabled. This happens to be well defined: the raw bits output from the Shader will simply be interpreted as UINT bits in the blender without any data conversion. This warning is to check that the application developer really intended to rely on this behavior. [ STATE Creation WARNING #677: CREATEGRAPHICSPIPELINESTATE_PS_OUTPUT_TYPE_MISMATCH] 
@@ -235,7 +237,7 @@ $$
 \begin{array}{l} \mathbf {C} = \mathbf {C} _ {s r c} \otimes \mathbf {F} _ {s r c} \boxplus \mathbf {C} _ {d s t} \otimes \mathbf {F} _ {d s t} \\ \mathbf {C} = \mathbf {C} _ {s r c} \otimes (1, 1, 1) + \mathbf {C} _ {d s t} \otimes (1, 1, 1) \\ \mathbf {C} = \mathbf {C} _ {s r c} + \mathbf {C} _ {d s t} \\ \end{array}
 $$
 
-We can subtract source pixels from destination pixels by using the above blend factors and replacing the blend operation with D3D12_BLEND_OP_SUBTRACT (Figure 10.3). 
+We can subtract source pixels from destination pixels by using the above blend聽factors and replacing the blend operation with D3D12_BLEND_OP_SUBTRACT (Figure 10.3). 
 
 ![](images/0aa74bee459bf0466629515471386e6df770a48b38668ac56a86ba2314cf8919.jpg)
 
@@ -288,7 +290,7 @@ $$
 \mathbf {C} = a _ {s} \mathbf {C} _ {s r c} + \left(1 - a _ {s}\right) \mathbf {C} _ {d s t}
 $$
 
-For example, suppose $a _ { s } = 0 . 2 5$ , which is to say the source pixel is only $2 5 \%$ opaque. Then when the source and destination pixels are blended together, we expect the final color will be a combination of $2 5 \%$ of the source pixel and $7 5 \%$ of the destination pixel (the pixel “behind” the source pixel), since the source pixel is $7 5 \%$ transparent. The equation above gives us precisely this: 
+For example, suppose $a _ { s } = 0 . 2 5$ , which is to say the source pixel is only $2 5 \%$ opaque. Then when the source and destination pixels are blended together, we expect the final color will be a combination of $2 5 \%$ of the source pixel and $7 5 \%$ of the destination pixel (the pixel 鈥渂ehind鈥?the source pixel), since the source pixel is $7 5 \%$ transparent. The equation above gives us precisely this: 
 
 $$
 \mathbf {C} = a _ {s} \mathbf {C} _ {s r c} + \left(1 - a _ {s}\right) \mathbf {C} _ {d s t}
@@ -322,7 +324,7 @@ $$
 
 When blending with additive/subtractive/multiplicative blending, an issue arises with the depth test. For the sake of example, we will explain only with additive 
 
-blending, but the same idea holds for subtractive/multiplicative blending. If we are rendering a set S of objects with additive blending, the idea is that the objects in S do not obscure each other; instead, their colors are meant to simply accumulate (see Figure 10.5). Therefore, we do not want to perform the depth test between objects in S; for if we did, without a back-to-front draw ordering, one of the objects in S would obscure another object in S, thus causing the pixel fragments to be rejected due to the depth test, which means that object’s pixel colors would not be accumulated into the blend sum. We can disable the depth test between objects in S by disabling writes to the depth buffer while rendering objects in S. Because depth writes are disabled, the depths of an object in S drawn with additive blending will not be written to the depth buffer; hence, this object will not obscure any later drawn object in S behind it due to the depth test. Note that we only disable depth writes while drawing the objects in S (the set of objects drawn with additive blending). Depth reads and the depth test are still enabled. This is so that non-blended geometry (which is drawn before blended geometry) will still obscure blended geometry behind it. For example, if you have a set of additively blended objects behind a wall, you will not see the blended objects because the solid wall obscures them. How to disable depth writes and, more generally, configure the depth test settings will be covered in the next chapter. 
+blending, but the same idea holds for subtractive/multiplicative blending. If we are rendering a set S of objects with additive blending, the idea is that the objects in S do not obscure each other; instead, their colors are meant to simply accumulate (see Figure 10.5). Therefore, we do not want to perform the depth test between objects in S; for if we did, without a back-to-front draw ordering, one of the objects in S would obscure another object in S, thus causing the pixel fragments to be rejected due to the depth test, which means that object鈥檚 pixel colors would not be accumulated into the blend sum. We can disable the depth test between objects in S by disabling writes to the depth buffer while rendering objects in S. Because depth writes are disabled, the depths of an object in S drawn with additive blending will not be written to the depth buffer; hence, this object will not obscure any later drawn object in S behind it due to the depth test. Note that we only disable depth writes while drawing the objects in S (the set of objects drawn with additive blending). Depth reads and the depth test are still enabled. This is so that non-blended geometry (which is drawn before blended geometry) will still obscure blended geometry behind it. For example, if you have a set of additively blended objects behind a wall, you will not see the blended objects because the solid wall obscures them. How to disable depth writes and, more generally, configure the depth test settings will be covered in the next chapter. 
 
 ![](images/d6e0a451ed28c7922cb475675b9ec82e1a97fb502c1bad05868af11ac9679244.jpg)
 
@@ -335,7 +337,7 @@ Figure 10.5. With additive blending, the intensity is greater near the source po
 
 The example from $\ S 1 0 . 5 . 4$ showed that source alpha components can be used in RGB blending to control transparency. The source color used in the blending equation comes from the pixel shader. As we saw in the last chapter, we return 
 
-the diffuse material’s alpha value as the alpha output of the pixel shader. Thus the alpha channel of the diffuse map is used to control transparency. 
+the diffuse material鈥檚 alpha value as the alpha output of the pixel shader. Thus the alpha channel of the diffuse map is used to control transparency. 
 
 float4 PS(VertexOut pin) : SV_Target   
 { MaterialData matData = gMaterialData[gMaterialIndex]; float4 diffuseAlbedo = matData.DiffuseAlbedo; float3 fresnelR0 = matData.FresnelR0; float roughness = matData.Roughness; uint diffuseMapIndex = matData.DiffuseMapIndex; //Dynamically look up the texture in the heap. Texture2D diffuseMap = ResourceDescriptorHeap[diffuseMapIndex]; diffuseAlbedo $\ast =$ diffuseMap_SAMPLE(GetAnisoWrapSampler(), pin. TexC); ... //Common convention to take alpha from diffuse albedo. litColor.a $=$ diffuseAlbedo.a; return litColor; 
@@ -374,7 +376,7 @@ Note that the same result can be obtained using blending, but this is more effic
 
 Due to filtering, the alpha channel can get blurred a bit, so you should leave some buffer room when clipping pixels. For example, clip pixels with alpha values close to 0, but not necessarily exactly zero. 
 
-Figure 10.7 shows a screenshot of the “Blend” demo. It renders semi-transparent water using transparency blending, and renders the wire fenced box using the clip test. One other change worth mentioning is that, because we can now see through the box with the fence texture, we want to disable back face culling for alpha tested objects: 
+Figure 10.7 shows a screenshot of the 鈥淏lend鈥?demo. It renders semi-transparent water using transparency blending, and renders the wire fenced box using the clip test. One other change worth mentioning is that, because we can now see through the box with the fence texture, we want to disable back face culling for alpha tested objects: 
 
 ```cpp
 // PSO for alpha tested objects  
@@ -390,20 +392,20 @@ ThrowIfFailed Md3dDevice->CreateGraphicsPipelineState( &alphaTestedPsoDesc, IID_
 
 
 
-Figure 10.7. Screenshot of the “Blend” demo.
+Figure 10.7. Screenshot of the 鈥淏lend鈥?demo.
 
 
 # 10.8 FOG
 
 To simulate certain types of weather conditions in our games, we need to be able to implement a fog effect; see Figure 10.8. In addition to the obvious purposes of fog, fog provides some fringe benefits. For example, it can mask distant rendering artifacts and prevent popping. Popping refers to when an object that was previously behind the far plane all of a sudden comes in front of the frustum, 
 
-due to camera movement, and thus becomes visible; so it seems to “pop” into the scene abruptly. By having a layer of fog in the distance, the popping is hidden. Note that if your scene takes place on a clear day, you may wish to still include a subtle amount of fog at far distances, because, even on clear days, distant objects such as mountains appear hazier and lose contrast as a function of depth, and we can use fog to simulate this atmospheric perspective phenomenon. 
+due to camera movement, and thus becomes visible; so it seems to 鈥減op鈥?into the scene abruptly. By having a layer of fog in the distance, the popping is hidden. Note that if your scene takes place on a clear day, you may wish to still include a subtle amount of fog at far distances, because, even on clear days, distant objects such as mountains appear hazier and lose contrast as a function of depth, and we can use fog to simulate this atmospheric perspective phenomenon. 
 
 ![](images/a47a4f19b6c09a0a18a1c356726f1e6b40ccf7694bba73fb18be0acae989d554.jpg)
 
 
 
-Figure 10.8. Screenshot of the “Blend” demo with fog enabled.
+Figure 10.8. Screenshot of the 鈥淏lend鈥?demo with fog enabled.
 
 
 Our strategy for implementing fog works as follows: We specify a fog color, a fog start distance from the camera and a fog range (i.e., the range from the fog start distance until the fog completely hides any objects). Then the color of a point on a triangle is a weighted average of its usual color and the fog color: 
@@ -441,21 +443,21 @@ Figure 10.9. The distance of a point from the eye, and the fogStart and fogRange
 Figure 10.10. (Left): A plot of s (the fog color weight) as a function of distance. (Right): A plot of $\uparrow - s$ (the lit color weight) as a function of distance. As s increases, $\left( 1 - s \right)$ decreases the same amount.
 
 
-Figure 10.10 shows a plot of s as a function of distance. We see that when dist(p, E) ≤ fogStart, $s { = } 0$ and the fogged color is given by: 
+Figure 10.10 shows a plot of s as a function of distance. We see that when dist(p,聽E) 鈮?fogStart, $s { = } 0$ and the fogged color is given by: 
 
 $$
 f o g g e d C o l o r = l i t C o l o r
 $$
 
-In other words, the fog does not modify the color of vertices whose distance from the camera is less than fogStart. This makes sense based on the name “fogStart”; the fog does not start affecting the color until the distance from the camera is at least that of fogStart . 
+In other words, the fog does not modify the color of vertices whose distance from the camera is less than fogStart. This makes sense based on the name 鈥渇ogStart鈥? the fog does not start affecting the color until the distance from the camera is at least that of fogStart . 
 
-Let $f o g E n d = f o g S t a r t + f o g R a n g e$ . When dist( , p E) , ≥ fogEnd $s { = } 1$ and the fogged color is given by: 
+Let $f o g E n d = f o g S t a r t + f o g R a n g e$ . When dist( , p E) , 鈮?fogEnd $s { = } 1$ and the fogged color is given by: 
 
 $$
 f o g g e d C o l o r = f o g C o l o r
 $$
 
-In other words, the fog completely hides the surface point at distances greater than or equal to fogEnd —so all you see is the fog color. 
+In other words, the fog completely hides the surface point at distances greater than or equal to fogEnd 鈥攕o all you see is the fog color. 
 
 When $f o g S t a r t < \mathrm { d i s t } ( \mathbf { p } , \mathbf { E } ) < f o g E n d$ , we see that s linearly ramps up from 0 to 1 as dist( , p E) increases from fogStart to fogEnd . This means that as the distance increases, the fog color gets more and more weight while the original color gets less and less weight. This makes sense, of course, because as the distance increases, the fog obscures more and more of the surface point. 
 
@@ -468,9 +470,9 @@ struct VertexOut { float4 PosH : SV POSITION; float3 PosW : POSITION0; float3 No
 VertexOut VS(VertexIn vin) { VertexOut vout = (VertexOut)0.0f; MaterialData matData = gMaterialData[gMaterialIndex]; // Transform to world space. float4 posW = mul(float4(vin(PosL, 1.0f), gWorld); vout_PosW = posW.xyz; // Assumes nonuniform scaling; otherwise, need to use // inverse-transpose of world matrix. vout.NormalW = mul(vin.NormalL, (float3x3)gWorld); // Transform to homogeneous clip space. vout_PosH = mul(posW, gViewProj); // Output vertex attributes for interpolation across triangle. 
 ```
 
-float4 texC $=$ mul(float4(vin.TexC,0.0f,1.0f)，gTexTransform);vout.TexC $\equiv$ mul(texC，matData.MatTransform).xy;return vout;   
+float4 texC $=$ mul(float4(vin.TexC,0.0f,1.0f)锛実TexTransform);vout.TexC $\equiv$ mul(texC锛宮atData.MatTransform).xy;return vout;   
 }   
-float4 PS(VertexOut pin)：SV_Target{MaterialData matData $=$ gMaterialData[gMaterialIndex];float4 diffuseAlbedo $=$ matData.DiffuseAlbedo;float3 fresnelR0 $=$ matData.FresnelR0;float roughness $=$ matData.Roughness;uint diffuseMapIndex $=$ matData.DiffuseMapIndex; //Dynamically look up the texture in the heap.Texture2D diffuseMap $=$ ResourceDescriptorHeap[diffuseMapIndex];diffuseAlbedo $\ast =$ diffuseMap_SAMPLE(GetAnisoWrapSampler(),pin. TexC);#endif ALPHA_TEST//Discard pixel if texture alpha $<  0.1$ .We do this test as soon//as possible in the shader so that we can potentially exit the//shader early,thereby skipping the rest of the shader code. clip(diffuseAlbedo.a-0.1f);endif// Interpolating normal can unnormalize it,so renormalize it.float3 normalW $=$ normalize(pin.NormalW);// Vector from point being lit to eye.float3 toEyeW $=$ gEyePosW - pin(PosW;float distToEye $=$ length(toEyeW);toEyeW $= =$ distToEye; // normalize// Light terms.float4 ambient $=$ gAmbientLight\*diffuseAlbedo;const float shininess $= (1.0f$ -roughness);Material mat $=$ {diffuseAlbedo,fresnelR0, shininess $\}$ float4 directLight $=$ ComputeLighting(gLights,mat，pin(PosW, normalW,toEyeW);float4 litColor $=$ ambient + directLight;if( gFogEnabled）{float fogAmount $=$ saturate((distToEye-gFogStart)/ gFogRange);litColor $=$ lerpl(litColor,gFogColor,fogAmount);} //Common convention to take alpha from diffuse albedo. litColor.a $=$ diffuseAlbedo.a; 
+float4 PS(VertexOut pin)锛歋V_Target{MaterialData matData $=$ gMaterialData[gMaterialIndex];float4 diffuseAlbedo $=$ matData.DiffuseAlbedo;float3 fresnelR0 $=$ matData.FresnelR0;float roughness $=$ matData.Roughness;uint diffuseMapIndex $=$ matData.DiffuseMapIndex; //Dynamically look up the texture in the heap.Texture2D diffuseMap $=$ ResourceDescriptorHeap[diffuseMapIndex];diffuseAlbedo $\ast =$ diffuseMap_SAMPLE(GetAnisoWrapSampler(),pin. TexC);#endif ALPHA_TEST//Discard pixel if texture alpha $<  0.1$ .We do this test as soon//as possible in the shader so that we can potentially exit the//shader early,thereby skipping the rest of the shader code. clip(diffuseAlbedo.a-0.1f);endif// Interpolating normal can unnormalize it,so renormalize it.float3 normalW $=$ normalize(pin.NormalW);// Vector from point being lit to eye.float3 toEyeW $=$ gEyePosW - pin(PosW;float distToEye $=$ length(toEyeW);toEyeW $= =$ distToEye; // normalize// Light terms.float4 ambient $=$ gAmbientLight\*diffuseAlbedo;const float shininess $= (1.0f$ -roughness);Material mat $=$ {diffuseAlbedo,fresnelR0, shininess $\}$ float4 directLight $=$ ComputeLighting(gLights,mat锛宲in(PosW, normalW,toEyeW);float4 litColor $=$ ambient + directLight;if( gFogEnabled锛墈float fogAmount $=$ saturate((distToEye-gFogStart)/ gFogRange);litColor $=$ lerpl(litColor,gFogColor,fogAmount);} //Common convention to take alpha from diffuse albedo. litColor.a $=$ diffuseAlbedo.a; 
 
 ```cpp
 returnlitColor; 
@@ -526,13 +528,13 @@ $$
 A = A _ {s r c} F _ {s r c} \boxplus A _ {d s t} F _ {d s t}
 $$
 
-Note that RGB components are blended independently to alpha components. The  binary operator can be one of the operators defined by the D3D12_ BLEND_OP enumerated type. 
+Note that RGB components are blended independently to alpha components. The 飥?binary operator can be one of the operators defined by the D3D12_ BLEND_OP enumerated type. 
 
 3. $\mathbf { F } _ { s r c } ,$ Fdst, Fsrc, and $F _ { d s t }$ are called blend factors, and they provide a means for customizing the blending equation. They can be a member of the D3D12_BLEND enumerated type. For the alpha blending equation, blend factors ending with _COLOR are not allowed. 
 
-4. Source alpha information comes from the diffuse material. In our framework, the diffuse material is defined by a texture map, and the texture’s alpha channel stores the alpha information. 
+4. Source alpha information comes from the diffuse material. In our framework, the diffuse material is defined by a texture map, and the texture鈥檚 alpha channel stores the alpha information. 
 
-5. Source pixels can be completely rejected from further processing using the intrinsic HLSL clip(x) function. This function can only be called in a pixel shader, and it discards the current pixel from further processing if $ { \mathrm { ~  ~ { ~ \cal ~ x ~ } ~ } } { } <  { \mathrm { ~  ~ { ~ \cal ~ O ~ } ~ } }$ . Among other things, this function is useful for efficiently rendering pixels were a pixel is either completely opaque or completely transparent (it is used to reject completely transparent pixels—pixels with an alpha value near zero). 
+5. Source pixels can be completely rejected from further processing using the intrinsic HLSL clip(x) function. This function can only be called in a pixel shader, and it discards the current pixel from further processing if $ { \mathrm { ~  ~ { ~ \cal ~ x ~ } ~ } } { } <  { \mathrm { ~  ~ { ~ \cal ~ O ~ } ~ } }$ . Among other things, this function is useful for efficiently rendering pixels were a pixel is either completely opaque or completely transparent (it is used to reject completely transparent pixels鈥攑ixels with an alpha value near zero). 
 
 6. Use fog to model various weather effects and atmospheric perspective, to hide distant rendering artifacts, and to hide popping. In our linear fog model, we specify a fog color, a fog start distance from the camera and a fog range. The color of a point on a triangle is a weighted average of its usual color and the fog color: 
 
@@ -546,7 +548,7 @@ The parameter s ranges from 0 to 1 and is a function of the distance between the
 
 1. Experiment with different blend operation and blend factor combinations. 
 
-2. Modify the “Blend” demo by drawing the water first. Explain the results. 
+2. Modify the 鈥淏lend鈥?demo by drawing the water first. Explain the results. 
 
 3. Suppose $f o g S t a r t = 1 0$ and $f o g R a n g e = 2 0 0 .$ Compute foggedColor for when 
 
@@ -565,4 +567,4 @@ d) dist( , p E) = 30
 
 Look at the DXC flags for how to output the generated assembly. 
 
-5. Modify the “Blend” demo by creating and applying a blend render state that disables color writes to the red and green color channels. 
+5. Modify the 鈥淏lend鈥?demo by creating and applying a blend render state that disables color writes to the red and green color channels. 

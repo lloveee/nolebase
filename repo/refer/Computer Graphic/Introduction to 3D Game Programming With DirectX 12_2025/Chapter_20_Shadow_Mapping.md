@@ -1,3 +1,5 @@
+﻿# Chapter 20 Shadow Mapping
+
 # Chapter
 
 # 20 Shadow Mapp ing
@@ -16,9 +18,9 @@ Shadows indicate to the observer where light originates and helps convey the rel
 
 # 20.1 RENDERING SCENE DEPTH
 
-The shadow mapping algorithm relies on rendering the scene depth from the viewpoint of the light source—this is essentially a variation of render-to-texture, 
+The shadow mapping algorithm relies on rendering the scene depth from the viewpoint of the light source鈥攖his is essentially a variation of render-to-texture, 
 
-which was first described in $\$ 13.7.2$ . By “rendering scene depth” we mean building the depth buffer from the viewpoint of the light source. Thus, after we have rendered the scene from the viewpoint of the light source, we will know the pixel fragments nearest to the light source—such fragments cannot be in shadow. In this section we review a utility class called ShadowMap that helps us store the scene depth from the perspective of the light source. It simply encapsulates a depth/stencil buffer, necessary views, and viewport. A depth/stencil buffer used for shadow mapping is called a shadow map. 
+which was first described in $\$ 13.7.2$ . By 鈥渞endering scene depth鈥?we mean building the depth buffer from the viewpoint of the light source. Thus, after we have rendered the scene from the viewpoint of the light source, we will know the pixel fragments nearest to the light source鈥攕uch fragments cannot be in shadow. In this section we review a utility class called ShadowMap that helps us store the scene depth from the perspective of the light source. It simply encapsulates a depth/stencil buffer, necessary views, and viewport. A depth/stencil buffer used for shadow mapping is called a shadow map. 
 
 class ShadowMap   
 {   
@@ -37,7 +39,7 @@ ShadowMap::ShadowMap(ID3D12Device* device, UINT width, UINT height)
 { md3dDevice = device; mWidth = width; mHeight = height; mViewport = {0.0f, 0.0f, (float)width, (float)height, 0.0f, 1.0f mScissorRect = {0, 0, (int)width, (int)height}; BuildResource();  
 }  
 void ShadowMap::BuildResource()  
-{ D3D12RESOURCE_DESC texDesc; ZeroMemory(&texDesc, sizeof(D3D12RESOURCE_DESC)); texDesc.Dimension = D3D12RESOURCE_DIMENSION一篇文章2D; texDesc Alignment = 0; texDesc.Width = mWidth; texDesc.Height = mHeight; texDesc.DepthOrArraySize = 1; texDesc.MipLevels = 1; texDesc.Format = mFormat; texDesc_SAMPLEDesc.Count = 1; texDesc_SAMPLEDesc.Quality = 0; texDesc Layout = D3D12一篇文章下一篇 Unknown; texDesc Flags = D3D12RESOURCE_FLAG_OPEN_depth_STENCIL; D3D12_CLEAR_VALUE optClear; optClear.Format = DXGI_FORMAT_D24_UNORM_S8_UID; optClear.DepthStencil.Depth = 1.0f; optClear.DepthStencil.Stencil = 0; auto heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT); ThrowIfFailed.md3dDevice->CreateCommittedResource( &heapProperties, D3D12_HEAP_FLAG_NONE, &texDesc, D3D12_RESOURCE_STATE.Generic_READ, &optClear, IID_PPV.ArgS(&mShadowMap));  
+{ D3D12RESOURCE_DESC texDesc; ZeroMemory(&texDesc, sizeof(D3D12RESOURCE_DESC)); texDesc.Dimension = D3D12RESOURCE_DIMENSION涓€绡囨枃绔?D; texDesc Alignment = 0; texDesc.Width = mWidth; texDesc.Height = mHeight; texDesc.DepthOrArraySize = 1; texDesc.MipLevels = 1; texDesc.Format = mFormat; texDesc_SAMPLEDesc.Count = 1; texDesc_SAMPLEDesc.Quality = 0; texDesc Layout = D3D12涓€绡囨枃绔犱笅涓€绡?Unknown; texDesc Flags = D3D12RESOURCE_FLAG_OPEN_depth_STENCIL; D3D12_CLEAR_VALUE optClear; optClear.Format = DXGI_FORMAT_D24_UNORM_S8_UID; optClear.DepthStencil.Depth = 1.0f; optClear.DepthStencil.Stencil = 0; auto heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT); ThrowIfFailed.md3dDevice->CreateCommittedResource( &heapProperties, D3D12_HEAP_FLAG_NONE, &texDesc, D3D12_RESOURCE_STATE.Generic_READ, &optClear, IID_PPV.ArgS(&mShadowMap));  
 } 
 ```
 
@@ -45,9 +47,9 @@ uint32_t ShadowMap::BuildDescriptors(CD3DX12_CPU Descriptor HANDLE hCpuDsv)
 { CbvSrvUavHeap&bindlessHeap $\equiv$ CbvSrvUavHeap::Get(); mBindlessIndex $=$ bindlessHeap.NextFreeIndex(); // Save references to the descriptors. mhCpuSrv $=$ bindlessHeap.CpuHandle(mBindlessIndex); mhGpuSrv $=$ bindlessHeap.GpuHandle(mBindlessIndex); mhCpuDsv $=$ hCpuDsv; // Create the descriptors BuildDescriptors(); return mBindlessIndex;   
 }   
 void ShadowMap::BuildDescriptors()   
-{ // Create SRV to resource so we can sample the shadow /map in a shader program. CreateSrv2d(mid3dDevice,mShadowMap.Get(),DXGI_FORMAT_R24_UNORM_X8_ TYPELESS, 1，mhCpuSrv); //CreateDSVto resource so we can render to the shadow map. CreateDsv(mid3dDevice,mShadowMap.Get(),D3D12_DSV_FLAG_NONE, DXGI_FORMAT_D24_UNORM_S8_UID,0，mhCpuDsv); 
+{ // Create SRV to resource so we can sample the shadow /map in a shader program. CreateSrv2d(mid3dDevice,mShadowMap.Get(),DXGI_FORMAT_R24_UNORM_X8_ TYPELESS, 1锛宮hCpuSrv); //CreateDSVto resource so we can render to the shadow map. CreateDsv(mid3dDevice,mShadowMap.Get(),D3D12_DSV_FLAG_NONE, DXGI_FORMAT_D24_UNORM_S8_UID,0锛宮hCpuDsv); 
 
-As we will see, the shadow mapping algorithm requires two render passes. In the first one, we render the scene depth from the viewpoint of the light into the shadow map; in the second pass, we render the scene as normal to the back buffer from our “player” camera, but use the shadow map as a shader input to implement the shadowing algorithm. We provide a method to access the shader resource and its views: 
+As we will see, the shadow mapping algorithm requires two render passes. In the first one, we render the scene depth from the viewpoint of the light into the shadow map; in the second pass, we render the scene as normal to the back buffer from our 鈥減layer鈥?camera, but use the shadow map as a shader input to implement the shadowing algorithm. We provide a method to access the shader resource and its views: 
 
 ```cpp
 ID3D12Resource\* ShadowMap::Resource()   
@@ -151,7 +153,7 @@ $$
 
 The $4 \times 4$ matrix in the above equation is the orthographic projection matrix. 
 
-Recall that with the perspective projection transform, we had to split it into two parts: a linear part described by the projection matrix, and a nonlinear part described by the divide by w. In contrast, the orthographic projection transformation is completely linear—there is no divide by w. Multiplying by the orthographic projection matrix takes us directly into NDC coordinates. 
+Recall that with the perspective projection transform, we had to split it into two parts: a linear part described by the projection matrix, and a nonlinear part described by the divide by w. In contrast, the orthographic projection transformation is completely linear鈥攖here is no divide by w. Multiplying by the orthographic projection matrix takes us directly into NDC coordinates. 
 
 # 20.3 PROJECTIVE TEXTURE COORDINATES
 
@@ -182,7 +184,7 @@ the geometry. We will call such generated texture coordinates projective texture
 
 From Figure 20.4, we see that the texture coordinates $( u , \nu )$ identify the texel that should be projected onto the 3D point p. But the coordinates $( u , \nu )$ precisely identify the projection of p on the projection window, relative to a texture space coordinate system on the projection window. So the strategy of generating projective texture coordinates is as follows: 
 
-1. Project the point p onto the light’s projection window and transform the coordinates to NDC space. 
+1. Project the point p onto the light鈥檚 projection window and transform the coordinates to NDC space. 
 
 2. Transform the projected coordinates from NDC space to texture space, thereby effectively turning them into texture coordinates. 
 
@@ -200,7 +202,7 @@ $$
 \left[ \begin{array}{l l l l} x, & y, & 0, & 1 \end{array} \right] \left[ \begin{array}{c c c c} 0. 5 & 0 & 0 & 0 \\ 0 & - 0. 5 & 0 & 0 \\ 0 & 0 & 1 & 0 \\ 0. 5 & 0. 5 & 0 & 1 \end{array} \right] = \left[ \begin{array}{l l l l} u, & v, & 0, & 1 \end{array} \right]
 $$
 
-Let us call the above matrix T for “texture matrix” that transforms from NDC space to texture space. We can form the composite transform VPT that takes us from world space directly to texture space. After we multiply by this transform, we still need to do the perspective divide to complete the transformation; see Chapter 5 Exercise 8 for why we can do the perspective divide after doing the texture transform. 
+Let us call the above matrix T for 鈥渢exture matrix鈥?that transforms from NDC space to texture space. We can form the composite transform VPT that takes us from world space directly to texture space. After we multiply by this transform, we still need to do the perspective divide to complete the transformation; see Chapter 5 Exercise 8 for why we can do the perspective divide after doing the texture transform. 
 
 # 20.3.1 Code Implementation
 
@@ -232,17 +234,17 @@ float4 PS(VertexOut pin) : SV_Target
 
 # 20.3.2 Points Outside the Frustum
 
-In the rendering pipeline, geometry outside the frustum is clipped. However, when we generate projective texture coordinates by projecting the geometry from the point of view of the light projector, no clipping is done—we simply project vertices. Consequently, geometry outside the projector’s frustum receives projective texture coordinates outside the [0, 1] range. Projective texture coordinates outside the [0, 1] range function just like normal texture coordinates outside the [0, 1] range based on the enabled address mode (see (§9.6) used when sampling the texture. 
+In the rendering pipeline, geometry outside the frustum is clipped. However, when we generate projective texture coordinates by projecting the geometry from the point of view of the light projector, no clipping is done鈥攚e simply project vertices. Consequently, geometry outside the projector鈥檚 frustum receives projective texture coordinates outside the [0, 1] range. Projective texture coordinates outside the [0, 1] range function just like normal texture coordinates outside the [0, 1] range based on the enabled address mode (see (搂9.6) used when sampling the texture. 
 
-Generally, we do not want to texture any geometry outside the projector’s frustum because it does not make sense (such geometry receives no light from the projector). Using the border color address mode with a zero color is a common solution. Another strategy is to associate a spotlight with the projector so that anything outside the spotlight’s field of view cone is not lit (i.e., the surface receives no projected light). The advantage of using a spotlight is that the light intensity from the projector is strongest at the center of the spotlight cone, and can smoothly fade out as the angle $\phi$ between $\mathbf { - L }$ and d increases (where L is the light vector to the surface point and d is the direction of the spotlight). 
+Generally, we do not want to texture any geometry outside the projector鈥檚 frustum because it does not make sense (such geometry receives no light from the projector). Using the border color address mode with a zero color is a common solution. Another strategy is to associate a spotlight with the projector so that anything outside the spotlight鈥檚 field of view cone is not lit (i.e., the surface receives no projected light). The advantage of using a spotlight is that the light intensity from the projector is strongest at the center of the spotlight cone, and can smoothly fade out as the angle $\phi$ between $\mathbf { - L }$ and d increases (where L is the light vector to the surface point and d is the direction of the spotlight). 
 
 # 20.3.3 Orthographic Projections
 
-So far we have illustrated projective texturing using perspective projections (frustum shaped volumes). However, instead of using a perspective projection for the projection process, we could have used an orthographic projection. In this case, the texture is projected in the direction of the $z$ -axis of the light through a box. 
+So far we have illustrated projective texturing using perspective projections (frustum shaped volumes). However, instead of using a perspective projection for the projection process, we could have used an orthographic projection. In this case, the texture is projected in the direction of the $z$ -axis of the light through a聽box. 
 
 Everything we have talked about with projective texture coordinates also applies when using an orthographic projection, except for a couple things. First, with an orthographic projection, the spotlight strategy used to handle points 
 
-outside the projector’s volume does not work. This is because a spotlight cone approximates the volume of a frustum to some degree, but it does not approximate a box. However, we can still use texture address modes to handle points outside the projector’s volume. This is because an orthographic projection still generates NDC coordinates and a point $( x , y , z )$ is inside the volume if and only if: 
+outside the projector鈥檚 volume does not work. This is because a spotlight cone approximates the volume of a frustum to some degree, but it does not approximate a box. However, we can still use texture address modes to handle points outside the projector鈥檚 volume. This is because an orthographic projection still generates NDC coordinates and a point $( x , y , z )$ is inside the volume if and only if: 
 
 $$
 \begin{array}{l} - 1 \leq x \leq 1 \\ - 1 \leq y \leq 1 \\ 0 \leq z \leq 1 \\ \end{array}
@@ -271,7 +273,7 @@ Figure 20.5. Parallel light rays travel through the light volume, so only a subs
 
 spotlights by embedding the spotlight cone inside the frustum. A box light volume can be used to model parallel lights. However, the parallel light is now bounded and only passes through the box volume; therefore, it may only strike a subset of the scene (see Figure 20.5). For a light source that strikes the entire scene (such as the sun), we can make the light volume large enough to contain the entire scene. 
 
-Once we have built the shadow map, we render the scene as normal from the perspective of the “player” camera. For each pixel $\boldsymbol { p }$ rendered, we also compute its depth from the light source, which we denote by $d ( p )$ . In addition, using projective texturing, we sample the shadow map along the line of sight from the light source to the pixel $\boldsymbol { p }$ to get the depth value $s ( \boldsymbol p )$ stored in the shadow map; this value is the depth of the pixel closest to the light along the line of sight from the position of the light to $\boldsymbol { p }$ . Then, from Figure 20.6, we see that a pixel $\boldsymbol { p }$ is in shadow if and only if $d ( p ) > s ( p )$ . Hence a pixel is not in shadow if and only if $d ( p ) \leq s ( p )$ . 
+Once we have built the shadow map, we render the scene as normal from the perspective of the 鈥減layer鈥?camera. For each pixel $\boldsymbol { p }$ rendered, we also compute its depth from the light source, which we denote by $d ( p )$ . In addition, using projective texturing, we sample the shadow map along the line of sight from the light source to the pixel $\boldsymbol { p }$ to get the depth value $s ( \boldsymbol p )$ stored in the shadow map; this value is the depth of the pixel closest to the light along the line of sight from the position of the light to $\boldsymbol { p }$ . Then, from Figure 20.6, we see that a pixel $\boldsymbol { p }$ is in shadow if and only if $d ( p ) > s ( p )$ . Hence a pixel is not in shadow if and only if $d ( p ) \leq s ( p )$ . 
 
 ![](images/6d3993432e3e92c879549b088df60590cb3a4188bfc13b67917f61ad308953e8.jpg)
 
@@ -301,7 +303,7 @@ What we want is a way to measure the polygon slope with respect to the light sou
 
 
 
-Figure 20.7. Notice the aliasing on the floor plane with the “stair-stepping” alternation between light and shadow. This aliasing error is often called shadow acne.
+Figure 20.7. Notice the aliasing on the floor plane with the 鈥渟tair-stepping鈥?alternation between light and shadow. This aliasing error is often called shadow acne.
 
 
 ![](images/7c0d5185a62ebc9b48bf426750afd37f2cac818e820a6931b9223fa5f9c0b7e9.jpg)
@@ -334,7 +336,7 @@ typedef struct D3D12_RASTERIZER_DESC {
 
 
 
-Figure 20.10. Peter-panning—the shadow becomes detached from the column due to a large depth bias.
+Figure 20.10. Peter-panning鈥攖he shadow becomes detached from the column due to a large depth bias.
 
 
 ![](images/8cf5facd10c9a1698cfd179450067dafb2644519dcba66a7feb16d170eed8ddc.jpg)
@@ -379,7 +381,7 @@ Depth bias happens during rasterization (after clipping), so does not affect geo
 ![](images/6664a8b05c1d2015791eddf4c7bdc0040556af364e80a105eb8a42a6308f86d6.jpg)
 
 
-For the complete details of depth bias, search the SDK documentation for “Depth Bias,” and it will give all the rules for how it is applied, and how it works for floating-point depth buffers. 
+For the complete details of depth bias, search the SDK documentation for 鈥淒epth Bias,鈥?and it will give all the rules for how it is applied, and how it works for floating-point depth buffers. 
 
 # 20.4.3 PCF Filtering
 
@@ -392,7 +394,7 @@ The projective texture coordinates $( u , \nu )$ used to sample the shadow map g
 Figure 20.12. Taking four shadow map samples.
 
 
-texels. With color texturing, this is solved with bilinear interpolation (§9.5.1). However, [Kilgard01] points out that we should not average depth values, as it can lead to incorrect results about a pixel being flagged in shadow. (For the same reason, we also cannot generate mipmaps for the shadow map.) Instead of interpolating the depth values, we interpolate the results—this is called percentage closer filtering (PCF). That is, we use point filtering (MIN_MAG_MIP_POINT) and sample the texture with coordinates $( u , \nu )$ , $( u + \Delta x , \nu )$ , $( u , \nu + \Delta x )$ , $( u + \Delta x , \nu +$ $\Delta x )$ ), where Δx = 1/SHADOW_MAP_SIZE. Since we are using point sampling, these four points will hit the nearest four texels ${ \bf s } _ { 0 } , { \bf s } _ { 1 } , { \bf s } _ { 2 } ,$ and $\mathbf { s } _ { 3 }$ , respectively, surrounding $( u , \nu )$ , as shown in Figure 20.12. We then do the shadow map test for each of these sampled depths and bilinearly interpolate the shadow map results: 
+texels. With color texturing, this is solved with bilinear interpolation (搂9.5.1). However, [Kilgard01] points out that we should not average depth values, as it can lead to incorrect results about a pixel being flagged in shadow. (For the same reason, we also cannot generate mipmaps for the shadow map.) Instead of interpolating the depth values, we interpolate the results鈥攖his is called percentage closer filtering (PCF). That is, we use point filtering (MIN_MAG_MIP_POINT) and sample the texture with coordinates $( u , \nu )$ , $( u + \Delta x , \nu )$ , $( u , \nu + \Delta x )$ , $( u + \Delta x , \nu +$ $\Delta x )$ ), where 螖x = 1/SHADOW_MAP_SIZE. Since we are using point sampling, these four points will hit the nearest four texels ${ \bf s } _ { 0 } , { \bf s } _ { 1 } , { \bf s } _ { 2 } ,$ and $\mathbf { s } _ { 3 }$ , respectively, surrounding $( u , \nu )$ , as shown in Figure 20.12. We then do the shadow map test for each of these sampled depths and bilinearly interpolate the shadow map results: 
 
 ```cpp
 static const float SMAP_SIZE = 2048.0f;   
@@ -430,10 +432,10 @@ The main disadvantage of PCF filtering as described above is that it requires fo
 
 
 
-Figure 20.13. In the top image, observe the “stair-stepping” artifacts on the shadow boundary. On the bottom image, these aliasing artifacts are smoothed out a bit with filtering.
+Figure 20.13. In the top image, observe the 鈥渟tair-stepping鈥?artifacts on the shadow boundary. On the bottom image, these aliasing artifacts are smoothed out a bit with filtering.
 
 
-not improved as much as the raw computational power of GPUs [Möller08]. Fortunately, Direct3D $1 1 +$ graphics hardware has built in support for PCF via the SampleCmpLevelZero method: 
+not improved as much as the raw computational power of GPUs [M枚ller08]. Fortunately, Direct3D $1 1 +$ graphics hardware has built in support for PCF via the SampleCmpLevelZero method: 
 
 ```cpp
 Texture2D gShadowMap : register(t1);   
@@ -470,7 +472,7 @@ const D3D12_SAMPLER_DESC shadow = InitSamplerDesc(
     16, // maxAnisotropy 
 ```
 
-D3D12comparisonFUNC LESS EQUAL, XMFLOAT4(0.0f，0.0f，0.0f，0.0f));   
+D3D12comparisonFUNC LESS EQUAL, XMFLOAT4(0.0f锛?.0f锛?.0f锛?.0f));   
 D3D12Sampler_DESC SamplerHeap::InitSamplerDesc( D3D12_FILTER filter, D3D12-textURE_ADDRESS_MODE addressU, D3D12-textURE_ADDRESS_MODE addressV, D3D12-textURE_ADDRESS_MODE addressW, FLOAT mipLODBias, UINT maxAnisotropy, D3D12comparisonFUNC comparisonFunc, const XMFLOAT4& borderColor, FLOAT minLOD, FLOAT maxLOD)   
 { D3D12Sampler_DESC desc; desc.Filter $=$ filter; desc.AddressU $=$ addressU; desc.AddressV $=$ addressV; desc.AddressW $=$ addressW; desc.MipLODBias $=$ mipLODBias; desc.MaxAnisotropy $=$ maxAnisotropy; desc.ComparisonFunc $=$ comparisonFunc; desc.BorderColor[0] $=$ borderColor.x; desc.BorderColor[1] $=$ borderColor.y; desc.BorderColor[2] $=$ borderColor.z; desc.BorderColor[3] $=$ borderColor.w; desc.MinLOD $=$ minLOD; desc.MaxLOD $=$ maxLOD; return desc; 
 
@@ -483,7 +485,7 @@ So far in this section, we used a 4-tap PCF kernel. Larger kernels can be used t
 
 An observation is that PCF really only needs to be performed at the shadow edges. Inside the shadow, there is no blending, and outside the shadow there is no blending. Based on this observation, methods have been devised to only do PCF at the shadow edges. [Isidoro06b] describes one way to do this. Such a technique 
 
-requires a dynamic branch in the shader code: “If we are on a shadow edge, do expensive PCF, otherwise just take one shadow map sample.” 
+requires a dynamic branch in the shader code: 鈥淚f we are on a shadow edge, do expensive PCF, otherwise just take one shadow map sample.鈥?
 
 Note that the extra expense of doing such a method makes it only worthwhile if your PCF kernel is large (say $5 \times 5$ or greater); however, this is just general advice and you will need to profile to verify the cost/benefit. 
 
@@ -513,7 +515,7 @@ void ShadowMapApp::Update(const GameTimer& gt)
 XMMStoreFloat4x4(&mShadowTransform, S);   
 }   
 void ShadowMapApp::UpdateShadowPassCB(const GameTimer& gt)   
-{ XMMatrix view $=$ XMLHttpRequest4x4(&mLightView); XMMatrix proj $=$ XMLHttpRequest4x4(&mLightProj); XMMatrix viewProj $=$ XMMatrixMultiply.view,proj); XMMatrix invView $=$ XMMatrixInverse(&XMMatrixDeterminant.view), view); XMMatrix invProj $=$ XMMatrixInverse(&XMMatrixDeterminant(proj), proj); XMMatrix invViewProj $=$ XMMatrixInverse( &XMMatrixDeterminant.viewProj)，viewProj); UINT w $=$ mShadowMap->Width(); UINT h $=$ mShadowMap->Height(); XMStoreFloat4x4(&mShadowPassCB.gView,XMMatrixTranspose.view)); XMStoreFloat4x4(&mShadowPassCB.gInvView, XMMatrixTranspose.invView); XMStoreFloat4x4(&mShadowPassCB.gProj,XMMatrixTranspose(proj)); XMStoreFloat4x4(&mShadowPassCB.gInvProj, XMMatrixTranspose.invProj); XMStoreFloat4x4(&mShadowPassCB.gViewProj, XMMatrixTranspose.viewProj)); XMStoreFloat4x4(&mShadowPassCB.gInvViewProj，XMMatrixTranspose(inv ViewProj)); mShadowPassCB.gEyePosW $=$ mLightPosW; mShadowPassCB.gRenderTargetSize $=$ XMFLOAT2((float)w,(float)h); mShadowPassCB.gInvRenderTargetSize $=$ XMFLOAT2(1.0f/w,1.0f/h); mShadowPassCB.gNearZ $=$ mLightNearZ; mShadowPassCB.gFarZ $=$ mLightFarZ; auto currPassCB $=$ mCurrFrameResource->PassCB.get(); currPassCB->CopyData(1,mShadowPassCB); 
+{ XMMatrix view $=$ XMLHttpRequest4x4(&mLightView); XMMatrix proj $=$ XMLHttpRequest4x4(&mLightProj); XMMatrix viewProj $=$ XMMatrixMultiply.view,proj); XMMatrix invView $=$ XMMatrixInverse(&XMMatrixDeterminant.view), view); XMMatrix invProj $=$ XMMatrixInverse(&XMMatrixDeterminant(proj), proj); XMMatrix invViewProj $=$ XMMatrixInverse( &XMMatrixDeterminant.viewProj)锛寁iewProj); UINT w $=$ mShadowMap->Width(); UINT h $=$ mShadowMap->Height(); XMStoreFloat4x4(&mShadowPassCB.gView,XMMatrixTranspose.view)); XMStoreFloat4x4(&mShadowPassCB.gInvView, XMMatrixTranspose.invView); XMStoreFloat4x4(&mShadowPassCB.gProj,XMMatrixTranspose(proj)); XMStoreFloat4x4(&mShadowPassCB.gInvProj, XMMatrixTranspose.invProj); XMStoreFloat4x4(&mShadowPassCB.gViewProj, XMMatrixTranspose.viewProj)); XMStoreFloat4x4(&mShadowPassCB.gInvViewProj锛孹MMatrixTranspose(inv ViewProj)); mShadowPassCB.gEyePosW $=$ mLightPosW; mShadowPassCB.gRenderTargetSize $=$ XMFLOAT2((float)w,(float)h); mShadowPassCB.gInvRenderTargetSize $=$ XMFLOAT2(1.0f/w,1.0f/h); mShadowPassCB.gNearZ $=$ mLightNearZ; mShadowPassCB.gFarZ $=$ mLightFarZ; auto currPassCB $=$ mCurrFrameResource->PassCB.get(); currPassCB->CopyData(1,mShadowPassCB); 
 
 # Rendering the scene into the shadow map is done like so:
 
@@ -597,14 +599,14 @@ Although not shown for brevity, the shaders for rendering the depth for tessella
 Figure 20.14. Leaf texture.
 
 
-when being drawn into the back buffer (i.e., based on the distance to the player’s eye). This is for consistency; the geometry the eye sees should be the same that the light sees. That being said, if the tessellated geometry is not displaced too much, the displacement might not even be noticeable in the shadows; therefore, a possible optimization may be not to tessellate the geometry when rendering the shadow map. This optimization trades accuracy for speed. 
+when being drawn into the back buffer (i.e., based on the distance to the player鈥檚 eye). This is for consistency; the geometry the eye sees should be the same that the light sees. That being said, if the tessellated geometry is not displaced too much, the displacement might not even be noticeable in the shadows; therefore, a possible optimization may be not to tessellate the geometry when rendering the shadow map. This optimization trades accuracy for speed. 
 
 # 20.4.5 The Shadow Factor
 
-The shadow factor is a new factor we add to the lighting equation. The shadow factor is a scalar in the range 0 to 1. A value of 0 indicates a point is in shadow, and a value of 1 indicates a point is not in shadow. With PCF (§20.4.3), a point can also be partially in shadow, in which case the shadow factor will be between 0 and 1. The CalcShadowFactor implementation is in Common.hlsl. 
+The shadow factor is a new factor we add to the lighting equation. The shadow factor is a scalar in the range 0 to 1. A value of 0 indicates a point is in shadow, and a value of 1 indicates a point is not in shadow. With PCF (搂20.4.3), a point can also be partially in shadow, in which case the shadow factor will be between 0 and 1. The CalcShadowFactor implementation is in Common.hlsl. 
 
 float CalcShadowFactor(float4 shadowPosH)   
-{ Texture2D gShadowMap $=$ ResourceDescriptorHeap[gSunShadowMapIndex]; // Complete projection by doing division by w. shadowPosH.xyz $\equiv$ shadowPosH.w; // Depth in NDC space. float depth $=$ shadowPosH.z; uint width, height, numMips; gShadowMap.GetDimensions(0, width, height, numMips); //Texel size. float dx $= 1.0f$ / (float)width; float percentLit $= 0.0f$ const float2 offsets[9] $=$ { float2(-dx,-dx)，float2(0.0f，-dx)，float2(dx，-dx)， float2(-dx，0.0f)，float2(0.0f，0.0f)，float2(dx，0.0f)， float2(-dx，+dx)，float2(0.0f，+dx)，float2(dx，+dx) }; [unroll] for(int i $= 0$ ;i<9；++i) { percentLit $+ =$ gShadowMapSAMPLECmpLevelZero(GetShadowSampler(), shadowPosH.xy + offsets[i], depth).r; } return percentLit/9.0f; 
+{ Texture2D gShadowMap $=$ ResourceDescriptorHeap[gSunShadowMapIndex]; // Complete projection by doing division by w. shadowPosH.xyz $\equiv$ shadowPosH.w; // Depth in NDC space. float depth $=$ shadowPosH.z; uint width, height, numMips; gShadowMap.GetDimensions(0, width, height, numMips); //Texel size. float dx $= 1.0f$ / (float)width; float percentLit $= 0.0f$ const float2 offsets[9] $=$ { float2(-dx,-dx)锛宖loat2(0.0f锛?dx)锛宖loat2(dx锛?dx)锛?float2(-dx锛?.0f)锛宖loat2(0.0f锛?.0f)锛宖loat2(dx锛?.0f)锛?float2(-dx锛?dx)锛宖loat2(0.0f锛?dx)锛宖loat2(dx锛?dx) }; [unroll] for(int i $= 0$ ;i<9锛?+i) { percentLit $+ =$ gShadowMapSAMPLECmpLevelZero(GetShadowSampler(), shadowPosH.xy + offsets[i], depth).r; } return percentLit/9.0f; 
 
 In our model, the shadow factor will be multiplied against the direct lighting (diffuse and specular) terms: 
 
@@ -614,7 +616,7 @@ The shadow factor does not affect ambient light since that is indirect light, an
 
 # 20.4.6 The Shadow Map Test
 
-After we have built the shadow map by rendering the scene from the perspective of the light, we can sample the shadow map in our main rendering pass to determine if a pixel is in shadow or not. The key issue is computing $d ( p )$ and $s ( \boldsymbol p )$ for each pixel $\boldsymbol { p }$ . The value $d ( p )$ is found by transforming the point to the NDC space of the light; then the $z$ -coordinate gives the normalized depth value of the point from the light source. The value $s ( \boldsymbol p )$ is found by projecting the shadow map onto the scene through the light’s view volume using projective texturing. Note that with this setup, both $d ( p )$ and $s ( \boldsymbol p )$ are measured in the NDC space of the light, so they can be compared. The transformation matrix gShadowTransform transforms from world space to the shadow map texture space (§20.3). 
+After we have built the shadow map by rendering the scene from the perspective of the light, we can sample the shadow map in our main rendering pass to determine if a pixel is in shadow or not. The key issue is computing $d ( p )$ and $s ( \boldsymbol p )$ for each pixel $\boldsymbol { p }$ . The value $d ( p )$ is found by transforming the point to the NDC space of the light; then the $z$ -coordinate gives the normalized depth value of the point from the light source. The value $s ( \boldsymbol p )$ is found by projecting the shadow map onto the scene through the light鈥檚 view volume using projective texturing. Note that with this setup, both $d ( p )$ and $s ( \boldsymbol p )$ are measured in the NDC space of the light, so they can be compared. The transformation matrix gShadowTransform transforms from world space to the shadow map texture space (搂20.3). 
 
 ```cpp
 struct VertexOut
@@ -655,7 +657,7 @@ For this demo, we also render the shadow map onto a quad that occupies the lower
 Figure 20.15. Screenshot of the shadow map demo.
 
 
-value at each pixel (a depth value). Figure 20.15 shows a screenshot of the “Shadow Map” demo. 
+value at each pixel (a depth value). Figure 20.15 shows a screenshot of the 鈥淪hadow Map鈥?demo. 
 
 # 20.5 LARGE PCF KERNELS
 
@@ -728,9 +730,9 @@ $$
 
 This new equation tells us that if we move $( \Delta u , \Delta \nu )$ units in light space on the uv-plane, then we move $( \Delta x , \Delta y )$ units in screen space. So why is Equation 20.1 important to us? Well, when we build our PCF kernel, we offset our texture coordinates to sample neighboring values in the shadow map: 
 
-// Texel size. const float dx = SMAP_DX; float percentLit $= 0.0f$ . const float2 offsets[9] $\equiv$ float2(-dx,-dx)，float2(0.0f，-dx)，float2(dx，-dx), float2(-dx,0.0f)，float2(0.0f，0.0f)，float2(dx，0.0f), float2(-dx，+dx)，float2(0.0f，+dx)，float2(dx，+dx) }； //3x3 box filter pattern. Each sample does a 4-tap PCF. [unroll] for(int i $= 0$ ;i $<  9$ ++i) { percentLit $+ =$ shadowMapSAMPLECmpLevelZero(samShadow, shadowPosH.xy $^+$ offsets[i],depth).r; } 
+// Texel size. const float dx = SMAP_DX; float percentLit $= 0.0f$ . const float2 offsets[9] $\equiv$ float2(-dx,-dx)锛宖loat2(0.0f锛?dx)锛宖loat2(dx锛?dx), float2(-dx,0.0f)锛宖loat2(0.0f锛?.0f)锛宖loat2(dx锛?.0f), float2(-dx锛?dx)锛宖loat2(0.0f锛?dx)锛宖loat2(dx锛?dx) }锛?//3x3 box filter pattern. Each sample does a 4-tap PCF. [unroll] for(int i $= 0$ ;i $<  9$ ++i) { percentLit $+ =$ shadowMapSAMPLECmpLevelZero(samShadow, shadowPosH.xy $^+$ offsets[i],depth).r; } 
 
-In other words, we know how much we are displacing in light space in the uvplane—we know $( \Delta u , \Delta \nu )$ . Equation 20.1 tells us that when we move $( \Delta u , \Delta \nu )$ units in light space we are moving $( \Delta x , \Delta y )$ in screen space. 
+In other words, we know how much we are displacing in light space in the uvplane鈥攚e know $( \Delta u , \Delta \nu )$ . Equation 20.1 tells us that when we move $( \Delta u , \Delta \nu )$ units in light space we are moving $( \Delta x , \Delta y )$ in screen space. 
 
 Now, let us return to the depth term we have been ignoring. If we move $( \Delta x , \Delta y )$ units in screen space, then the light space depth moves by $\begin{array} { r } { \Delta z = \Delta x \frac { \hat { \sigma } z } { \hat { \sigma } x } + \Delta y \frac { \hat { \sigma } z } { \hat { \sigma } y } } \end{array}$ . Thus, when we offset our texture coordinates to do the PCF, we can modify the depth value used in the depth test accordingly: $z ^ { \prime } { = } z + \Delta z$ (see Figure 20.17). 
 
@@ -749,7 +751,7 @@ Let us summarize:
 
 3. With $( \Delta x , \Delta y )$ solved for, apply $\begin{array} { r } { \Delta z = \Delta x \frac { \partial z } { \partial x } + \Delta y \frac { \partial z } { \partial y } } \end{array}$ to figure out the light space depth change. 
 
-The “CascadedShadowMaps11” demo in the DirectX 11 SDK implements this method in the CalculateRightAndUpTexelDepthDeltas and CalculatePCFPercentLit functions. 
+The 鈥淐ascadedShadowMaps11鈥?demo in the DirectX 11 SDK implements this method in the CalculateRightAndUpTexelDepthDeltas and CalculatePCFPercentLit functions. 
 
 # 20.5.3 An Alternative Solution to the Large PCF Kernel Problem
 
@@ -757,7 +759,7 @@ This solution presented in [Isidoro06] is in the same spirit as the previous sec
 
 Let ${ \bf p } = ( u , \nu , z )$ be the coordinates in light space. The coordinates $( u , \nu )$ are used to index into the shadow map, and the value $z$ is the distance from the light source used in the shadow map test. We can compute $\begin{array} { r } { \frac { { \hat { \sigma } } \mathbf { p } } { { \hat { \sigma } } x } = \left( \frac { { \hat { \sigma } } u } { { \hat { \sigma } } x } , \frac { { \hat { \sigma } } \nu } { { \hat { \sigma } } x } , \frac { { \hat { \sigma } } z } { { \hat { \sigma } } x } \right) } \end{array}$ and $\begin{array} { r } { \frac { { \hat { \sigma } } \mathbf { p } } { \hat { \sigma } y } = \left( \frac { \hat { \sigma } u } { \hat { \sigma } y } , \frac { \hat { \sigma } \nu } { \hat { \sigma } y } , \frac { \hat { \sigma } z } { \hat { \sigma } y } \right) } \end{array}$ with ddx and ddy. 
 
-In particular, the fact that we can take these derivatives means $u = u \left( x , y \right)$ , $\nu = \nu$ $( x , y )$ and $z = z \left( x , y \right)$ are all functions of $x$ and y. However, we can also think of $z$ as a function of $u$ and $\nu$ —that is, $z = z \left( u , \nu \right)$ ; as we move in light space in the u- and $\nu$ -directions, the depth $z$ changes along the polygon plane. By the chain rule, we have: 
+In particular, the fact that we can take these derivatives means $u = u \left( x , y \right)$ , $\nu = \nu$ $( x , y )$ and $z = z \left( x , y \right)$ are all functions of $x$ and y. However, we can also think of $z$ as a function of $u$ and $\nu$ 鈥攖hat is, $z = z \left( u , \nu \right)$ ; as we move in light space in the u- and $\nu$ -directions, the depth $z$ changes along the polygon plane. By the chain rule, we have: 
 
 $$
 \frac {\partial z}{\partial x} = \frac {\partial z}{\partial u} \frac {\partial u}{\partial x} + \frac {\partial z}{\partial v} \frac {\partial v}{\partial x}
@@ -781,7 +783,7 @@ $$
 
 We now have solved for $\begin{array} { r } { \frac { \hat { \sigma } z } { \hat { \sigma } u } } \end{array}$ and $\frac { \hat { \sigma } z } { \hat { \sigma } \nu }$ directly (everything on the right-side of the equation is known). If we move $( \Delta u , \Delta \nu )$ units in light space on the uv-plane, then the light space depth moves by $\begin{array} { r } { \Delta z = \Delta u \frac { \partial z } { \partial u } + \Delta \nu \frac { \partial z } { \partial \nu } } \end{array}$ . 
 
-So with this approach, we do not have to transform to screen space, but can stay in light space—the reason being that we figured out directly how depth changes when $u$ and $\nu$ change, whereas in the previous section, we only knew how depth changed when $x$ and y changed in screen space. 
+So with this approach, we do not have to transform to screen space, but can stay in light space鈥攖he reason being that we figured out directly how depth changes when $u$ and $\nu$ change, whereas in the previous section, we only knew how depth changed when $x$ and y changed in screen space. 
 
 # 20.6 SUMMARY
 
@@ -793,7 +795,7 @@ So with this approach, we do not have to transform to screen space, but can stay
 
 is to generate texture coordinates for each pixel in such a way that the applied texture looks like it has been projected onto the geometry. Such texture coordinates are called projective texture coordinates. We obtain the projective texture coordinates for a pixel by projecting it onto the projection plane of the projector, and then mapping it to the texture coordinate system. 
 
-4. Shadow mapping is a real-time shadowing technique, which shadows arbitrary geometry (it is not limited to planar shadows). The idea of shadow mapping is to render the depth of the scene from the light’s viewpoint into a shadow map; thus, after which, the shadow map stores the depth of all pixels visible from the light’s perspective. We then render the scene again from the camera’s perspective, and we project the shadow map onto the scene using projective texturing. Let $s ( \boldsymbol p )$ be the depth value projected onto a pixel $\boldsymbol { p }$ from the shadow map and let $d ( p )$ be the depth of the pixel from the light source. Then $\boldsymbol { p }$ is in shadow if $d ( p ) > s ( p )$ ; that is, if the depth of the pixel is greater than the projected pixel depth $s ( \boldsymbol p )$ , then there must exist a pixel closer to the light which occludes $\boldsymbol { p }$ , thereby casting $\boldsymbol { p }$ in shadow. 
+4. Shadow mapping is a real-time shadowing technique, which shadows arbitrary geometry (it is not limited to planar shadows). The idea of shadow mapping is to render the depth of the scene from the light鈥檚 viewpoint into a shadow map; thus, after which, the shadow map stores the depth of all pixels visible from the light鈥檚 perspective. We then render the scene again from the camera鈥檚 perspective, and we project the shadow map onto the scene using projective texturing. Let $s ( \boldsymbol p )$ be the depth value projected onto a pixel $\boldsymbol { p }$ from the shadow map and let $d ( p )$ be the depth of the pixel from the light source. Then $\boldsymbol { p }$ is in shadow if $d ( p ) > s ( p )$ ; that is, if the depth of the pixel is greater than the projected pixel depth $s ( \boldsymbol p )$ , then there must exist a pixel closer to the light which occludes $\boldsymbol { p }$ , thereby casting $\boldsymbol { p }$ in shadow. 
 
 5. Aliasing is the biggest challenge with shadow maps. The shadow map stores the depth of the nearest visible pixels with respect to its associated light source. However, the shadow map only has some finite resolution. So each shadow map texel corresponds to an area of the scene. Thus, the shadow map is just a discrete sampling of the scene depth from the light perspective. This causes aliasing issues known as shadow acne. Using the graphics hardware intrinsic support for slope-scaled-bias (in the rasterization render state) is a common strategy to fix shadow acne. The finite resolution of the shadow map also causes aliasing at the shadow edges. PCF is a popular solution to this. More advanced solutions utilized for the aliasing problem are cascaded shadow maps and variance shadow maps. 
 
@@ -801,19 +803,19 @@ is to generate texture coordinates for each pixel in such a way that the applied
 
 1. Write a program that simulates a slide projector by projecting a texture onto the scene. Experiment with both perspective and orthographic projections. 
 
-2. Modify the solution to the previous exercise by using texture address modes so that points outside the projector’s frustum do not receive light. 
+2. Modify the solution to the previous exercise by using texture address modes so that points outside the projector鈥檚 frustum do not receive light. 
 
 3. Modify the solution to Exercise 1 by using a spotlight so that points outside the spotlight cone do not receive any light from the projector. 
 
-4. Modify this chapter’s demo application by using a perspective projection. Note that the slope-scaled-bias that worked for an orthographic projection might not work well for a perspective projection. When using a perspective projection, notice that the depth map is heavily biased to white (1.0). Does this make sense considering the graph in Figure 5.25? 
+4. Modify this chapter鈥檚 demo application by using a perspective projection. Note that the slope-scaled-bias that worked for an orthographic projection might not work well for a perspective projection. When using a perspective projection, notice that the depth map is heavily biased to white (1.0). Does this make sense considering the graph in Figure 5.25? 
 
-5. Experiment with the following shadow map resolutions: $4 0 9 6 \times 4 0 9 6 , 1 0 2 4 \times$ 1024, 512 × 512, 256 × 256. 
+5. Experiment with the following shadow map resolutions: $4 0 9 6 \times 4 0 9 6 , 1 0 2 4 \times$ 1024, 512 脳 512, 256 脳 256. 
 
-6. Derive the matrix that maps the box $[ l , r ] \times [ b , t ] \ [ n , f ]  [ - 1 , 1 ] \times [ - 1 , 1 ] \times$ [0, 1]. This is an “off center” orthographic view volume (i.e., the box is not centered about the view space origin). In contrast, the orthographic projection matrix derived in $\ S 2 0 . 2$ is an “on center” orthographic view volume. 
+6. Derive the matrix that maps the box $[ l , r ] \times [ b , t ] \ [ n , f ]  [ - 1 , 1 ] \times [ - 1 , 1 ] \times$ [0, 1]. This is an 鈥渙ff center鈥?orthographic view volume (i.e., the box is not centered about the view space origin). In contrast, the orthographic projection matrix derived in $\ S 2 0 . 2$ is an 鈥渙n center鈥?orthographic view volume. 
 
 7. In Chapter 17 we learned about picking with a perspective projection matrix. Derive picking formulas for an off-centered orthographic projection. 
 
-8. Modify the “Shadow Demo” to use a single point sampling shadow test (i.e., no PCF). You should observe hard shadows and jagged shadow edges. 
+8. Modify the 鈥淪hadow Demo鈥?to use a single point sampling shadow test (i.e., no PCF). You should observe hard shadows and jagged shadow edges. 
 
 9. Turn off the slope-scaled-bias to observe shadow acne. 
 

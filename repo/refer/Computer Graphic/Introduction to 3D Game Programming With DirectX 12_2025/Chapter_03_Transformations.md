@@ -1,3 +1,5 @@
+﻿# Chapter 03 Transformations
+
 # Chapter 3 Transformations
 
 We describe objects in our 3D worlds geometrically; that is, as a collection of triangles that approximate the exterior surfaces of the objects. It would be an uninteresting world if our objects remained motionless. Thus we are interested in methods for transforming geometry; examples of geometric transformations are translation, rotation, and scaling. In this chapter, we develop matrix equations, which can be used to transform points and vectors in 3D space. 
@@ -224,7 +226,7 @@ $$
 
 Note that we show the rotation matrices about the $x \mathrm { - } , y \mathrm { - }$ -, and $z$ -axes using $4 { \times } 4$ matrices. The reason for this is described in $\ S 3 . 2 . 4$ . For now you can ignore the fourth row and column. 
 
-# ☞	Example 3.3
+# 鈽?Example 3.3
 
 Suppose we have a square defined by a minimum point $( - 1 , 0 , - 1 )$ and a maximum point ( , 1 0 1, ) . Suppose now that we wish to rotate the square $- 3 0 ^ { \circ }$ clockwise about the y-axis (i.e., $3 0 ^ { \circ }$ counterclockwise). In this case, ${ \bf { n } } = ( 0 , 1 , 0 )$ , which simplifies $\mathbf { R _ { n } }$ considerably; the corresponding y-axis rotation matrix is: 
 
@@ -257,7 +259,7 @@ We will see in the next section that an affine transformation is a linear transf
 
 2. $( x , y , z , 1 )$ for points 
 
-We will see later that setting $w = 1$ for points allows translations of points to work correctly, and setting $w = 0$ for vectors prevents the coordinates of vectors from being modified by translations (we do not want to translate the coordinates of a vector, as that would change its direction and magnitude—translations should not alter the properties of vectors). 
+We will see later that setting $w = 1$ for points allows translations of points to work correctly, and setting $w = 0$ for vectors prevents the coordinates of vectors from being modified by translations (we do not want to translate the coordinates of a vector, as that would change its direction and magnitude鈥攖ranslations should not alter the properties of vectors). 
 
 The notation of homogeneous coordinates is consistent with the ideas shown in Figure 1.17. That is, the difference between two points $\mathbf { q } - \mathbf { p } = ( q _ { x } , q _ { y } , q _ { z } , 1 ) -$ $( p _ { x } , p _ { y } , p _ { z } , 1 ) = ( q _ { x } - p _ { x } , q _ { y } - p _ { y } , q _ { z } - p _ { z } , 0 )$ results in a vector, and a point plus a vector $\mathbf { p } + \mathbf { v } = ( p _ { x } , p _ { y } , p _ { z } , 1 ) + ( \nu _ { x } , \nu _ { y } , \nu _ { z } , 0 ) = ( p _ { x } + \nu _ { x } , p _ { y } + \nu _ { y } , p _ { z } + \nu _ { z } , 1 )$ results in a point. 
 
@@ -309,7 +311,7 @@ $$
 \tau (\mathbf {u}) = \mathbf {u} \mathbf {I} + \mathbf {b} = \mathbf {u} + \mathbf {b}
 $$
 
-As you can see, this simply translates (or displaces) point u by b. Figure 3.5 illustrates how this could be used to displace objects—we translate every point on the object by the same vector b to move it. 
+As you can see, this simply translates (or displaces) point u by b. Figure 3.5 illustrates how this could be used to displace objects鈥攚e translate every point on the object by the same vector b to move it. 
 
 By Equation 3.6, $\tau$ has the matrix representation: 
 
@@ -388,7 +390,7 @@ $$
 \left[\begin{array}{l l l l}x,&y,&z,&w\end{array}\right] \left[\begin{array}{l}\leftarrow \tau (\mathbf {i}) \rightarrow\\\leftarrow \tau (\mathbf {j}) \rightarrow\\\leftarrow \tau (\mathbf {k}) \rightarrow\\\leftarrow \mathbf {b} \rightarrow\end{array}\right] = \left[\begin{array}{l l l l}x ^ {\prime},&y ^ {\prime},&z ^ {\prime},&w\end{array}\right] \tag {eq.3.7}
 $$
 
-Now, to see what this equation is doing geometrically, all we need to do is graph the row vectors in the matrix (see Figure 3.7). Because $\tau$ is a rotation transformation it preserves lengths and angles; in particular, we see that $\tau$ is just rotating the standard basis vectors i, j, and k into a new orientation $\tau ( \mathbf { i } )$ , $\tau ( \mathbf { j } )$ ，and $\tau ( \mathbf { k } )$ . Thevector $\mathbf { b }$ is just a position vector denoting a displacement from the origin. Now Figure 3.7 shows how the transformed point is obtained geometrically when $\alpha ( x , y , z ) = x \tau ( \mathbf { i } ) + y \tau ( \mathbf { j } ) + z \tau ( \mathbf { k } ) + \mathbf { b }$ is computed. 
+Now, to see what this equation is doing geometrically, all we need to do is graph the row vectors in the matrix (see Figure 3.7). Because $\tau$ is a rotation transformation it preserves lengths and angles; in particular, we see that $\tau$ is just rotating the standard basis vectors i, j, and k into a new orientation $\tau ( \mathbf { i } )$ , $\tau ( \mathbf { j } )$ 锛宎nd $\tau ( \mathbf { k } )$ . Thevector $\mathbf { b }$ is just a position vector denoting a displacement from the origin. Now Figure 3.7 shows how the transformed point is obtained geometrically when $\alpha ( x , y , z ) = x \tau ( \mathbf { i } ) + y \tau ( \mathbf { j } ) + z \tau ( \mathbf { k } ) + \mathbf { b }$ is computed. 
 
 The same idea applies to scaling or skew transformations. Consider the linear transformation $\tau$ that warps a square into a parallelogram as shown in Figure 3.8. The warped point is simply the linear combination of the warped basis vectors. 
 
@@ -396,7 +398,7 @@ The same idea applies to scaling or skew transformations. Consider the linear tr
 
 
 
-Figure 3.7. The geometry of the rows of an affine transformation matrix. The transformed point, $\alpha ( \mathfrak { p } )$ , is given as a linear combination of the transformed basis vectors τ(i) ,τ(j), $\tau ( \mathbf { k } )$ , and the offset b.
+Figure 3.7. The geometry of the rows of an affine transformation matrix. The transformed point, $\alpha ( \mathfrak { p } )$ , is given as a linear combination of the transformed basis vectors 蟿(i) ,蟿(j), $\tau ( \mathbf { k } )$ , and the offset b.
 
 
 ![](images/db4415f9204e147a9ad9bde498edabe837954a394d101fe68ce3b23746bc5a25.jpg)
@@ -411,7 +413,7 @@ Figure 3.8. For a linear transformation that warps a square into a parallelogram
 
 # 3.3 COMPOSITION OF TRANSFORMATIONS
 
-Suppose S is a scaling matrix, R is a rotation matrix, and T is a translation matrix. Assume we have a cube made up of eight vertices $\mathbf { v } _ { i }$ for $i = 0$ , 1, …, 7, and we wish to apply these three transformations to each vertex successively. The obvious way to do this is step-by-step: 
+Suppose S is a scaling matrix, R is a rotation matrix, and T is a translation matrix. Assume we have a cube made up of eight vertices $\mathbf { v } _ { i }$ for $i = 0$ , 1, 鈥? 7, and we wish to apply these three transformations to each vertex successively. The obvious way to do this is step-by-step: 
 
 $$
 \left(\left(\mathbf {v} _ {i} \mathbf {S}\right) \mathbf {R}\right) ^ {\prime} \mathbf {T} = \left(\mathbf {v} _ {i} ^ {\prime} \mathbf {R}\right) ^ {\prime} \mathbf {T} = \mathbf {v} _ {i} ^ {\prime \prime} \mathbf {T} = \mathbf {v} _ {i} ^ {\prime \prime} \text {f o r} i = 0, 1, \dots , 7
@@ -610,7 +612,7 @@ $$
 
 Thus the matrix ${ { \bf { M } } ^ { - 1 } }$ is the change of coordinate matrix from $B$ into $A$ . 
 
-Figure 3.13 illustrates the relationship between a change of coordinate matrix and its inverse. Also note that all of the change of frame mappings that we do in this book will be invertible, so we won’t have to worry about whether the inverse exists. 
+Figure 3.13 illustrates the relationship between a change of coordinate matrix and its inverse. Also note that all of the change of frame mappings that we do in this book will be invertible, so we won鈥檛 have to worry about whether the inverse exists. 
 
 ![](images/67860f3212780ad4b13cc946a2c91dc36dd30096371541142db891adadecfc3b.jpg)
 
@@ -630,7 +632,7 @@ Figure 3.14 shows how the matrix inverse property $( \mathbf { A } \mathbf { B }
 
 # 3.5 TRANSFORMATION MATRIX VERSUS CHANGE OF COORDINATE MATRIX
 
-So far we have distinguished between “active” transformations (scaling, rotation, translation) and change of coordinate transformations. We will see in this section that mathematically, the two are equivalent, and an active transformation can be interpreted as a change of coordinate transformation, and conversely. 
+So far we have distinguished between 鈥渁ctive鈥?transformations (scaling, rotation, translation) and change of coordinate transformations. We will see in this section that mathematically, the two are equivalent, and an active transformation can be interpreted as a change of coordinate transformation, and conversely. 
 
 Figure 3.15 shows the geometric resemblance between the rows in Equation 3.7 (rotation followed by translation affine transformation matrix) and the rows in Equation 3.9 (change of coordinate matrix). 
 
@@ -638,18 +640,18 @@ Figure 3.15 shows the geometric resemblance between the rows in Equation 3.7 (ro
 
 
 
-（a）
+锛坅锛?
 
 
 ![](images/a1188e8a92629c3b646728827cbcc7b1f8cb35e42c6c10caef5e83e436a530a2.jpg)
 
 
 
-（b）
+锛坆锛?
 
 
 
-Figure 3.15. We see that $\boldsymbol { \mathsf { b } } = \boldsymbol { \mathsf { Q } }$ , τ(i) = u, τ(j) = v, and $\tau ( \mathbf { k } ) = \mathbf { w }$ . (a) We work with one coordinate system, call it frame $B$ , and we apply an affine transformation to the cube to change its position and orientation relative to frame B: $\alpha ( x , y , z , w ) = x \tau ( \mathbf { i } ) + y \tau ( \mathbf { j } ) + z \tau ( \mathbf { k } ) + w \mathbf { b }$ . (b) We have two coordinate systems called frame A and frame B. The points of the cube relative to frame A can be converted to frame B coordinates by the formula $\mathsf { p } _ { B } = x \mathbf { u } _ { B } + y \mathbf { v } _ { B } + z \mathbf { w } _ { B } + w \mathbf { Q } _ { B } .$ , where $\mathtt { p } _ { A } = ( x , y , z , w )$ . In both cases, we have $\ a ( \pmb { p } ) = ( x ^ { \prime } , y ^ { \prime } , z ^ { \prime } , w ) = \pmb { p } _ { B }$ with coordinates relative to frame $B$ .
+Figure 3.15. We see that $\boldsymbol { \mathsf { b } } = \boldsymbol { \mathsf { Q } }$ , 蟿(i) = u, 蟿(j) = v, and $\tau ( \mathbf { k } ) = \mathbf { w }$ . (a) We work with one coordinate system, call it frame $B$ , and we apply an affine transformation to the cube to change its position and orientation relative to frame B: $\alpha ( x , y , z , w ) = x \tau ( \mathbf { i } ) + y \tau ( \mathbf { j } ) + z \tau ( \mathbf { k } ) + w \mathbf { b }$ . (b) We have two coordinate systems called frame A and frame B. The points of the cube relative to frame A can be converted to frame B coordinates by the formula $\mathsf { p } _ { B } = x \mathbf { u } _ { B } + y \mathbf { v } _ { B } + z \mathbf { w } _ { B } + w \mathbf { Q } _ { B } .$ , where $\mathtt { p } _ { A } = ( x , y , z , w )$ . In both cases, we have $\ a ( \pmb { p } ) = ( x ^ { \prime } , y ^ { \prime } , z ^ { \prime } , w ) = \pmb { p } _ { B }$ with coordinates relative to frame $B$ .
 
 
 If we think about this, it makes sense. For with a change of coordinate transformation, the frames differ in position and orientation. Therefore, the mathematical conversion formula to go from one frame to the other would require rotating and translating the coordinates, and so we end up with the same mathematical form. In either case, we end up with the same numbers; the difference is the way we interpret the transformation. For some situations, it is more intuitive to work with multiple coordinate systems and convert between the systems where the object remains unchanged, but its coordinate representation changes since it is being described relative to a different frame of reference (this situation corresponds with Figure $3 . 1 5 b$ ). Other times, we want to transform an object inside a coordinate system without changing our frame of reference (this situation corresponds with Figure 3.15a). 
@@ -726,7 +728,7 @@ We mostly use the DirectX Math functions directly, but the reader might prefer S
 
 # 3.8 SUMMARY
 
-1. The fundamental transformation matrices—scaling, rotation, and translation—are given by: 
+1. The fundamental transformation matrices鈥攕caling, rotation, and translation鈥攁re given by: 
 
 $$
 \mathbf {S} = \left[ \begin{array}{c c c c} s _ {x} & 0 & 0 & 0 \\ 0 & s _ {y} & 0 & 0 \\ 0 & 0 & s _ {z} & 0 \\ 0 & 0 & 0 & 1 \end{array} \right] \quad \mathbf {T} = \left[ \begin{array}{c c c c} 1 & 0 & 0 & 0 \\ 0 & 1 & 0 & 0 \\ 0 & 0 & 1 & 0 \\ b _ {x} & b _ {y} & b _ {z} & 1 \end{array} \right]
@@ -800,9 +802,9 @@ Does the translation translate points? Does the translation translate vectors? W
 
 17. Suppose that we have frames $A$ and B. Let ${ \bf p } _ { A } = ( 1 , - 2 , 0 )$ and $\mathbf { q } _ { A } = ( 1 , 2 , 0 )$ represent a point and force, respectively, relative to frame A. Moreover, let $\mathbf { Q } _ { B } \ = \ ( - 6 , \ 2 , \ 0 )$ , $\begin{array} { r } { \mathbf { u } _ { B } = \left( \frac { 1 } { \sqrt { 2 } } , \frac { 1 } { \sqrt { 2 } } , 0 \right) } \end{array}$ , $\begin{array} { r } { { \bf v } _ { B } = \left( - \frac { 1 } { \sqrt { 2 } } , \frac { 1 } { \sqrt { 2 } } , 0 \right) } \end{array}$ , and $\mathbf { w } _ { B } = ( 0 , 0 , 1 )$ describe frame A with coordinates relative to frame $B$ . Build the change of coordinate matrix that maps frame $A$ coordinates into frame $B$ coordinates, and find ${ \bf p } _ { B } = ( x , y , z )$ and $\mathbf { q } _ { B } ^ { } = ( x , y , z )$ . Draw a picture on graph paper to verify that your answer is reasonable. 
 
-18. The analog for points to a linear combination of vectors is an affine combination: $\mathbf { p } = a _ { 1 } \mathbf { p } _ { 1 } + \ldots + a _ { n } \mathbf { p } _ { n }$ where $a _ { 1 } + \ldots + a _ { n } = 1$ and $\mathbf { p } _ { 1 } , \ldots , \mathbf { p } _ { n }$ are points. The scalar coefficient $a _ { k }$ can be thought of as a “point” weight that describe how much influence the point $\mathbf { p } _ { k }$ has in determining p; loosely 
+18. The analog for points to a linear combination of vectors is an affine combination: $\mathbf { p } = a _ { 1 } \mathbf { p } _ { 1 } + \ldots + a _ { n } \mathbf { p } _ { n }$ where $a _ { 1 } + \ldots + a _ { n } = 1$ and $\mathbf { p } _ { 1 } , \ldots , \mathbf { p } _ { n }$ are points. The scalar coefficient $a _ { k }$ can be thought of as a 鈥減oint鈥?weight that describe how much influence the point $\mathbf { p } _ { k }$ has in determining p; loosely 
 
-speaking, the closer $a _ { k }$ is to 1, the closer p will be to $\mathbf { p } _ { k } ,$ and a negative $a _ { k }$ “repels” p from $\mathbf { p } _ { k }$ . (The next exercise will help you develop some intuition on this.) The weights are also known as barycentric coordinates. Show that an affine combination can be written as a point plus a vector: 
+speaking, the closer $a _ { k }$ is to 1, the closer p will be to $\mathbf { p } _ { k } ,$ and a negative $a _ { k }$ 鈥渞epels鈥?p from $\mathbf { p } _ { k }$ . (The next exercise will help you develop some intuition on this.) The weights are also known as barycentric coordinates. Show that an affine combination can be written as a point plus a vector: 
 
 $$
 \mathbf {p} = \mathbf {p} _ {1} + a _ {2} (\mathbf {p} _ {2} - \mathbf {p} _ {1}) + \ldots + a _ {n} (\mathbf {p} _ {n} - \mathbf {p} _ {1})
@@ -816,11 +818,11 @@ b) 0 7 0 2 0 1 1 2 3 . . p p + + . p
 
 c) 0 0 0 5 0 5 1 2 3 . . p p + + . p 
 
-d) − + 0 2 0 6 + 0 6 1 2 3 . . p p . p 
+d) 鈭?+ 0 2 0 6 + 0 6 1 2 3 . . p p . p 
 
-e) 0 6 0 5 0 1 1 2 3 . . p p + − . p 
+e) 0 6 0 5 0 1 1 2 3 . . p p + 鈭?. p 
 
-f ) 0 8 0 3 0 5 1 2 3 . . p p − + . p 
+f ) 0 8 0 3 0 5 1 2 3 . . p p 鈭?+ . p 
 
 What is special about the point in part (a)? What would be the barycentric coordinates of ${ \bf p } _ { 2 }$ and the point (1, 0, 0) in terms of $\mathbf { p } _ { 1 } , \mathbf { p } _ { 2 } , \mathbf { p } _ { 3 } ?$ Can you make a conjecturer about where the point p will be located relative to the triangle if one of the barycentric coordinates is negative? 
 
@@ -890,7 +892,7 @@ $$
 
 Explain why all these properties make sense for a rotation transformation. 
 
-27. Find a scaling, rotation, and translation matrix whose product transforms the line segment with start point $\mathbf { p } = ( 0 , 0 , 0 )$ and endpoint ${ \bf q } = ( 0 , 0 , 1 )$ into the line segment with length 2, parallel to the vector (1, 1, 1), with start point (3, 1, 2). 
+27. Find a scaling, rotation, and translation matrix whose product transforms the聽line segment with start point $\mathbf { p } = ( 0 , 0 , 0 )$ and endpoint ${ \bf q } = ( 0 , 0 , 1 )$ into the line segment with length 2, parallel to the vector (1, 1, 1), with start point (3, 1, 2). 
 
 ![](images/c37079830179eac1bb77673871473316cb48819a090adc843779f1fd57baaeb7.jpg)
 

@@ -1,8 +1,10 @@
+﻿# Chapter 24 Terrain Rendering
+
 # Chapter
 
 # 24 Terrain Rendering
 
-Terrain rendering starts off with a flat grid of triangles. Then we adjust the heights (i.e., the y-coordinates) of the vertices in such a way that the mesh models smooth transitions from mountain to valley, thereby simulating a terrain (top of Figure 24.1). Of course, we apply a texture to render sandy beaches, grassy hills, rocky cliffs, and snowy mountains (bottom of Figure 24.1). 
+Terrain rendering starts off with a flat grid of triangles. Then we adjust the heights (i.e., the y-coordinates) of the vertices in such a way that the mesh models smooth transitions from mountain to valley, thereby simulating a terrain (top of Figure聽24.1). Of course, we apply a texture to render sandy beaches, grassy hills, rocky cliffs, and snowy mountains (bottom of Figure 24.1). 
 
 # Chapter Objectives:
 
@@ -77,7 +79,7 @@ void Terrain::LoadHeightmapRaw16()
         // Done with file.
         inFile.close();
     }
-    constexpr float MaxUShort = static_cast(float>(std::numeric限度<uint16_t>::max));
+    constexpr float MaxUShort = static_cast(float>(std::numeric闄愬害<uint16_t>::max));
     // Copy the array data into a float array and scale it.
     mHeightmapresize(in.size(), 0);
     for (UINT i = 0; i < in.size(); ++i)
@@ -233,7 +235,7 @@ CreateStaticBuffer (md3dDevice, uploadBatch,
 
 # 24.2.2 Terrain Vertex Shader
 
-Since we are using tessellation, the vertex shader operates per control point. Our vertex shader is almost a simple pass-through shader, except that we do displacement mapping for the patch control points by reading the heightmap value. This puts the y-coordinates of the control points at the proper height. The reason for doing this is that in the hull shader, we are going to compute the distance between each patch and the eye; having the patch corners offset to the proper height makes this distance calculation more accurate than having the patch in the $_ { x z }$ -plane. 
+Since we are using tessellation, the vertex shader operates per control point. Our vertex shader is almost a simple pass-through shader, except that we do displacement mapping for the patch control points by reading the heightmap value. This puts the y-coordinates of the control points at the proper height. The reason for doing this is that in the hull shader, we are going to compute the聽distance between each patch and the eye; having the patch corners offset to the proper height makes this distance calculation more accurate than having the patch in the $_ { x z }$ -plane. 
 
 ```cpp
 struct VertexOut
@@ -400,7 +402,7 @@ void EstimateTangentFrame(float2 texC, out float3 outTangentW, out float3 outBit
 ```
 
 out float3 outNormalW)   
-{ // // Estimate normal and tangent using central differences. // float2 leftTexC $=$ texC $^+$ float2(-gTerrainTexelSizeUV.x,0.0f); float2 rightTexC $=$ texC $^+$ float2(+gTerrainTexelSizeUV.x,0.0f); float2 bottomTexC $=$ texC $^+$ float2(0.0f，+gTerrainTexelSizeUV.y); float2 topTexC $=$ texC $^+$ float2(0.0f，-gTerrainTexelSizeUV.y); Texture2D heightMap $=$ ResourceDescriptorHeap[gHeightMapSrvIndex]; float leftY $=$ heightMapSAMPLELevel GetLinearClampSampler(),leftTexC,0).r; float rightY $=$ heightMapSAMPLELevel (GetLinearClampSampler(),rightTexC,0).r; float bottomY $=$ heightMapSAMPLELevel (GetLinearClampSampler(),bottomTexC,0).r; float topY $=$ heightMapSAMPLELevel (GetLinearClampSampler(),topTexC,0).r; outTangentW $=$ normalize(float3( 2.0f\*gTerrainWorldCellSpacing.x, rightY - leftY, 0.0f)); outBitangentW $=$ normalize(float3( 0.0f, bottomY - topY, -2.0f\*gTerrainWorldCellSpacing.y)); outNormalW $=$ cross(outTangentW,outBitangentW); 
+{ // // Estimate normal and tangent using central differences. // float2 leftTexC $=$ texC $^+$ float2(-gTerrainTexelSizeUV.x,0.0f); float2 rightTexC $=$ texC $^+$ float2(+gTerrainTexelSizeUV.x,0.0f); float2 bottomTexC $=$ texC $^+$ float2(0.0f锛?gTerrainTexelSizeUV.y); float2 topTexC $=$ texC $^+$ float2(0.0f锛?gTerrainTexelSizeUV.y); Texture2D heightMap $=$ ResourceDescriptorHeap[gHeightMapSrvIndex]; float leftY $=$ heightMapSAMPLELevel GetLinearClampSampler(),leftTexC,0).r; float rightY $=$ heightMapSAMPLELevel (GetLinearClampSampler(),rightTexC,0).r; float bottomY $=$ heightMapSAMPLELevel (GetLinearClampSampler(),bottomTexC,0).r; float topY $=$ heightMapSAMPLELevel (GetLinearClampSampler(),topTexC,0).r; outTangentW $=$ normalize(float3( 2.0f\*gTerrainWorldCellSpacing.x, rightY - leftY, 0.0f)); outBitangentW $=$ normalize(float3( 0.0f, bottomY - topY, -2.0f\*gTerrainWorldCellSpacing.y)); outNormalW $=$ cross(outTangentW,outBitangentW); 
 
 ![](images/7947c8e97f7b37e2fc7682d3e8635af4706428d10e9df42d81aaff889f5e2373.jpg)
 
@@ -420,7 +422,7 @@ drawCB.gTerrainTexelSizeUV.y = 1.0f / mInfo.HeightmapHeight;
 
 Terrains generally cover a vast area and many of our patches will not be seen by the camera. This suggests that frustum culling will be a good optimization. If a patch has tessellation factors of all zero, then the GPU discards the patch from further processing; this means effort is not wasted tessellating a patch only for those triangles to later on be culled in the clipping stage. 
 
-In order to do frustum culling, we need two ingredients: we need the view frustum planes, and we need a bounding volume about each patch. Exercise  2 of Chapter 16 explained how to extract the view frustum planes. Code that implements the solution to this exercise is as follows (implemented in MathHelper.h/MathHelper.cpp): 
+In order to do frustum culling, we need two ingredients: we need the view frustum planes, and we need a bounding volume about each patch. Exercise聽 2 of Chapter 16 explained how to extract the view frustum planes. Code that implements the solution to this exercise is as follows (implemented in MathHelper.h/MathHelper.cpp): 
 
 ```cpp
 void MathHelper::ExtractFrustumPlanes(const Matrix& M, XMFLOAT4 outPlanes[6])  
@@ -465,7 +467,7 @@ for (UINT i = 0; i < mNumPatchVertRows-1; ++i)
 mPatchBoundsY[patchID].y; } 1 [] 
 ```
 
-Now in the constant hull shader, we can construct our axis-aligned bound box, and perform box/frustum intersection test to see if the box lies outside the frustum. We use a different box/plane intersection test than we explained in Chapter 16. It is actually a special case of the OBB/plane test described in Exercise  4 of Chapter  16. Because the box is axis-aligned, the formula for the radius $r$ simplifies as follows: 
+Now in the constant hull shader, we can construct our axis-aligned bound box, and perform box/frustum intersection test to see if the box lies outside the frustum. We use a different box/plane intersection test than we explained in Chapter 16. It is actually a special case of the OBB/plane test described in Exercise聽 4 of Chapter聽 16. Because the box is axis-aligned, the formula for the radius $r$ simplifies as follows: 
 
 $$
 a _ {0} \mathbf {r} _ {0} = (a _ {0}, 0, 0)
@@ -522,7 +524,7 @@ Figure 24.7. OBB/plane intersection test. We can use the same test for an AABB s
 
 Recall $\ S 9 . 1 1$ , where we tiled a grass texture over hills. We tiled the texture to increase the resolution (i.e., to increase the number of texel samples that covered a triangle on the land mass). We want to do the same thing here; however, we do not want to be limited to a single grass texture. We would like to create terrains depicting sand, grass, dirt, rock, and snow, all at the same time. You might suggest 
 
-creating one large texture that contains the sand, grass, and dirt, and stretch it over the terrain. But this would lead us back to the resolution problem—the terrain geometry is so large, we would require an impractically large texture to have enough color samples to get a decent resolution. Instead, we take a multitexturing approach that works like transparency alpha blending. 
+creating one large texture that contains the sand, grass, and dirt, and stretch it over the terrain. But this would lead us back to the resolution problem鈥攖he terrain geometry is so large, we would require an impractically large texture to have enough color samples to get a decent resolution. Instead, we take a multitexturing approach that works like transparency alpha blending. 
 
 The idea is to have a separate texture for each terrain layer (e.g., one for grass, dirt, and rock) These textures will be tiled over the terrain for high resolution. For the sake of example, suppose we have three terrain layers (grass, dirt, and rock); then these layers are then combined as shown in Figure 24.8. 
 
@@ -537,7 +539,7 @@ The above process should be reminiscent of transparency alpha blending. The blen
 
 Although Figure 24.8 illustrates blending with color maps, we can use the same blend map to blend other textures and values of the material such as normal maps and height maps. In this way we blend entire material layers. In our code, we support up to eight material layers. To combine up to eight layers, we require seven grayscale blend maps. We can pack these seven grayscale blend maps into two RGBA textures. We also have to modify our terrain constant buffer to have eight material indices (one for each layer). 
 
-The following terrain pixel shader code shows how our texture blending is implemented. Essentially, we combine the layers and the “blended material” is used as our material for shading. 
+The following terrain pixel shader code shows how our texture blending is implemented. Essentially, we combine the layers and the 鈥渂lended material鈥?is used as our material for shading. 
 
 void CalcBlendedMaterialData(float2 texC, out float4 outAlbedo, out float3 outNormalSample, out float3 outFresnelR0, out float3 outGlossHeightAo)   
 { outAlbedo $=$ float4(0.0f, 0.0f, 0.0f, 0.0f); outNormalSample $\equiv$ float3(0.0f, 0.0f, 0.0f); outFresnelR0 $=$ float3(0.0f, 0.0f, 0.0f); outGlossHeightAo $=$ float3(0.0f, 0.0f, 0.0f); // Sample the blend map. Texture2D blendMap0 $=$ ResourceDescriptorHeap[gBlendMap0SrvIndex]; Texture2D blendMap1 $=$ ResourceDescriptorHeap[gBlendMap1SrvIndex]; float4 blend0 $=$ blendMap0.SampleLevel(GetLinearClampSampler(), texC, 0.0f); float4 blend1 $=$ blendMap1.SampleLevel(GetLinearClampSampler(), texC, 0.0f); float blendPercents[8] $=$ { 1.0f, blendO.y, blendO.z, blendO.w, blend1.x, blend1.y, blend1.z, blend1.w }; // Accumulate the layers. for(int i = 0; i < gNumTerrainLayers; ++i) { // cbuffer packs 8 material indices into 2 uint4s: // uint4 gTerrainLayerMaterialIndices[2]; uint matVectorIndex $= \mathrm{i} / 4$ . uint matIndexInVector $= \mathrm{i}\% 4$ . uint matIndex $=$ gTerrainLayerMaterialIndices [matVectorIndex] [matIndexInVector]; // Fetch the material data. MaterialData matData $=$ gMaterialData[matIndex]; float4 diffuseAlbedo $=$ matData.DiffuseAlbedo; float3 fresnelR0 $=$ matData.FresnelR0; float roughness $=$ matData.Roughness; uint diffuseMapIndex $=$ matData.DiffuseMapIndex; 
@@ -553,19 +555,19 @@ float4 PS(DomainOut pin) : SV_Target { float4 diffuseAlbedo; float3 normalMapSam
 
 Unlike the layer textures, the blend maps are not tiled, as we stretch them over the entire terrain surface. This is necessary since we use the blend map to mark regions of the terrain where we want a particular texture to show through, so the blend map must be global and cover the whole terrain. You might wonder whether this is acceptable or if excessive magnification occurs. Indeed, magnification will occur and the blend maps will be distorted by the texture filtering when it is stretched over the entire terrain, but the blend maps are not where we get our details from (we get them from the tiled textures). The blend maps merely mark the general regions of the terrain where (and how much) a particular texture contributes. If the blend maps get a distorted and blurred, it 
 
-will not significantly affect the end result—perhaps a bit of dirt will blend in with a bit of grass, for example, and this actually provides a smoother transition between layers. 
+will not significantly affect the end result鈥攑erhaps a bit of dirt will blend in with a bit of grass, for example, and this actually provides a smoother transition between layers. 
 
 # 24.4.1 Material Displacement
 
 Recall that materials can also store heightmaps, which describe the elevation differences between different parts of the material being modeled. We can perform a similar blending strategy for material heightmaps and offset the tessellated vertices by the blended material height in the domain shader. Since the terrain materials are tiled, we can get heightmap details at a much higher granularity than the heightmap provided we tessellate enough. We will not repeat all the code, but CalcBlendedDisplacement is very similar to CalcBlendedMaterialData except that we blend the heightmaps. 
 
-// Dynamically look up the texture in the array. Texture2D glossHeightAoMap = ResourceDescriptorHeap[glossHeightAoMapIndex]; float layerHeight = glossHeightAoMapSAMPLELevel(GetAnisoWrapSampler(), layerTexC, 0.0f).g; layerHeight $\text{十} =$ matData.DisplacementScale; height $=$ lerp( height, layerHeight, blendPercents[i]); 
+// Dynamically look up the texture in the array. Texture2D glossHeightAoMap = ResourceDescriptorHeap[glossHeightAoMapIndex]; float layerHeight = glossHeightAoMapSAMPLELevel(GetAnisoWrapSampler(), layerTexC, 0.0f).g; layerHeight $\text{鍗亇 =$ matData.DisplacementScale; height $=$ lerp( height, layerHeight, blendPercents[i]); 
 
 ![](images/89ac92536f6d6ac9bfb66df14c1dda2e4fd6c05d6542715d00f4e0040ea14c68.jpg)
 
 
 
-Figure 24.9. Screenshot of the “Terrain” demo
+Figure 24.9. Screenshot of the 鈥淭errain鈥?demo
 
 
 We apply the result in the domain shader to the tessellated vertices: 
@@ -584,7 +586,7 @@ To begin to solve this, our first goal is to determine which cell the $x \cdot$ 
 // Transform from terrain local space to "cell" space. float c = (x + 0.5f*width()) / mInfo.CellSpacing; float d = (z - 0.5f*depth()) / -mInfo.CellSpacing; // Get the row and column we are in. int row = (int)floorf(d); int col = (int)floorf(c); 
 ```
 
-Figure 24.10ab explains what this code does. Essentially, we are transforming to a new coordinate system where the origin is at the upper-left most terrain vertex, the positive $z$ -axis goes down, and each unit is scaled to that it corresponds to one cell space. Now in this coordinate system, it is clear by Figure $2 4 . 1 0 b$ that the row and column of the cell is just given by floor(z) and floor(x), respectively. In the figure example, the point is in row 4 and column 1 (using zero based indices). (Recall that floor(t) evaluates to the greatest integer less than or equal to t.) Observe also that row and col also give the indices of the upper-left vertex of the cell. 
+Figure 24.10ab explains what this code does. Essentially, we are transforming to a new coordinate system where the origin is at the upper-left most terrain vertex, the positive $z$ -axis goes down, and each unit is scaled to that it corresponds to one cell space. Now in this coordinate system, it is clear by Figure $2 4 . 1 0 b$ that the row and column of the cell is just given by floor(z) and floor(x), respectively. In the figure example, the point is in row 4 and column 1 (using zero based indices). (Recall that floor(t) evaluates to the greatest integer less than or equal to t.) Observe also that row and col also give the indices of the upper-left vertex of the聽cell. 
 
 Now that we know the cell we are in, we obtain the heights of the four cell vertices from the heightmap: 
 
@@ -597,7 +599,7 @@ Now that we know the cell we are in, we obtain the heights of the four cell vert
 
 
 
-(a）
+(a锛?
 
 
 ![](images/faf0d9c4760f010f0e17f0287640686c0be1b38197774428ef43be655bdcd3a3.jpg)
@@ -615,7 +617,7 @@ Now that we know the cell we are in, we obtain the heights of the four cell vert
 
 
 
-Figure 24.10. (a) The point in the $x z$ -plane relative to the terrain coordinate system has coordinates $( x , z )$ . (b) We pick a new coordinate where the origin is the upper-left most grid vertex, the positive $z$ -axis goes down, and each unit is scaled to that it corresponds to one cell space. The point has coordinates $( c , d )$ relative to this coordinate system. This transformation involves a translation and scaling. Once in this new coordinate system, finding the row and column of the cell we are in is trivial. (c) We introduce a third coordinate system, which has its origin at the upper-left vertex of the cell the point is in. The point has coordinates $( s , t )$ relative to this coordinate system. Transforming the coordinates into this system involves only a simple translation to offset the coordinates. Observe that if $s + t \leq 1$ we are in the “upper” triangle, otherwise we are in the “lower” triangle.
+Figure 24.10. (a) The point in the $x z$ -plane relative to the terrain coordinate system has coordinates $( x , z )$ . (b) We pick a new coordinate where the origin is the upper-left most grid vertex, the positive $z$ -axis goes down, and each unit is scaled to that it corresponds to one cell space. The point has coordinates $( c , d )$ relative to this coordinate system. This transformation involves a translation and scaling. Once in this new coordinate system, finding the row and column of the cell we are in is trivial. (c) We introduce a third coordinate system, which has its origin at the upper-left vertex of the cell the point is in. The point has coordinates $( s , t )$ relative to this coordinate system. Transforming the coordinates into this system involves only a simple translation to offset the coordinates. Observe that if $s + t \leq 1$ we are in the 鈥渦pper鈥?triangle, otherwise we are in the 鈥渓ower鈥?triangle.
 
 
 ```javascript
@@ -636,9 +638,9 @@ float $\mathrm { ~ { ~ \bf ~ s ~ } ~ } = \mathrm { ~ { ~ \bf ~ C ~ } ~ } - \math
 
 float $\mathrm { ~ t ~ } = \mathrm { ~ d ~ } -$ (float)row; 
 
-Then, if $s + t \leq 1$ we are in the “upper” triangle ∆ABC, else we are in the “lower” triangle ∆DCB. 
+Then, if $s + t \leq 1$ we are in the 鈥渦pper鈥?triangle 鈭咥BC, else we are in the 鈥渓ower鈥?triangle 鈭咲CB. 
 
-Now we explain how to find the height if we are in the “upper” triangle. The process is similar for the “lower” triangle, and, of course, the code for both follows. To find the height if we are in the “upper” triangle, we first construct two vectors, $\mathbf { u } = ( \Delta x , B - A , 0 )$ and $\mathbf { v } = ( 0 , C - A , - \Delta z )$ , on the sides of the triangle originating 
+Now we explain how to find the height if we are in the 鈥渦pper鈥?triangle. The process is similar for the 鈥渓ower鈥?triangle, and, of course, the code for both follows. To find the height if we are in the 鈥渦pper鈥?triangle, we first construct two vectors, $\mathbf { u } = ( \Delta x , B - A , 0 )$ and $\mathbf { v } = ( 0 , C - A , - \Delta z )$ , on the sides of the triangle originating 
 
 ![](images/39a2a06f0c1710432cfe98663032609076ccbb34a76d52a2929ec6eca99a1141.jpg)
 
@@ -693,7 +695,7 @@ c. Bind the heightmap as a shader resource. In the domain shader, perform displa
 
 1. Use the GetHeight function to keep the camera grounded to the terrain but offset on the world y-axis so that the camera is above ground. 
 
-2. Generally, some parts of a terrain will be rough and hilly with numerous details, and other parts will be flat and smooth. It is common to bias tessellation so that patches that contain high-frequency regions are more tessellated so that the extra details show up. Likewise, flat areas do not need as much tessellation; for example, a flat quad patch does not need to be subdivided at all. Research ways to calculate a roughness factor per patch. The SDK sample “DetailTessellation11” would be a good starting point, which calculates a density map that indicates areas of the displacement map that has high-frequency regions. 
+2. Generally, some parts of a terrain will be rough and hilly with numerous details, and other parts will be flat and smooth. It is common to bias tessellation so that patches that contain high-frequency regions are more tessellated so that the extra details show up. Likewise, flat areas do not need as much tessellation; for example, a flat quad patch does not need to be subdivided at all. Research ways to calculate a roughness factor per patch. The SDK sample 鈥淒etailTessellation11鈥?would be a good starting point, which calculates a density map that indicates areas of the displacement map that has high-frequency regions. 
 
 3. Try generating your own height maps and using them in the Terrain demo. Try authoring your own blend map. 
 
@@ -708,4 +710,4 @@ float CalcTessFactor(float3 p)
 // from a bird's eye). float d = max(abs(p.x - gEyePosW.x), abs(p.z - gEyePosW.z)); float s = saturate((d - gMinDist) / (gMaxDist - gMinDist)); return pow(2, round(lerp(gMaxTess, gMinTess, s)) ); } 
 ```
 
-We have made two changes. First, we use the max norm in the $_ { x z }$ -plane to measure distance. This allows us to zoom out to a bird’s eye view without affecting the distance (since y-coord is ignored). Second, we round the exponent to an integer so that the tessellation factor is always an integer power of 2. This gives us exactly seven discrete LOD levels: $2 ^ { 0 } , 2 ^ { 1 } , . . . , 2 ^ { 6 }$ . For this exercise, make the above changes to the CalcTessFactor function, and zoom out to see something like Figure 24.7. It might help to disable drawing the sky and to draw the terrain black in wireframe mode. 
+We have made two changes. First, we use the max norm in the $_ { x z }$ -plane to measure distance. This allows us to zoom out to a bird鈥檚 eye view without affecting the distance (since y-coord is ignored). Second, we round the exponent to an integer so that the tessellation factor is always an integer power of 2. This gives us exactly seven discrete LOD levels: $2 ^ { 0 } , 2 ^ { 1 } , . . . , 2 ^ { 6 }$ . For this exercise, make the above changes to the CalcTessFactor function, and zoom out to see something like Figure 24.7. It might help to disable drawing the sky and to draw the terrain black in wireframe mode. 

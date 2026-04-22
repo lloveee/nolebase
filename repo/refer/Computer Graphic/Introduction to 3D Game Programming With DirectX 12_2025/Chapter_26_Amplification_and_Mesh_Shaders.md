@@ -1,3 +1,5 @@
+﻿# Chapter 26 Amplification and Mesh Shaders
+
 # Chapter
 
 # 26 Amplification and Mesh Shaders
@@ -37,11 +39,11 @@ mesh shader granularity, or support multiple sets of indices (i.e., position ind
 
 # 26.1 MESH SHADERS AND MESHLETS
 
-A mesh shader is like a special compute shader. Typically, it inputs buffers of vertices and indices, possibly creates new vertices and indices, does some 
+A mesh shader is like a special compute shader. Typically, it inputs buffers of聽vertices and indices, possibly creates new vertices and indices, does some 
 
-per-vertex work, does some per-primitive work, and outputs the resulting vertex and primitive list for rasterization. To process a large mesh, it requires many mesh shader groups. The subset of geometry a mesh shader group processes is called a meshlet. For performance, it is best if the geometry in a meshlet is “locally nearby” and contiguous spatially. This is so vertices can be shared to get an efficient index list and for frustum culling at meshlet granularity. 
+per-vertex work, does some per-primitive work, and outputs the resulting vertex and primitive list for rasterization. To process a large mesh, it requires many mesh shader groups. The subset of geometry a mesh shader group processes is called a meshlet. For performance, it is best if the geometry in a meshlet is 鈥渓ocally nearby鈥?and contiguous spatially. This is so vertices can be shared to get an efficient index list and for frustum culling at meshlet granularity. 
 
-You could implement your own algorithm to divide a mesh up into meshlets, but Microsoft has published open source code for doing this, which is available at https://learn.microsoft.com/en-us/samples/microsoft/directx-graphics-samples/ d3d12-mesh-shader-samples-win32/ [MSMeshlet]. Figure 2 shows a dragon mesh broken up into color coded meshlets. The “Meshlet Viewer” source code is also available at [MSMeshlet]. 
+You could implement your own algorithm to divide a mesh up into meshlets, but Microsoft has published open source code for doing this, which is available at https://learn.microsoft.com/en-us/samples/microsoft/directx-graphics-samples/ d3d12-mesh-shader-samples-win32/ [MSMeshlet]. Figure 2 shows a dragon mesh broken up into color coded meshlets. The 鈥淢eshlet Viewer鈥?source code is also available at [MSMeshlet]. 
 
 ![](images/b7adfce2f7b53820eb20a6630cc9b6e49a8ea3e3cc3d35406db153dbbb259ac1.jpg)
 
@@ -79,7 +81,7 @@ void MS(
 out primitives PrimitiveOut outPrimitiveInfo[MAX_MS_TRIS])   
 { // Figure out actual number of vertices and primitives // we are going to output. const uint numVertices $=$ ...; const uint numTris $=$ ..; SetMeshOutputCounts(numVertices, numTris); const uint vertIndex $=$ ..; VertexOut vout $=$ ..; outVertices[vertIndex] $=$ vout; const uint primitiveIndex $=$ .. outIndices[primitiveIndex] $=$ uint3(i0,i1,i2); PrimitiveOut pout $=$ ..; outPrimitiveInfo[primitiveIndex] $=$ pout; 
 
-Because a mesh shader links to the rasterizer, we need to specify the kind of primitive we are outputting. This can either be “triangle” or “line,” and this is done with one of the following attributes: 
+Because a mesh shader links to the rasterizer, we need to specify the kind of primitive we are outputting. This can either be 鈥渢riangle鈥?or 鈥渓ine,鈥?and this is done with one of the following attributes: 
 
 ```cpp
 [outputtopology("triangle")]  
@@ -128,7 +130,7 @@ Throughout this book, for rendering a single piece of geometry we had an index l
 
 
 
-Figure 26.2. A screenshot from the Microsoft open source “Meshlet Viewer” sample application
+Figure 26.2. A screenshot from the Microsoft open source 鈥淢eshlet Viewer鈥?sample application
 
 
 An initial approach would be to just divide the mesh up into a collection of meshlets, where each meshlet has its own vertex list and corresponding index list that is relative to its vertex list. Then each mesh shader will process a meshlet and output the meshlet vertices and indices. This works, however, if we consider a typical mesh as in Figure 26.2, we observe that the vertices at the boundaries of meshlets are shared amongst multiple meshlets. So, if we implement it as just described, there will be a lot of redundancy in the vertex data. 
@@ -258,7 +260,7 @@ DXGI_FORMAT particlesPsoFormats[8] =
     DXGI_FORMAT_UNKNOWN,  
     DXGI_FORMAT_UNKNOWN,  
     DXGI_FORMAT_UNKNOWN,  
-}；  
+}锛? 
 D3D12_RENDER_TARGET Blend_DESC particlesAddBlendDesc;  
 particlesAddBlendDesc.BlendEnable = true;  
 particlesAddBlendDesc.LogicEnable = false;  
@@ -305,13 +307,13 @@ cmdList->DispatchMesh(numMeshGroupX, numMeshGroupY, numMeshGroupZ);
 
 # 26.2 MESH SHADER POINT SPRITES
 
-Point sprites refer to when we represent an entity as a single point, but then expand it to a 2D quad that faces the camera to give the object area. This is essentially what we did in Chapter 12 with the “Tree Billboard” demo using the geometry shader. In this section, we show how to emulate point sprite functionality using a mesh shader to render a simple helix particle system (Figure 26.4). In contrast to the “Tree Billboard” demo, we are not going to store a list of points on the CPU. 
+Point sprites refer to when we represent an entity as a single point, but then expand it to a 2D quad that faces the camera to give the object area. This is essentially what we did in Chapter 12 with the 鈥淭ree Billboard鈥?demo using the geometry shader. In this section, we show how to emulate point sprite functionality using a mesh shader to render a simple helix particle system (Figure 26.4). In contrast to the 鈥淭ree Billboard鈥?demo, we are not going to store a list of points on the CPU. 
 
 ![](images/9a91f709bbedd8104453c5836d2452f1fe1224ed1c0bebbcecd7f088f759847b.jpg)
 
 
 
-Figure 26.4. Screenshot of the “ParticlesMS” demo where we use a mesh shader to procedural generate and animate a helix-shaped particle system.
+Figure 26.4. Screenshot of the 鈥淧articlesMS鈥?demo where we use a mesh shader to procedural generate and animate a helix-shaped particle system.
 
 
 Instead, we are going to dispatch mesh shader groups, and the geometry will be completely created in the mesh shader based on the thread ID. 
@@ -349,7 +351,7 @@ Now we can generate particles along the helix curve by evaluating the above equa
 // Parameterize the particle along the helix based on dispatchThreadId. const uint globalParticleId = dispatchThreadId.x; const float t = globalParticleId / (float)gHelixParticleCount; 
 ```
 
-This generates equally spaced particles on the helix, but there will be no motion. If we rotate the helix about the y-axis over time, it actually looks like the particles are “flowing” down the helix and it gives a neat magical spell type effect. This rotation is achieved by offsetting $t$ (for the $x \cdot$ - and $z$ -coordinates only) by the total time and some speed factor to control how fast the rotation happens: 
+This generates equally spaced particles on the helix, but there will be no motion. If we rotate the helix about the y-axis over time, it actually looks like the particles are 鈥渇lowing鈥?down the helix and it gives a neat magical spell type effect. This rotation is achieved by offsetting $t$ (for the $x \cdot$ - and $z$ -coordinates only) by the total time and some speed factor to control how fast the rotation happens: 
 
 ```cpp
 // Generate position along the helix and rotate with time.  
@@ -384,7 +386,7 @@ The mesh shader for the helix particles can be broken down into three sections:
 
 1. Generate the position along the helix based on thread ID and time. This was shown in the previous section. 
 
-2. Expand the point to a point sprite/billboard, that is, a quad that faces the camera. The math to do this is the same as it was in Chapter 12 for the “Tree Billboard” demo. 
+2. Expand the point to a point sprite/billboard, that is, a quad that faces the camera. The math to do this is the same as it was in Chapter 12 for the 鈥淭ree Billboard鈥?demo. 
 
 3. Output the geometry of the meshlet by writing the vertices and indices. Writing the vertices and indices of a quad is simple; the main thing to remember is that each thread in the group is writing its own quad, so we need to offset into the vertex and index array accordingly. 
 
@@ -658,7 +660,7 @@ if( cellX < cellsPerSide && cellY < cellsPerSide ) { const uint i0 = cellY * vol
 
 At this point, if we were to run the code, the terrain would mostly work. We do get high triangle density for patch groups near the camera, and the amount of tessellation drops off with distance. However, because patch groups have discrete LODs (levels-of-detail), cracks appear between mesh groups with different LODs (see Figure 26.5)). 
 
-Because the cracks are not too large, especially near the camera where the triangle count is large, an old trick called “skirts” can work. Basically, the idea of skirts is to add vertical geometry around the patch group boundaries with the same terrain texture at the patch group boundaries. This fills in the 
+Because the cracks are not too large, especially near the camera where the triangle count is large, an old trick called 鈥渟kirts鈥?can work. Basically, the idea of skirts is to add vertical geometry around the patch group boundaries with the same terrain texture at the patch group boundaries. This fills in the 
 
 ![](images/fe8c513c58453a015fb24a2e8fc6a4a5155296cf869b9fe47fadd97234af497b.jpg)
 
@@ -692,13 +694,13 @@ We could implement continuous level-of-detail to make the boundaries between gro
 
 # 26.4.4 Demo Options
 
-• Skirts can be toggled on and off to observe the cracks without them. 
+鈥?Skirts can be toggled on and off to observe the cracks without them. 
 
-• The SkirtOffsetY value allows you to tweak how far down the skirts go. This would likely need to be tweaked per scene based on the heightmap. 
+鈥?The SkirtOffsetY value allows you to tweak how far down the skirts go. This would likely need to be tweaked per scene based on the heightmap. 
 
-• The wireframe mode makes it easy to see how skirts drop down to fill in the cracks. 
+鈥?The wireframe mode makes it easy to see how skirts drop down to fill in the cracks. 
 
-• As with the terrain demo, we can adjust distances and number of subdivisions. 
+鈥?As with the terrain demo, we can adjust distances and number of subdivisions. 
 
 # 26.5 SUMMARY
 
@@ -708,17 +710,17 @@ We could implement continuous level-of-detail to make the boundaries between gro
 
 3. We can dispatch a grid of mesh shader groups, where each group can output vertices, indices (and optionally per-primitive attributes) that are fed to the rasterizer. The number of threads per thread group must be less than or equal to 128. The number of vertices output per mesh shader cannot exceed 256, and the number of indices output per mesh shader cannot exceed 256. Furthermore, the total number of bytes output per mesh shader instance must be $< = 3 2 \mathrm { K B }$ . 
 
-4. A model is subdivided into meshlets. Each mesh shader group processes a meshlet. For performance, it is best if the geometry in a meshlet is “locally nearby” and contiguous spatially. This is so vertices can be shared to get an efficient index list, and for frustum culling at meshlet granularity. 
+4. A model is subdivided into meshlets. Each mesh shader group processes a meshlet. For performance, it is best if the geometry in a meshlet is 鈥渓ocally nearby鈥?and contiguous spatially. This is so vertices can be shared to get an efficient index list, and for frustum culling at meshlet granularity. 
 
 5. For performance, care should be taken that an amplification or mesh shader group is as fully utilized as practical. That is, it is not good to dispatch a shader group where most of the threads are idle. 
 
 # 26.6 EXERCISES
 
-1. Write a mesh shader that outputs a box. The mesh shader should not input any geometry data—the box in local space should be completely generated in the mesh shader. 
+1. Write a mesh shader that outputs a box. The mesh shader should not input any geometry data鈥攖he box in local space should be completely generated in the mesh shader. 
 
 2. Write a mesh shader that subdivides a dodecahedron into a sphere. 
 
-3. Add UI controls to the “ParticlesMS” demo to control the helix properties: origin, radius, height, angular frequency, size, speed, and the number of meshlets dispatched to change the particle count. 
+3. Add UI controls to the 鈥淧articlesMS鈥?demo to control the helix properties: origin, radius, height, angular frequency, size, speed, and the number of meshlets dispatched to change the particle count. 
 
 4. Reimplement the billboard tree demo from Chapter 12 using mesh shaders instead of vertex and geometry shaders. 
 
@@ -730,6 +732,6 @@ Instance data can be obtained from a buffer. Write a demo that uses mesh shaders
 
 to divide into an integer number of mesh shader groups. Therefore, the last mesh shader group will be underutilized (i.e., not every thread has work to do), possibly by a large amount. Instancing amplifies the underutilization since those underutilized groups will also be instanced. For large meshes, this inefficiency can often be ignored, but it is important to be aware of when instancing smaller meshes. [Hargreaves2024] describes a solution to this problem. 
 
-6. Recall $\$ 18.7$ , where we render to a dynamic cube map in a single pass using instancing, a vertex shader and the SV_RenderTargetArrayIndex system value. A mesh shader can output vertices with the SV_RenderTargetArrayIndex system value provided the D3D12_FEATURE_DATA_D3D12_OPTIONS:: VPAndRTArrayIndex FromAnyShaderFeedingRasterizerSupportedWithoutGSEmulation option is supported by the hardware. Reimplement the “DynamicCubeMap” demo from Chapter 18 using a single draw call per-object using mesh shaders and SV_RenderTargetArrayIndex. 
+6. Recall $\$ 18.7$ , where we render to a dynamic cube map in a single pass using instancing, a vertex shader and the SV_RenderTargetArrayIndex system value. A mesh shader can output vertices with the SV_RenderTargetArrayIndex system value provided the D3D12_FEATURE_DATA_D3D12_OPTIONS:: VPAndRTArrayIndex FromAnyShaderFeedingRasterizerSupportedWithoutGSEmulation option is supported by the hardware. Reimplement the 鈥淒ynamicCubeMap鈥?demo from Chapter 18 using a single draw call per-object using mesh shaders and SV_RenderTargetArrayIndex. 
 
 7. Modify the terrain mesh shader demo to tessellate triangle patches instead of quad patches. Build skirt geometry for the triangle patches. 

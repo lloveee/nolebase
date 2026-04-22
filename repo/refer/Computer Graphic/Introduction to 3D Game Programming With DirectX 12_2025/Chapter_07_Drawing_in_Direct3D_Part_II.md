@@ -1,6 +1,8 @@
+﻿# Chapter 07 Drawing in Direct3D Part II
+
 # 7 Drawing in Chapter Direct3D Part II
 
-This chapter introduces a number of drawing patterns that we will use throughout the rest of this book. The chapter begins by introducing a drawing optimization, which we refer to as “frame resources.” With frame resources, we modify our render loop so that we do not have to flush the command queue every frame; this improves CPU and GPU utilization. Next, we look at a memory management tool called a linear allocator that will make it simpler to work with “set and forget” constant buffers. In addition, we examine root signatures in more detail and learn about the other root parameter types: root descriptors and root constants. Finally, we show how to draw some more complicated objects; by the end of this chapter, you will be able to draw a surface that resembles hills and valleys, cylinders, spheres, and an animated wave simulation. 
+This chapter introduces a number of drawing patterns that we will use throughout the rest of this book. The chapter begins by introducing a drawing optimization, which we refer to as 鈥渇rame resources.鈥?With frame resources, we modify our render loop so that we do not have to flush the command queue every frame; this improves CPU and GPU utilization. Next, we look at a memory management tool called a linear allocator that will make it simpler to work with 鈥渟et and forget鈥?constant buffers. In addition, we examine root signatures in more detail and learn about the other root parameter types: root descriptors and root constants. Finally, we show how to draw some more complicated objects; by the end of this chapter, you will be able to draw a surface that resembles hills and valleys, cylinders, spheres, and an animated wave simulation. 
 
 # Chapter Objectives:
 
@@ -30,7 +32,7 @@ So every frame, the CPU and GPU are idling at some point.
 
 One solution to this problem is to create a circular array of the resources the CPU needs to modify each frame. We call such resources frame resources, and we usually use a circular array of three frame resource elements. The idea is that for frame $n$ , the CPU will cycle through the frame resource array to get the next available (i.e., not in use by GPU) frame resource. The CPU will then do any resource updates, and build and submit command lists for frame n while the 
 
-GPU works on previous frames. The CPU will then continue on to frame $n { + 1 }$ and repeat. If the frame resource array has three elements, this lets the CPU get up to two frames ahead of the GPU, ensuring that the GPU is kept busy. Below is an example of the frame resource class we use for the “Shapes” demo in this chapter. Because the CPU only needs to modify constant buffers in this demo, the frame resource class only contains constant buffers. 
+GPU works on previous frames. The CPU will then continue on to frame $n { + 1 }$ and repeat. If the frame resource array has three elements, this lets the CPU get up to two frames ahead of the GPU, ensuring that the GPU is kept busy. Below is an example of the frame resource class we use for the 鈥淪hapes鈥?demo in this chapter. Because the CPU only needs to modify constant buffers in this demo, the frame resource class only contains constant buffers. 
 
 // Stores the resources needed for the CPU to build the command lists   
 // for a frame. The contents here will vary from app to app based on   
@@ -65,7 +67,7 @@ int mCurrFrameResourceIndex = 0;
 ```
 
 void ShapesApp::BuildFrameResources()   
-{ constexpr UINT passCount $= 1$ for(int $\mathrm{i} = 0$ ;i $<$ gNumFrameResources; $+ + \mathrm{i}$ ） { mFrameResources.push_back( std::make_unique<FrameResource>(md3dDevice.Get(), passCount)); }   
+{ constexpr UINT passCount $= 1$ for(int $\mathrm{i} = 0$ ;i $<$ gNumFrameResources; $+ + \mathrm{i}$ 锛?{ mFrameResources.push_back( std::make_unique<FrameResource>(md3dDevice.Get(), passCount)); }   
 } 
 
 
@@ -139,7 +141,7 @@ Drawing an object requires setting multiple parameters such as binding vertex an
 // Lightweight structure stores parameters to draw a shape. This will vary from app-to-app.   
 struct RenderItem   
 { RenderItem() $=$ default; RenderItem(const RenderItem& rhs) $=$ delete; // World matrix of the shape that describes the object's // local space relative to the world space, which defines // the position, orientation, and scale of the object in the // world. DirectX::XMFLOAT4X4 World $\equiv$ MathHelper::Identity4x4(); DirectX::XMFLOAT4X4 TexTransform $\equiv$ MathHelper::Identity4x4(); // Per object constant data. ObjectConstants ObjectCB; // Handle to per-object memory in linear allocator. DirectX::GraphicsResource MemHandleToObjectCB; Material\* Mat $\equiv$ nullptr; MeshGeometry\* Geo $\equiv$ nullptr; // Primitive topology. D3D_PRIMITIVE_TOPOLOGY PrimitiveType $\equiv$ D3D_PRIMITIVE_TOPOLOGY TRIANGLELIST; // DrawIndexedInstanced parameters. UINT IndexCount $= 0$ ; UINT StartIndexLocation $= 0$ int BaseVertexLocation $= 0$ .   
-}； 
+}锛?
 
 Our application will maintain lists of render items based on how they need to be drawn; that is, render items that need different PSOs will be kept in different lists. For example, rendering transparent objects will require a different PSO than 
 
@@ -162,7 +164,7 @@ std::vector<RenderItem*> mRItemLayer[(int)RenderLayer::Count];
 
 Note: 
 
-Recall from §6.6.3 that we separated constant buffers based on constants needed per-pass and constants needed per-object. Per-pass constant data stores data that is constant over all draw calls in the pass, such as the view and projection matrices. Per-object constant data stores data that varies per-object such as the world matrix and other per-object properties. Furthermore, observe from $\mathbb { \ S } 7 . 1$ that we put the per-pass constant buffer in our FrameResource class and we use the linear allocator (§7.2) for per-object constants (this is why the RenderItem structure stores a DirectX::GraphicsResource MemHandleToObjectCB member). We could have used the linear allocator for per-pass constant buffers too, but since we know how many passes we have per frame, we have elected to just keep the per-pass constant buffer in the FrameResource struct. 
+Recall from 搂6.6.3 that we separated constant buffers based on constants needed per-pass and constants needed per-object. Per-pass constant data stores data that is constant over all draw calls in the pass, such as the view and projection matrices. Per-object constant data stores data that varies per-object such as the world matrix and other per-object properties. Furthermore, observe from $\mathbb { \ S } 7 . 1$ that we put the per-pass constant buffer in our FrameResource class and we use the linear allocator (搂7.2) for per-object constants (this is why the RenderItem structure stores a DirectX::GraphicsResource MemHandleToObjectCB member). We could have used the linear allocator for per-pass constant buffers too, but since we know how many passes we have per frame, we have elected to just keep the per-pass constant buffer in the FrameResource struct. 
 
 # 7.4 MORE ON ROOT SIGNATURES
 
@@ -192,7 +194,7 @@ In code, a root parameter is described by filling out a CD3DX12_ROOT_PARAMETER s
 
 ```c
 typedef struct D3D12_ROOT_PARAMETER   
-{ D3D12_ROOT_PARAMETER_TYPE ParameterType; union { D3D12_ROOT Descriptor_TABLE DescriptorTable; D3D12_ROOTConstants Constants; D3D12_ROOT Descriptor; }； D3D12_SHADER_VISIBILITY ShaderVisibility; }D3D12_ROOT_PARAMETER; 
+{ D3D12_ROOT_PARAMETER_TYPE ParameterType; union { D3D12_ROOT Descriptor_TABLE DescriptorTable; D3D12_ROOTConstants Constants; D3D12_ROOT Descriptor; }锛?D3D12_SHADER_VISIBILITY ShaderVisibility; }D3D12_ROOT_PARAMETER; 
 ```
 
 1. ParameterType: A member of the following enumerated type indicating the root parameter type (descriptor table, root constant, CBV root descriptor, SRV root descriptor, or UAV root descriptor). 
@@ -311,7 +313,7 @@ As usual, there is a CD3DX12_DESCRIPTOR_RANGE variation that inherits from D3D12
 void CD3DX12 DescriptorRange::Init( D3D12 Descriptor_RANGE_TYPE rangeType, UINT numDescriptors, UINT baseShaderRegister, UINT registerSpace = 0, UINT offsetInDescriptorsFromTableStart = D3D12 Descriptor_RANGE_OFFSET_APPEND); 
 ```
 
-This table covers six descriptors, and the application is expected to bind a contiguous range of descriptors in a descriptor heap that includes two CBVs followed by three SRVs followed by one UAV. We see that all the range types start at register 0 but there is no “overlap” conflict because CBVs, SRVs, and UAVs all get bound to different register types, each starting at register 0. 
+This table covers six descriptors, and the application is expected to bind a contiguous range of descriptors in a descriptor heap that includes two CBVs followed by three SRVs followed by one UAV. We see that all the range types start at register 0 but there is no 鈥渙verlap鈥?conflict because CBVs, SRVs, and UAVs all get bound to different register types, each starting at register 0. 
 
 We can have Direct3D compute the OffsetInDescriptorsFromTableStart value for us by specifying D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND; this instructs Direct3D to use the previous range descriptor counts in the table to compute 
 
@@ -340,9 +342,9 @@ cbuffer cbPass : register(b2) {...};
 Unlike descriptor tables, which require us to set a descriptor handle in a descriptor heap, to set a root descriptor, we simply bind the virtual address of the resource directly. 
 
 enumROOTArg   
-{ ROOT.Arg_OBJECT_CBV $= 0$ ， ROOT.Arg_PASS_CBV, ROOT.Arg_COUNT   
-}；   
-ID3D12Resource\*passCB $=$ mCurrFrameResource->PassCB->Resource(); mCommandList->SetGraphicsRootConstantBufferView( ROOT.Arg_PASS_CBV，passCB->GetGPUVirtualAddress()); 
+{ ROOT.Arg_OBJECT_CBV $= 0$ 锛?ROOT.Arg_PASS_CBV, ROOT.Arg_COUNT   
+}锛?  
+ID3D12Resource\*passCB $=$ mCurrFrameResource->PassCB->Resource(); mCommandList->SetGraphicsRootConstantBufferView( ROOT.Arg_PASS_CBV锛宲assCB->GetGPUVirtualAddress()); 
 
 # 7.4.4 Root Constants
 
@@ -364,7 +366,7 @@ UINT Num32BitValues;
 
 2. RegisterSpace: See D3D12_DESCRIPTOR_RANGE::RegisterSpace. 
 
-3. Num32BitValues: The number of 32-bit constants this root parameter expects. Setting root constants still maps the data to a constant buffer from the shader’s perspective. The following example illustrates this: 
+3. Num32BitValues: The number of 32-bit constants this root parameter expects. Setting root constants still maps the data to a constant buffer from the shader鈥檚 perspective. The following example illustrates this: 
 
 ```cpp
 // Application code: Root signature definition. CD3DX12_ROOT_PARAMETER slotRootParameter[1]; UINT numConstants = 12; UINT shaderRegister = 0; slotRootParameter[0].InitAsConstants(numConstants, shaderRegister); // A root signature is an array of root parameters. CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(1, slotRootParameter, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_OPEN_INPUT_ASSEMBLER_INPUT_LAYOUT); // Application code: to set the constants to register b0. auto weights = CalcGaussWeights(2.5f); int blurRadius = (int)weights.size() / 2; cmdList->SetGraphicsRoot32BitConstants(0, 1, &blurRadius, 0); cmdList->SetGraphicsRoot32BitConstants(0, (UINT)weights.size(), weights.data(), 1); // HLSL code. cbuffer cbSettings : register(b0) { // We cannot have an array entry in a constant buffer that gets // mapped onto root constants, so list each element. int gBlurRadius; // Support up to 11 blur weights. float w0; float w1; float w2; float w3; float w4; float w5; float w6; float w7; float w8; float w9; float w10; }; 
@@ -459,7 +461,7 @@ Each draw call will be executed with the currently set state of the root argumen
 
 Note that a root signature can provide more fields than a shader uses. For example, if the root signature specifies a root CBV in root parameter 2, but the shader does not use that constant buffer, then this combination is valid as long as the root signature does specify all the resources the shader does use. 
 
-For performance, we should aim to keep the root signature small. One reason for this is the automatic versioning of the root arguments per draw call. The larger the root signature, the larger these snapshots of the root arguments will be. Additionally, the SDK documentation advises that root parameters should be ordered in the root signature from most frequently changed to least frequently changed. The Direct3D 12 documentation also advises avoiding switching the root signature when possible, so it is a good idea to share the same root signature across many PSOs you create. In particular, it may be beneficial to have a “super” root signature that works with several shader programs even though not all the shaders use all the parameters the root signature defines. It also depends how big this “super” root signature has to be for this to work. If it is too big, it could cancel out the gains of not switching the root signature. 
+For performance, we should aim to keep the root signature small. One reason for this is the automatic versioning of the root arguments per draw call. The larger the root signature, the larger these snapshots of the root arguments will be. Additionally, the SDK documentation advises that root parameters should be ordered in the root signature from most frequently changed to least frequently changed. The Direct3D 12 documentation also advises avoiding switching the root signature when possible, so it is a good idea to share the same root signature across many PSOs you create. In particular, it may be beneficial to have a 鈥渟uper鈥?root signature that works with several shader programs even though not all the shaders use all the parameters the root signature defines. It also depends how big this 鈥渟uper鈥?root signature has to be for this to work. If it is too big, it could cancel out the gains of not switching the root signature. 
 
 # 7.5 SHAPE GEOMETRY
 
@@ -480,10 +482,10 @@ struct MeshGenVertex
 ```cpp
 TangentU(0.0f, 0.0f, 0.0f), TexC(0.0f, 0.0f) {}   
 MeshGenVertex( const DirectX::XMFLOAT3& p, const DirectX::XMFLOAT3& n, const DirectX::XMFLOAT3& t, const DirectX::XMFLOAT2& uv): Position(p), Normal(n), TangentU(t), TexC(uv)}   
-MeshGenVertex( float px, float py, float pz, float nx, float ny, float nz, float tx, float ty, float tz, float u, float v): Position(px, py, pz), Normal(nx, ny, nz), TangentU(tx, ty, tz), TexC(u, v)} DirectX::XMFLOAT3 Position; DirectX::XMFLOAT3 Normal; DirectX::XMFLOAT3 TangentU; DirectX::XMFLOAT2 TexC; }；   
+MeshGenVertex( float px, float py, float pz, float nx, float ny, float nz, float tx, float ty, float tz, float u, float v): Position(px, py, pz), Normal(nx, ny, nz), TangentU(tx, ty, tz), TexC(u, v)} DirectX::XMFLOAT3 Position; DirectX::XMFLOAT3 Normal; DirectX::XMFLOAT3 TangentU; DirectX::XMFLOAT2 TexC; }锛?  
 struct MeshGenData { std::vector<MeshGenVertex>Vertices; std::vector<uint32_t> Indices32; SubmeshGeometry AppendSubmesh(const MeshGenData& meshData); std::vector<uint16_t>& GetIndices16() { if (mIndices16.empty()) { mIndices16resize(Indices32.size()); for (size_t i = 0; i < Indices32.size(); ++i) mIndices16[i] = static cast<uint16_t>(Indices32[i]); } return mIndices16; }   
 private: std::vector<uint16_t> mIndices16;   
-}； 
+}锛?
 ```
 
 Attributes like normals, tangents, and texture coordinates are used in later chapters. 
@@ -496,12 +498,12 @@ We define a cylinder by specifying its bottom and top radii, its height, and the
 
 
 
-Figure 7.1. In this illustration, the cylinder on the left has eight slices and four stacks, and the cylinder on the right has sixteen slices and eight stacks. The slices and stacks control the triangle density. Note that the top and bottom radii can differ so that we can create cone-shaped objects, not just “pure” cylinders.
+Figure 7.1. In this illustration, the cylinder on the left has eight slices and four stacks, and the cylinder on the right has sixteen slices and eight stacks. The slices and stacks control the triangle density. Note that the top and bottom radii can differ so that we can create cone-shaped objects, not just 鈥減ure鈥?cylinders.
 
 
 # 7.5.1.1 Cylinder Side Geometry
 
-We generate the cylinder centered at the origin, parallel to the y-axis. From Figure 7.1, all the vertices lie on the “rings” of the cylinder, where there are stackCount+1 rings, and each ring has sliceCount unique vertices. The difference in radius between consecutive rings is $\Delta r =$ t( ) opRadius − bottomRadius s/ . tackCount If we start at the bottom ring with index 0, then the radius of the ith ring is $r _ { i } =$ bottomRadius i r  + ∆ and the height of the ith ring is $h _ { i } = - \frac { h } { 2 } + i \Delta h$ , where $\Delta h$ is the stack height and $h$ is the cylinder height. So, the basic idea is to iterate over each ring, and generate the vertices that lie on that ring. This gives the following implementation: 
+We generate the cylinder centered at the origin, parallel to the y-axis. From Figure 7.1, all the vertices lie on the 鈥渞ings鈥?of the cylinder, where there are stackCount+1 rings, and each ring has sliceCount unique vertices. The difference in radius between consecutive rings is $\Delta r =$ t( ) opRadius 鈭?bottomRadius s/ . tackCount If we start at the bottom ring with index 0, then the radius of the ith ring is $r _ { i } =$ bottomRadius i r  + 鈭?and the height of the ith ring is $h _ { i } = - \frac { h } { 2 } + i \Delta h$ , where $\Delta h$ is the stack height and $h$ is the cylinder height. So, the basic idea is to iterate over each ring, and generate the vertices that lie on that ring. This gives the following implementation: 
 
 ```cpp
 MeshGenData MeshGen::CreateCylinder(
@@ -663,7 +665,7 @@ Figure 7.4. Approximating a geosphere by repeated subdivision and reprojection o
 
 To generate a geosphere, we start with an icosahedron, subdivide the triangles, and then project the new vertices onto the sphere with the given radius. We can repeat this process to improve the tessellation. 
 
-Figure 7.5 shows how a triangle can be subdivided into four equal sized triangles. The new vertices are found just by taking the midpoints along the edges of the original triangle. The new vertices can then be projected onto a sphere of radius $r$ by projecting the vertices onto the unit sphere and then scalar multiplying by r : v′ = vvr . $r : \mathbf { v } ^ { \prime } = r { \frac { \mathbf { v } } { \| \mathbf { v } \| } }$ 
+Figure 7.5 shows how a triangle can be subdivided into four equal sized triangles. The new vertices are found just by taking the midpoints along the edges of the original triangle. The new vertices can then be projected onto a sphere of radius $r$ by projecting the vertices onto the unit sphere and then scalar multiplying by r : v鈥?= vvr . $r : \mathbf { v } ^ { \prime } = r { \frac { \mathbf { v } } { \| \mathbf { v } \| } }$ 
 
 ![](images/4e49fcb0cc6f3175455d30aef4f16162659a2068cdea808190f70f0ffe2f6079.jpg)
 
@@ -747,7 +749,7 @@ for (uint32_t i = 0; i < numSubdivisions; ++i) Subdivide(meshData);
 
 # 7.6 SHAPES DEMO
 
-To demonstrate our sphere and cylinder generation code, we implement the “Shapes” demo shown in Figure 7.6. In addition, you will also gain experience positioning and drawing multiple objects in a scene (i.e., creating multiple world transformation matrices). Furthermore, we place all of the scene geometry in one big vertex and index buffer. Then we will use the DrawIndexedInstanced method to draw one object at a time (as the world matrix needs to be changed between objects); so you will see an example of using the StartIndexLocation and 
+To demonstrate our sphere and cylinder generation code, we implement the 鈥淪hapes鈥?demo shown in Figure 7.6. In addition, you will also gain experience positioning and drawing multiple objects in a scene (i.e., creating multiple world transformation matrices). Furthermore, we place all of the scene geometry in one big vertex and index buffer. Then we will use the DrawIndexedInstanced method to draw one object at a time (as the world matrix needs to be changed between objects); so you will see an example of using the StartIndexLocation and 
 
 BaseVertexLocation parameters of DrawIndexedInstanced. 
 
@@ -755,14 +757,14 @@ BaseVertexLocation parameters of DrawIndexedInstanced.
 
 
 
-Figure 7.6. Screenshot of the “Shapes” demo.
+Figure 7.6. Screenshot of the 鈥淪hapes鈥?demo.
 
 
 # 7.6.1 Vertex and Index Buffers
 
 As Figure 7.6 shows, in this demo we draw a box, a grid, cylinders, and spheres. Even though we draw multiple spheres and cylinders in this demo, we only need one copy of the sphere and cylinder geometry. We simply redraw the same sphere and cylinder mesh multiple times, but with different world matrices; this is an example of instancing geometry, which saves memory. 
 
-We pack all the mesh vertices and indices into one vertex and index buffer. This is done by concatenating the vertex and index arrays. This means that when we draw an object, we are only drawing a subset of the vertex and index buffers. There are three quantities we need to know in order to draw only a subset of the geometry using ID3D12GraphicsCommandList::DrawIndexedInstanced (recall Figure 6.3 and the discussion about it from Chapter 6). We need to know the starting index to the object in the concatenated index buffer, its index count, and we need to know the base vertex location—the index of the object’s first vertex relative to the concatenated vertex buffer. Recall that the base vertex location is an integer value added to the indices in a draw call before the vertices are fetched, so that the indices reference the proper subset in the concatenated vertex buffer. (See also Exercise 2 in Chapter 5.) 
+We pack all the mesh vertices and indices into one vertex and index buffer. This is done by concatenating the vertex and index arrays. This means that when we draw an object, we are only drawing a subset of the vertex and index buffers. There are three quantities we need to know in order to draw only a subset of the geometry using ID3D12GraphicsCommandList::DrawIndexedInstanced (recall Figure 6.3 and the discussion about it from Chapter 6). We need to know the starting index to the object in the concatenated index buffer, its index count, and we need to know the base vertex location鈥攖he index of the object鈥檚 first vertex relative to the concatenated vertex buffer. Recall that the base vertex location is an integer value added to the indices in a draw call before the vertices are fetched, so that the indices reference the proper subset in the concatenated vertex buffer. (See also Exercise 2 in Chapter 5.) 
 
 The code below shows how the geometry buffers are created, how the necessary drawing quantities are cached, and how the objects are drawn. 
 
@@ -866,16 +868,16 @@ Here are the changes that need to be made to do this:
 The new root signature is defined like so: 
 
 enumROOTArg   
-{ ROOT.Arg_OBJECT_CBV $= 0$ ， ROOT.Arg_PASS_CBV, ROOT.Arg_COUNT   
-}；   
+{ ROOT.Arg_OBJECT_CBV $= 0$ 锛?ROOT.Arg_PASS_CBV, ROOT.Arg_COUNT   
+}锛?  
 void ShapesApp::BuildRootSignature()   
 { //Root parameter can be a table, root descriptor or root constants. 
 
 ```cpp
-CD3DX12_ROOT_PARAMETER gfxRootParameters[ROOT.Arg_COUNT]; // Performance TIP: Order from most frequent to least frequent. gfxRootParameters[ROOT.Arg_OBJECT_CBV].InitAsConstantBufferView(0); gfxRootParameters[ROOT.Arg_PASS_CBV].InitAsConstantBufferView(1); // A root signature is an array of root parameters. CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc( ROOT.Arg_COUNT, gfxRootParameters, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_OPEN_INPUT_ASSEMBLER_INPUT_LAYOUT); // create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer ComPtr<ID3DBlob> serializedRootSig = nullptr; ComPtr<ID3DBlob> errorBlob = nullptr; HRESULT hr = D3D12SERIALIZeRootSignature( &rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1, serializedRootSig↘GetAddressOf(), errorBlob↘GetAddressOf()); if(errorBlob != nullptr) { ::OutputDebugStringA((char*)errorBlob->GetBufferPointer()); } ThrowIfFailed(hr); ThrowIfFailed (md3dDevice->CreateRootSignature( 0, serializedRootSig->GetBufferPointer(), serializedRootSig->GetBufferSize(), IID_PPV Arguments (&mRootSignature)); } 
+CD3DX12_ROOT_PARAMETER gfxRootParameters[ROOT.Arg_COUNT]; // Performance TIP: Order from most frequent to least frequent. gfxRootParameters[ROOT.Arg_OBJECT_CBV].InitAsConstantBufferView(0); gfxRootParameters[ROOT.Arg_PASS_CBV].InitAsConstantBufferView(1); // A root signature is an array of root parameters. CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc( ROOT.Arg_COUNT, gfxRootParameters, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_OPEN_INPUT_ASSEMBLER_INPUT_LAYOUT); // create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer ComPtr<ID3DBlob> serializedRootSig = nullptr; ComPtr<ID3DBlob> errorBlob = nullptr; HRESULT hr = D3D12SERIALIZeRootSignature( &rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1, serializedRootSig鈫楪etAddressOf(), errorBlob鈫楪etAddressOf()); if(errorBlob != nullptr) { ::OutputDebugStringA((char*)errorBlob->GetBufferPointer()); } ThrowIfFailed(hr); ThrowIfFailed (md3dDevice->CreateRootSignature( 0, serializedRootSig->GetBufferPointer(), serializedRootSig->GetBufferSize(), IID_PPV Arguments (&mRootSignature)); } 
 ```
 
-Observe that we use the InitAsConstantBufferView helper method to create a root CBV; the parameter specifies the shader register the parameter is bound to (in the above code, shader constant buffer register $^ { \mathrm { e } } \mathrm { b 0 } ^ { \mathrm { p } }$ and “b1”). 
+Observe that we use the InitAsConstantBufferView helper method to create a root CBV; the parameter specifies the shader register the parameter is bound to (in the above code, shader constant buffer register $^ { \mathrm { e } } \mathrm { b 0 } ^ { \mathrm { p } }$ and 鈥渂1鈥?. 
 
 Now, we bind a CBV as an argument to a root descriptor using the following method: 
 
@@ -886,7 +888,7 @@ ID3D12GraphicsCommandList::SetGraphicsRootConstantBufferView(
     D3D12_GPU_VIRTUAL_ADDRESS BufferLocation); 
 ```
 
-1. RootParameterIndex: The index of the root parameter we are binding a CBV to. 
+1. RootParameterIndex: The index of the root parameter we are binding a CBV聽to. 
 
 2. BufferLocation: The virtual address to the resource that contains the constant buffer data. 
 
@@ -895,7 +897,7 @@ With this change, our drawing code now looks like this:
 
 
 void ShapesApp::Draw(const GameTimer& gt)   
-{ [...] ID3D12Resource\* passCB $=$ mCurrFrameResource->PassCB->Resource(); mCommandList->SetGraphicsRootConstantBufferView( ROOT_arg_PASS_CBV，passCB->GetGPUVirtualAddress()); mCommandList->SetPipelineState( mDrawWireframe ? mPSOs["opaque_wireframe"].Get() : mPSOs["opaque"].Get(); DrawRenderItems(mCommandList.Get(),mRItemLayer[(int) RenderLayer::Opaque]); [...]   
+{ [...] ID3D12Resource\* passCB $=$ mCurrFrameResource->PassCB->Resource(); mCommandList->SetGraphicsRootConstantBufferView( ROOT_arg_PASS_CBV锛宲assCB->GetGPUVirtualAddress()); mCommandList->SetPipelineState( mDrawWireframe ? mPSOs["opaque_wireframe"].Get() : mPSOs["opaque"].Get(); DrawRenderItems(mCommandList.Get(),mRItemLayer[(int) RenderLayer::Opaque]); [...]   
 }   
 void ShapesApp::DrawRenderItems(ID3D12GraphicsCommandList\* cmdList, const std::vector<RenderItem>& r items)   
 { for(size_t i = 0; i < r items.size(); ++i) { auto ri $=$ r items[i]; cmdList->IASetVertexBuffers(0,1,&ri->Geo->VertexBufferView()); cmdList->IASetIndexBuffer(&ri->Geo->IndexBufferView()); cmdList->IASetPrimitiveTopology(ri->PrimitiveType); cmdList->SetGraphicsRootConstantBufferView( ROOT_arg_OBJECT_CBV, ri->MemHandleToObjectCB.GpuAddress()); cmdList->DrawIndexedInstanced( ri->IndexCount,1,ri->StartIndexLocation, ri->BaseVertexLocation,0); } 
@@ -965,12 +967,12 @@ mCommandQueue->Signal(mFence.Get(), mCurrentFence);
 
 
 
-Figure 7.7. Screenshot of the “Waves” demo.
+Figure 7.7. Screenshot of the 鈥淲aves鈥?demo.
 
 
-In this section, we show how to build the “Waves” demo shown in Figure 7.7. This demo constructs a triangle grid mesh procedurally and offsets the vertex heights to create a terrain. In addition, it uses another triangle grid to represent water, and animates the vertex heights to create waves. 
+In this section, we show how to build the 鈥淲aves鈥?demo shown in Figure 7.7. This demo constructs a triangle grid mesh procedurally and offsets the vertex heights to create a terrain. In addition, it uses another triangle grid to represent water, and animates the vertex heights to create waves. 
 
-The graph of a “nice” real-valued function $y = f ( x , z )$ is a surface. We can approximate the surface by constructing a grid in the $x z$ -plane, where every quad is built from two triangles, and then applying the function to each grid point; see Figure 7.8. 
+The graph of a 鈥渘ice鈥?real-valued function $y = f ( x , z )$ is a surface. We can approximate the surface by constructing a grid in the $x z$ -plane, where every quad is built from two triangles, and then applying the function to each grid point; see Figure 7.8. 
 
 ![](images/988c476b40372815312d4ac7823d68aedc32c2f90579bdbd8d9d6184009249b6.jpg)
 
@@ -1037,7 +1039,7 @@ for (uint32_t i = 0; i < m-1; ++i)
 
 
 
-Figure 7.10. The indices of the ijth quad’s vertices.
+Figure 7.10. The indices of the ijth quad鈥檚 vertices.
 
 
 # 7.7.3 Applying the Height Function
@@ -1069,7 +1071,7 @@ Its graph looks like somewhat like a terrain with hills and valleys (see Figure 
 
 # 7.7.4 Dynamic Vertex Buffers
 
-So far we have stored our vertices in a default buffer resource. We use this kind of resource when we want to store static geometry. That is, geometry that we do not change—we set the data, and the GPU reads and draws the data. A dynamic 
+So far we have stored our vertices in a default buffer resource. We use this kind of resource when we want to store static geometry. That is, geometry that we do not change鈥攚e set the data, and the GPU reads and draws the data. A dynamic 
 
 vertex buffer is where we change the vertex data frequently, say per-frame. For example, suppose we are doing a wave simulation, and we solve the wave equation for the solution function $f ( x , z , t )$ . This function represents the wave height at each point in the $_ { x z }$ -plane at time $t .$ If we were to use this function to draw the waves, we would use a triangle grid mesh like we did with the peaks and valleys, and apply $f ( x , z , t )$ to each grid point in order to obtain the wave heights at the grid points. Because this function also depends on time $t$ (i.e., the wave surface changes with time), we would need to reapply this function to the grid points a short time later (say every 1 3/ 0 th of a second) to get a smooth animation. Thus, we need a dynamic vertex buffer in order to update the heights of the triangle grid mesh vertices as time passes. Another situation that leads to dynamic vertex buffers is particle systems with complex physics and collision detection. Each frame we will do the physics and collision detection on the CPU to find the new position of the particles. Because the particle positions are changing each frame, we need a dynamic vertex buffer in order to update the particle positions for drawing each frame. 
 
@@ -1083,7 +1085,7 @@ std::unique_ptr<UploadBuffer< ColorVertex>> WavesVB = nullptr;
 WavesVB = std::make_unique<UploadBuffer< ColorVertex >> (device, waveVertCount, false); 
 ```
 
-Because we need to upload the new contents from the CPU to the wave’s dynamic vertex buffer every frame, the dynamic vertex buffer needs to be a frame resource. Otherwise, we could overwrite the memory before the GPU has finished processing the last frame. 
+Because we need to upload the new contents from the CPU to the wave鈥檚 dynamic vertex buffer every frame, the dynamic vertex buffer needs to be a frame resource. Otherwise, we could overwrite the memory before the GPU has finished processing the last frame. 
 
 Every frame, we run the wave simulation and update the vertex buffer like so: 
 
@@ -1112,9 +1114,9 @@ There is some overhead when using dynamic buffers (i.e., buffers in an upload he
 
 4. the tessellation stages can add tessellate geometry on the GPU, a task that would normally need to be done on the CPU without hardware tessellation. 
 
-Index buffers can be dynamic, too. However, in the “Waves” demo, the triangle topology remains constant and only the vertex heights change; therefore, only the vertex buffer needs to be dynamic. 
+Index buffers can be dynamic, too. However, in the 鈥淲aves鈥?demo, the triangle topology remains constant and only the vertex heights change; therefore, only the vertex buffer needs to be dynamic. 
 
-The “Waves” demo for this chapter uses a dynamic vertex buffer to implement a simple wave simulation like the one described at the beginning of this section. 
+The 鈥淲aves鈥?demo for this chapter uses a dynamic vertex buffer to implement a simple wave simulation like the one described at the beginning of this section. 
 
 For this book, we are not concerned with the actual algorithm details for the wave simulation (see [Lengyel02] for that), but more with the process to illustrate dynamic buffers: update the simulation on CPU and then update the vertex data using an upload buffer. 
 
@@ -1125,17 +1127,17 @@ We mention again that this demo could be implemented on the GPU using more advan
 
 # 7.8 SUMMARY
 
-1. Waiting for the GPU to finish executing all the commands in the queue every frame is inefficient because it causes both the CPU and GPU to idle at some point. A more efficient technique is to create frame resources—a circular array of the resources the CPU needs to modify each frame. This way, the CPU does not need to wait for the GPU to finish before moving on to the next frame; the CPU will just work with the next available (i.e., not in use by GPU) frame resource. If the CPU is always processing frames faster than the GPU, then eventually the CPU will have to wait at some point for the GPU to catch up, but this is the desired situation, as the GPU is being fully utilized; the extra CPU cycles can always be used for other parts of the game such as AI, physics, and game play logic. 
+1. Waiting for the GPU to finish executing all the commands in the queue every frame is inefficient because it causes both the CPU and GPU to idle at some point. A more efficient technique is to create frame resources鈥攁 circular array of the resources the CPU needs to modify each frame. This way, the CPU does not need to wait for the GPU to finish before moving on to the next frame; the CPU will just work with the next available (i.e., not in use by GPU) frame resource. If the CPU is always processing frames faster than the GPU, then eventually the CPU will have to wait at some point for the GPU to catch up, but this is the desired situation, as the GPU is being fully utilized; the extra CPU cycles can always be used for other parts of the game such as AI, physics, and game play logic. 
 
 2. A root signature defines what resources need to be bound to the pipeline before issuing a draw call and how those resources get mapped to shader input registers. What resources need to be bound depends on what resources the bound shader programs expect. When the PSO is created, the root signature and shader programs combination will be validated. A root signature is specified as an array of root parameters. A root parameter can be a descriptor table, root descriptor, or root constant. A descriptor table specifies a contiguous range of descriptors in a heap. A root descriptor is used to bind a descriptor directly in the root signature (it does not need to be in a heap). Root constants are used to bind constant values directly in the root signature. For performance, there is a limit of sixty-four DWORDs that can be put in a root signature. Descriptor tables cost one DWORD each, root descriptors cost two DWORDs each, and root constants cost one DWORD for each 32-bit constant. The hardware automatically saves a snapshot of the root arguments 
 
 for each draw call. Thus we are safe to change root arguments per draw call, however, we should also try to keep the root signatures small so there is less memory to copy. 
 
-3. Dynamic vertex buffers are used when the contents of a vertex buffer needs to be updated frequently at runtime (e.g., every frame or every 1/30th of a second). We can use an UploadBuffer to implement dynamic vertex buffers, but instead of storing an array of constant buffers, we store an array of vertices. Because we need to upload the new contents from the CPU to the wave’s dynamic vertex buffer every frame, the dynamic vertex buffer needs to be a frame resource. There is some overhead when using dynamic buffers (i.e., buffers in an upload heap), as the data must be read across the PCI-Express bus, which is slower for the GPU than reading directly from GPU memory (VRAM). Therefore, static vertex buffers should be preferred to dynamic vertex buffers, provided static vertex buffers will work. Recent versions of Direct3D have introduced new features to lessen the need for dynamic buffers. 
+3. Dynamic vertex buffers are used when the contents of a vertex buffer needs to be updated frequently at runtime (e.g., every frame or every 1/30th of a second). We can use an UploadBuffer to implement dynamic vertex buffers, but instead of storing an array of constant buffers, we store an array of vertices. Because we need to upload the new contents from the CPU to the wave鈥檚 dynamic vertex buffer every frame, the dynamic vertex buffer needs to be a frame resource. There is some overhead when using dynamic buffers (i.e., buffers in an upload heap), as the data must be read across the PCI-Express bus, which is slower for the GPU than reading directly from GPU memory (VRAM). Therefore, static vertex buffers should be preferred to dynamic vertex buffers, provided static vertex buffers will work. Recent versions of Direct3D have introduced new features to lessen the need for dynamic buffers. 
 
 # 7.9 EXERCISES
 
-1. Modify the “Shape” demo to use GeometryGenerator::CreateGeosphere instead of GeometryGenerator::CreateSphere. Try with 0, 1, 2, and 3 subdivision levels. 
+1. Modify the 鈥淪hape鈥?demo to use GeometryGenerator::CreateGeosphere instead of GeometryGenerator::CreateSphere. Try with 0, 1, 2, and 3 subdivision levels. 
 
 ![](images/e5a654a6387ed843ef64de2cd78757a96cf1ecedbf5dcf21c5babbfc24e060e7.jpg)
 
@@ -1144,8 +1146,8 @@ for each draw call. Thus we are safe to change root arguments per draw call, how
 Figure 7.11. Example output from Exercise 4.
 
 
-2. Modify the “Shapes” demo to use sixteen root constants to set the per-object world matrix instead of a descriptor table. 
+2. Modify the 鈥淪hapes鈥?demo to use sixteen root constants to set the per-object world matrix instead of a descriptor table. 
 
-3. Modify the “Shapes” demo to use descriptor tables instead of root constant buffers. 
+3. Modify the 鈥淪hapes鈥?demo to use descriptor tables instead of root constant buffers. 
 
-4. In the downloadable materials, there a file called Models/Skull.txt. This file contains the vertex and index lists needed to render the skull in Figure 7.11. Study the file using a text editor like notepad, and modify the “Shapes” demo to load and render the skull mesh. 
+4. In the downloadable materials, there a file called Models/Skull.txt. This file contains the vertex and index lists needed to render the skull in Figure 7.11. Study the file using a text editor like notepad, and modify the 鈥淪hapes鈥?demo to load and render the skull mesh. 

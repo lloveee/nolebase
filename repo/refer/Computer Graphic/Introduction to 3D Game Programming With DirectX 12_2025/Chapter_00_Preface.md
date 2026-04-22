@@ -1,23 +1,26 @@
-# Introduction to 3D Game Programming With DirectX 12, Second Edition
+﻿# Chapter 00 Preface
+
+# # Chapter_00_Preface
+
+## Introduction to 3D Game Programming With DirectX 12, Second Edition
 
 **Frank D. Luna**
 
-Mercury Learning and Information · Boston, Massachusetts · © 2025
+Mercury Learning and Information 路 Boston, Massachusetts 路 漏 2025
 
 ISBN: 978-1-68392-916-1
 
 ---
 
+By purchasing or using this book and companion files (the 鈥淲ork鈥?, you agree that this license grants permission to use the contents contained herein, including the disc, but does not give you the right of ownership to any of the textual content in the book聽/ disc or ownership to any of the information or products contained in it. This license does not permit uploading of the Work onto the Internet or on a network (of any kind) without the written consent of the Publisher. Duplication or dissemination of any text, code, simulations, images, etc. contained herein is limited to and subject to licensing terms for the respective products, and permission must be obtained from the Publisher or the owner of the content, etc., in order to reproduce or network any portion of the textual material (in any media) that is contained in the Work. 
 
-By purchasing or using this book and companion files (the “Work”), you agree that this license grants permission to use the contents contained herein, including the disc, but does not give you the right of ownership to any of the textual content in the book / disc or ownership to any of the information or products contained in it. This license does not permit uploading of the Work onto the Internet or on a network (of any kind) without the written consent of the Publisher. Duplication or dissemination of any text, code, simulations, images, etc. contained herein is limited to and subject to licensing terms for the respective products, and permission must be obtained from the Publisher or the owner of the content, etc., in order to reproduce or network any portion of the textual material (in any media) that is contained in the Work. 
-
-Mercury Learning And Information (“MLI” or “the Publisher”) and anyone involved in the creation, writing, or production of the companion disc, accompanying algorithms, code, or computer programs (“the software”), and any accompanying Web site or software of the Work, cannot and do not warrant the performance or results that might be obtained by using the contents of the Work. The author, developers, and the Publisher have used their best efforts to ensure the accuracy and functionality of the textual material and/or programs contained in this package; we, however, make no warranty of any kind, express or implied, regarding the performance of these contents or programs. The Work is sold “as is” without warranty (except for defective materials used in manufacturing the book or due to faulty workmanship). 
+Mercury Learning And Information (鈥淢LI鈥?or 鈥渢he Publisher鈥? and anyone involved in the creation, writing, or production of the companion disc, accompanying algorithms, code, or computer programs (鈥渢he software鈥?, and any accompanying Web site or software of the Work, cannot and do not warrant the performance or results that might be obtained by using the contents of the Work. The author, developers, and the Publisher have used their best efforts to ensure the accuracy and functionality of the textual material and/or programs contained in this package; we, however, make no warranty of any kind, express or implied, regarding the performance of these contents or programs. The Work is sold 鈥渁s is鈥?without warranty (except for defective materials used in manufacturing the book or due to faulty workmanship). 
 
 The author, developers, and the publisher of any accompanying content, and anyone involved in the composition, production, and manufacturing of this work will not be liable for damages of any kind arising out of the use of (or the inability to use) the algorithms, source code, computer programs, or textual material contained in this publication. This includes, but is not limited to, loss of revenue or profit, or other incidental, physical, or consequential damages arising out of the use of this Work. 
 
-The sole remedy in the event of a claim of any kind is expressly limited to replacement of the book and/or disc, and only at the discretion of the Publisher. The use of “implied warranty” and certain “exclusions” varies from state to state and might not apply to the purchaser of this product. 
+The sole remedy in the event of a claim of any kind is expressly limited to replacement of the book and/or disc, and only at the discretion of the Publisher. The use of 鈥渋mplied warranty鈥?and certain 鈥渆xclusions鈥?varies from state to state and might not apply to the purchaser of this product. 
 
-All companion files for this title are available by visiting the website for the book at sciendo.com/book/ 9781683929161 and by clicking on the “COMPANION FILES” tab. 
+All companion files for this title are available by visiting the website for the book at sciendo.com/book/ 9781683929161 and by clicking on the 鈥淐OMPANION FILES鈥?tab. 
 
 # Introduction to
 
@@ -30,7 +33,6 @@ All companion files for this title are available by visiting the website for the
 Frank D. Luna 
 
 ![](images/0fb32a259333b7f6c57110ddb8e26b0f9f427fc7474bc269f0505d4710296b30.jpg)
-
 
 Mercury Learning and Inform ation 
 
@@ -62,7 +64,7 @@ Library of Congress Control Number: 2025931803
 
 Our titles are available for adoption, license, or bulk purchase by institutions, corporations, etc. 
 
-All of our titles are available in digital format at various digital vendors. All companion files for this title are available by visiting the website for the book at sciendo.com/book/ 9781683929161 and by clicking on the “COMPANION FILES” tab. The sole obligation of Mercury Learning and Information to the purchaser is to replace the files, based on defective materials or faulty workmanship, but not based on the operation or functionality of the product. 
+All of our titles are available in digital format at various digital vendors. All companion files for this title are available by visiting the website for the book at sciendo.com/book/ 9781683929161 and by clicking on the 鈥淐OMPANION FILES鈥?tab. The sole obligation of Mercury Learning and Information to the purchaser is to replace the files, based on defective materials or faulty workmanship, but not based on the operation or functionality of the product. 
 
 To my nieces and nephews, Marrick, Hans, Max, Anna, Augustus, Presley, and Elyse 
 
@@ -86,7 +88,7 @@ Sample Programs and Online Supplements xxxiii
 
 Demo Project Setup in Visual Studio 2022 xxxiii 
 
-Download the Book’s Source Code xxxiv 
+Download the Book鈥檚 Source Code xxxiv 
 
 External Libraries xxxv 
 
@@ -328,7 +330,7 @@ Chapter 1 Vector Algebra 3
 
 4.5.6 ImGUI 158 
 
-4.5.7 The “Init Direct3D” Demo 162 
+4.5.7 The 鈥淚nit Direct3D鈥?Demo 162 
 
 4.6 Debugging Direct3D Applications 170 
 
@@ -524,7 +526,7 @@ Chapter 1 Vector Algebra 3
 
 8.3 Important Vectors in Lighting 347 
 
-8.4 Lambert’s Cosine Law 347 
+8.4 Lambert鈥檚 Cosine Law 347 
 
 8.5 Diffuse Lighting 349 
 
@@ -800,13 +802,13 @@ Chapter 1 Vector Algebra 3
 
 14.5 Tessellating a Quad 562 
 
-14.6 Cubic Bézier Quad Patches 567 
+14.6 Cubic B茅zier Quad Patches 567 
 
-14.6.1 Bézier Curves 567 
+14.6.1 B茅zier Curves 567 
 
-14.6.2 Cubic Bézier Surfaces 570 
+14.6.2 Cubic B茅zier Surfaces 570 
 
-14.6.3 Cubic Bézier Surface Evaluation Code 571 
+14.6.3 Cubic B茅zier Surface Evaluation Code 571 
 
 14.6.4 Defining the Patch Geometry 573 
 
@@ -878,7 +880,7 @@ Chapter 1 Vector Algebra 3
 
 # Chapter 17 Picking 621
 
-17.1 Screen to Projection Window Transform 623 
+17.1 Screen to Projection Window聽Transform 623 
 
 17.2 World/Local Space Picking Ray 626 
 
@@ -1432,7 +1434,7 @@ Index 1037
 
 # Acknowledgments
 
-I would like to thank Rod Lopez, Jim Leiterman, Hanley Leung, Rick Falck, Tybon Wu, Tuomas Sandroos, Eric Sandegren, Jay Tennant and William Goschnick for reviewing earlier editions of the book. Special thanks to Remar Jones for building the 3D models and textures used in some of the demo programs available on the book’s website. Thanks to Dale E. La Force, Adam Hoult, Gary Simmons, James Lambers, and William Chin for their assistance in the past. I also want to thank the DirectX team members and other experts that participate in the DirectX discord channel. Finally, I want to thank the staff at Mercury Learning and Information. 
+I would like to thank Rod Lopez, Jim Leiterman, Hanley Leung, Rick Falck, Tybon Wu, Tuomas Sandroos, Eric Sandegren, Jay Tennant and William Goschnick for reviewing earlier editions of the book. Special thanks to Remar Jones for building the 3D models and textures used in some of the demo programs available on the book鈥檚 website. Thanks to Dale E. La Force, Adam Hoult, Gary Simmons, James Lambers, and William Chin for their assistance in the past. I also want to thank the DirectX team members and other experts that participate in the DirectX discord channel. Finally, I want to thank the staff at Mercury Learning and Information. 
 
 # Introducti on
 
@@ -1486,7 +1488,7 @@ https://learn.microsoft.com/en-us/windows/win32/direct3d12/directx-12- programmi
 
 Figure 1 shows a screenshot of the online documentation. 
 
-The DirectX documentation covers just about every part of the DirectX API; therefore, it is very useful as a reference, but because the documentation doesn’t go into much depth or assumes some previous knowledge, it isn’t the best learning tool. However, it does get better and better with every new DirectX version released. 
+The DirectX documentation covers just about every part of the DirectX API; therefore, it is very useful as a reference, but because the documentation doesn鈥檛 go into much depth or assumes some previous knowledge, it isn鈥檛 the best learning tool. However, it does get better and better with every new DirectX version released. 
 
 As said, the documentation is primarily useful as a reference. Suppose you come across a DirectX related type or function, say the function ID3D12Device::C reateCommittedResource, which you would like more information on. You simply do a search in the documentation and get a description of the object type, or in this case function; see Figure 2. 
 
@@ -1496,19 +1498,17 @@ As said, the documentation is primarily useful as a reference. Suppose you come 
 
 Figure 1. Direct3D Programming Guide in the DirectX documentation.
 
-
 ![](images/4b1d2fbc9e2c88cec4209778cbd2a814280ea90e3bad6adadd275e3050de3c88.jpg)
 
 
 
 Figure 2. Getting documentation of a function.
 
-
 We would also like to point out the available Direct3D 12 sample programs from Microsoft that are available online: 
 
 https://github.com/Microsoft/DirectX-Graphics-Samples 
 
-More samples may come in the future, and also be on the lookout for Direct3D 12 samples on NVIDIA’s, AMD’s, and Intel’s websites. 
+More samples may come in the future, and also be on the lookout for Direct3D 12 samples on NVIDIA鈥檚, AMD鈥檚, and Intel鈥檚 websites. 
 
 # CLARITY
 
@@ -1516,17 +1516,17 @@ Although we strive to write efficient code and follow best Direct3D 12 programmi
 
 # SAMPLE PROGRAMS AND ONLINE SUPPLEMENTS
 
-The website for this book (www.d3dcoder.net) plays an integral part in getting the most out of this book. On the website you will find the complete source code and project files for every samples in this book. In many cases, DirectX programs are too large to fully embed in a textbook; therefore, we only embed relevant code fragments based on the ideas being shown. It is highly recommended that the reader studies the corresponding demo code to see the program in its entirety. (We have aimed to make the demos small and focused for easy study.) As a general rule, the reader should be able to implement a chapter’s demo(s) on his or her own after reading the chapter and spending some time studying the demo code. In fact, a good exercise is trying to implement the samples on your own using the book and sample code as a reference. 
+The website for this book (www.d3dcoder.net) plays an integral part in getting the most out of this book. On the website you will find the complete source code and project files for every samples in this book. In many cases, DirectX programs are too large to fully embed in a textbook; therefore, we only embed relevant code fragments based on the ideas being shown. It is highly recommended that the reader studies the corresponding demo code to see the program in its entirety. (We have aimed to make the demos small and focused for easy study.) As a general rule, the reader should be able to implement a chapter鈥檚 demo(s) on his or her own after reading the chapter and spending some time studying the demo code. In fact, a good exercise is trying to implement the samples on your own using the book and sample code as a reference. 
 
 # DEMO PROJECT SETUP IN VISUAL STUDIO 2022
 
-The demos for this book can be opened simply by double clicking the corresponding project file (.vcxproj) or solution file (.sln) This section describes how to create and build a project from scratch using the book’s demo application framework using Visual Studio 2022. You would do this if you wanted to make 
+The demos for this book can be opened simply by double clicking the corresponding project file (.vcxproj) or solution file (.sln) This section describes how to create and build a project from scratch using the book鈥檚 demo application framework using Visual Studio 2022. You would do this if you wanted to make 
 
-your own demo app. (An easier method is to just copy and paste an existing demo, and change the solution and project names and GUIDs, and modify the code accordingly.) As a working example, we will show how to recreate and build the “Box” demo of Chapter 6. 
+your own demo app. (An easier method is to just copy and paste an existing demo, and change the solution and project names and GUIDs, and modify the code accordingly.) As a working example, we will show how to recreate and build the 鈥淏ox鈥?demo of Chapter 6. 
 
-# Download the Book’s Source Code
+# Download the Book鈥檚 Source Code
 
-First, download the book’s source code to some folder on your hard drive. For the sake of discussion, we will assume this folder is C:\d3d12book. In the source code folder, you will see several subfolders: 
+First, download the book鈥檚 source code to some folder on your hard drive. For the sake of discussion, we will assume this folder is C:\d3d12book. In the source code folder, you will see several subfolders: 
 
 1. Demos: This folder contains the source code for each book demo. Each demo has a name as well as a prefix C# indicating which Chapter it corresponds to. For example, the Box demo is from Chapter 6, so its folder is named C6_Box. 
 
@@ -1542,7 +1542,7 @@ First, download the book’s source code to some folder on your hard drive. For 
 
 7. bin: Each demo project is configured to output the generated binaries to this directory. We have a build step to copy the shader files a demo uses to this folder. However, you need to manually copy the Textures and Models folders into this directory. 
 
-Now, in the source code folder, create a new folder where you want to store your demos. For example, C:\d3d12book\MyDemos. This folder is where you will create new projects based on the book’s sample framework. 
+Now, in the source code folder, create a new folder where you want to store your demos. For example, C:\d3d12book\MyDemos. This folder is where you will create new projects based on the book鈥檚 sample framework. 
 
 This directory structure is not completely necessary, but it is the structure the book demos follow. If you are comfortable with setting additional include paths, you can put your demo projects anywhere so long as you direct Visual Studio how to find the dependencies. 
 
@@ -1556,19 +1556,19 @@ The book uses three external libraries. We will discuss these libraries later in
 
 3. DirectXTK12 (DirectX Toolkit): This is a Microsoft open source project that provides various utility code for writing Direct3D 12 applications. We will use some of these utilities in this book. It is available at https://github.com/ microsoft/DirectXTK12. 
 
-For convenience, we have included these open source libraries in the book’s source directory \d3d12book\External, but potentially newer versions can be obtained directly from the links above. 
+For convenience, we have included these open source libraries in the book鈥檚 source directory \d3d12book\External, but potentially newer versions can be obtained directly from the links above. 
 
 # Create a Win32 Project
 
 First launch Visual Studio 2022, then go to the main menu and select File-> New- $\cdot >$ Project. 
 
-The New Project dialog box will appear (Figure 3). Select $\mathrm { C } { + + }$ , Windows, and Desktop projects from the dropdowns and choose the “Windows Desktop Wizard” item. Now hit Next. 
+The New Project dialog box will appear (Figure 3). Select $\mathrm { C } { + + }$ , Windows, and Desktop projects from the dropdowns and choose the 鈥淲indows Desktop Wizard鈥?item. Now hit Next. 
 
-A new dialog box will appear. Give the project a name and specify the location and press Create. On the new sub-dialog that appears, choose “Empty Project” and “Desktop Application, as shown in Figure 4. Then press OK. At this point, you have successfully created an empty Win32 project, but there are still some things to do before you can build a DirectX project demo. 
+A new dialog box will appear. Give the project a name and specify the location and press Create. On the new sub-dialog that appears, choose 鈥淓mpty Project鈥?and 鈥淒esktop Application, as shown in Figure 4. Then press OK. At this point, you have successfully created an empty Win32 project, but there are still some things to do before you can build a DirectX project demo. 
 
 # Adding the Source Code
 
-Our project is created, and we can now add our source code files to the project and build it. First, copy the “Box” demo source code (d3d12book\Demos\C6_Box) BoxApp.h/.cpp to your project’s directory. Next, create the project filter hierarchy as shown in Figure 5; a filter can be created by right clicking on the project/filter name under the Solution Explorer and selecting Add $>$ New Filter. 
+Our project is created, and we can now add our source code files to the project and build it. First, copy the 鈥淏ox鈥?demo source code (d3d12book\Demos\C6_Box) BoxApp.h/.cpp to your project鈥檚 directory. Next, create the project filter hierarchy as shown in Figure 5; a filter can be created by right clicking on the project/filter name under the Solution Explorer and selecting Add $>$ New Filter. 
 
 ![](images/0fcce54d27eebf646e86b5daa142b56278cbcd8bb649a825e923a2419358108e.jpg)
 
@@ -1576,13 +1576,11 @@ Our project is created, and we can now add our source code files to the project 
 
 Figure 3. New Project creation.
 
-
 ![](images/087199dfe1082ca935a45090d0184bb6a8b8b20d298fc76b5e4c77cadc5754af.jpg)
 
 
 
 Figure 4. New Project settings.
-
 
 ![](images/75c188cd498721c87ab87457e52816cf3bbf76dc05706c19bfab911f7cc99b60.jpg)
 
@@ -1590,29 +1588,27 @@ Figure 4. New Project settings.
 
 Figure 5. Solution Explorer after adding the appropriate filters.
 
-
 Now, follow these steps to add the code to your project. 
 
-1. Right click on the project name under the Solution Explorer and select Add > Existing Item… from the dropdown menu and add BoxApp.h/.cpp to the project. 
+1. Right click on the project name under the Solution Explorer and select Add > Existing Item鈥?from the dropdown menu and add BoxApp.h/.cpp to the project. 
 
-2. Right click on the Shaders filter under the Solution Explorer and select Add > Existing Item… from the dropdown menu, navigate to \d3d12book\Shaders and add BasicColor.hlsl to the project. 
+2. Right click on the Shaders filter under the Solution Explorer and select Add > Existing Item鈥?from the dropdown menu, navigate to \d3d12book\Shaders and add BasicColor.hlsl to the project. 
 
-3. Right click on the Common filter under the Solution Explorer and select Add $>$ Existing Item… from the dropdown menu, navigate to \d3d12book\ Common and add all the .h/.cpp files from that directory to the project. 
+3. Right click on the Common filter under the Solution Explorer and select Add $>$ Existing Item鈥?from the dropdown menu, navigate to \d3d12book\ Common and add all the .h/.cpp files from that directory to the project. 
 
-4. Right click on the DirectXTK12\Inc filter under the Solution Explorer and select Add $>$ Existing Item… from the dropdown menu, navigate to \ d3d12book\External\DirectXTK12\Inc and add all the .h/.cpp files from that directory to the project. Likewise, do the same thing for DirectXTK12\Src, but note that you do not need to add the subdirectory Src\Shaders. 
+4. Right click on the DirectXTK12\Inc filter under the Solution Explorer and select Add $>$ Existing Item鈥?from the dropdown menu, navigate to \ d3d12book\External\DirectXTK12\Inc and add all the .h/.cpp files from that directory to the project. Likewise, do the same thing for DirectXTK12\Src, but note that you do not need to add the subdirectory Src\Shaders. 
 
-5. Right click on the imgui filter under the Solution Explorer and select Add > Existing Item… from the dropdown menu, navigate to \d3d12book\External\ imgui and add all the .h/.cpp files from that directory to the project. Similarly, also add \d3d12book\External\imgui\backends\ imgui_impl_dx12.h/.cpp and \d3d12book\External\imgui\backends\imgui_impl_win32.h/.cpp to the imgui\backends filter. 
+5. Right click on the imgui filter under the Solution Explorer and select Add > Existing Item鈥?from the dropdown menu, navigate to \d3d12book\External\ imgui and add all the .h/.cpp files from that directory to the project. Similarly, also add \d3d12book\External\imgui\backends\ imgui_impl_dx12.h/.cpp and \d3d12book\External\imgui\backends\imgui_impl_win32.h/.cpp to the imgui\backends filter. 
 
 # Agility SDK
 
-Typically, new DirectX versions ship with Windows updates as part of the OS. In order to get access to newer features faster, the idea of the Agility SDK was introduced. This is obtained from a Nuget package (see Figure 6). Right click on the project name under the Solution Explorer and select “Manage Nuget Packages…” Under “Browse” search for “agility sdk” and choose Microsoft. Direct3D.D3D12, and then press the Install button. At the time of writing this book, we used version 1.614.1. 
+Typically, new DirectX versions ship with Windows updates as part of the OS. In order to get access to newer features faster, the idea of the Agility SDK was introduced. This is obtained from a Nuget package (see Figure 6). Right click on the project name under the Solution Explorer and select 鈥淢anage Nuget Packages鈥︹€?Under 鈥淏rowse鈥?search for 鈥渁gility sdk鈥?and choose Microsoft. Direct3D.D3D12, and then press the Install button. At the time of writing this book, we used version 1.614.1. 
 
 ![](images/f9a6d1befa9a9c98fc47181a91fd3c4121a4bacf04437147ba007c2aaf72025a.jpg)
 
 
 
 Figure 6. Installing the Agility SDK.
-
 
 After installing, right click on the project name under the Solution Explorer, select Properties, and verify you have a D3D12 NuGet item as shown in Figure 7. This is the path for the newer DirectX SDK code and DLLs from the Agility SDK. 
 
@@ -1633,7 +1629,6 @@ All of the existing projects in this book are built against version 1.614.1.
 
 Figure 7. Agility SDK path.
 
-
 # Project Settings
 
 Figure 8 shows our general application settings for the debug configuration. In particular, there are three changes from the default. 
@@ -1650,7 +1645,6 @@ Figure 8 shows our general application settings for the debug configuration. In 
 
 Figure 8. General Properties.
 
-
 Because we output our executables to \d3d12book\bin, we also need to set the working directory to be the same, as shown in Figure 9. 
 
 ![](images/84897db540a75b46eb425180cc85ce6217ec163bb9f0815a493d30297877add1.jpg)
@@ -1659,15 +1653,13 @@ Because we output our executables to \d3d12book\bin, we also need to set the wor
 
 Figure 9. Setting the working directory.
 
-
-Next, we need to set the “Additional Include Directories” for the external code we are using; see Figure 10. 
+Next, we need to set the 鈥淎dditional Include Directories鈥?for the external code we are using; see Figure 10. 
 
 ![](images/2a1e437baec1bdfee9d7c924b50b482ee64d5a2965a6f63a1e8bc014cb007aeb.jpg)
 
 
 
 Figure 10. Include paths to the external code projects.
-
 
 Finally, it is convenient to edit the shader files (.hlsl extension) that a demo uses in Visual Studio. But when it is changed, we want to make sure the updated shader file gets copied over to the \d3d12book\bin\Shaders directory. Therefore, we make 
 
@@ -1677,15 +1669,12 @@ a custom build step for each shader file added to the project; see Figure 11 and
 
 
 
-Figure 11. Changing the Item Type to “Copy file.”
-
-
+Figure 11. Changing the Item Type to 鈥淐opy file.鈥?
 ![](images/6ec9f7783d7d1a88692c5489e182eee72f033cc55437c83077f192946539b1e8.jpg)
 
 
 
 Figure 12. Specifying where to copy shader files.
-
 
 # Linking the DirectX Libraries
 
@@ -1711,10 +1700,9 @@ At this point, setup is complete, and you can now go to the main menu, and selec
 
 
 
-Figure 13. Screenshot of the “Box” demo.
-
+Figure 13. Screenshot of the 鈥淏ox鈥?demo.
 
 ![](images/1445dc46930b6b5b35960eb94375a7ddac4b946a040522769c3985cc4e5685db.jpg)
 
-
 A lot of the code in the Common directory is built up over the course of the book. So, we recommend that you do not start looking through the code. Instead, wait until you are reading the chapter in the book where that code is covered. 
+

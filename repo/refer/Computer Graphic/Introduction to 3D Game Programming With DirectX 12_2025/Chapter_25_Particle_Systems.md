@@ -1,3 +1,5 @@
+﻿# Chapter 25 Particle Systems
+
 # Chapter
 
 # 25 Particl e System s
@@ -47,7 +49,7 @@ Figure 25.2. (a) Particles aimed at the camera can intersect which causes incorr
 
 # 25.2 PARTICLE MOTION
 
-We would like our particles to move in a somewhat physically realistic way. Recall that average speed is defined by distance over time. If you traveled 40 miles in 30 minutes, then you averaged $8 0 ~ \mathrm { { m p h } = 4 0 ~ m ~ / ~ 0 . 5 ~ h }$ . Velocity is similar, but velocity is a vector valued quantity and cares about the direction of travel, not just the distance. The average velocity of a particle is defined by the change in position $\mathfrak { p } _ { n + 1 } - \mathfrak { p } _ { n }$ over some time interval $\Delta t = t _ { n + 1 } - t _ { n }$ : 
+We would like our particles to move in a somewhat physically realistic way. Recall that average speed is defined by distance over time. If you traveled 40 miles in 30聽minutes, then you averaged $8 0 ~ \mathrm { { m p h } = 4 0 ~ m ~ / ~ 0 . 5 ~ h }$ . Velocity is similar, but velocity is a vector valued quantity and cares about the direction of travel, not just the distance. The average velocity of a particle is defined by the change in position $\mathfrak { p } _ { n + 1 } - \mathfrak { p } _ { n }$ over some time interval $\Delta t = t _ { n + 1 } - t _ { n }$ : 
 
 $$
 \mathbf {v} _ {n} = \frac {\mathbf {p} _ {n + 1} - \mathbf {p} _ {n}}{\Delta t}
@@ -73,7 +75,7 @@ $$
 
 If we make $\Delta t$ small, say $1 / 6 0 ^ { \mathrm { t h } }$ of a second, then the average velocity approximates the instantaneous velocity and the average acceleration approximates the instantaneous acceleration, and we get something that looks like smooth continuous motion. 
 
-Recall that forces cause accelerations: $\mathbf { F } _ { \mathrm { n e t } } = m \mathbf { a }$ , where $\mathbf { F } _ { \mathrm { n e t } }$ is the sum of all the forces acting on a mass m. A game could model various forces such as gravity, wind, and springs. However, for our purposes, we specify the net acceleration as a simple constant per frame for each particle system. We assume particles in a system have the same mass, and we can include the mass in the acceleration vector. The acceleration can change frame-to-frame, but for a given frame, it is constant a = Fnet . $\begin{array} { r } { \mathbf { a } = \frac { \mathbf { F } _ { \mathrm { n e t } } } { m } } \end{array}$ Given this, and given that we initialize a particle’s initial position $\mathbf { p } _ { 0 }$ and initial velocity $\mathbf { v } _ { 0 }$ , we can use the following formulas to update a particle’s position and velocity each frame: 
+Recall that forces cause accelerations: $\mathbf { F } _ { \mathrm { n e t } } = m \mathbf { a }$ , where $\mathbf { F } _ { \mathrm { n e t } }$ is the sum of all the forces acting on a mass m. A game could model various forces such as gravity, wind, and springs. However, for our purposes, we specify the net acceleration as a simple constant per frame for each particle system. We assume particles in a system have the same mass, and we can include the mass in the acceleration vector. The acceleration can change frame-to-frame, but for a given frame, it is constant a = Fnet . $\begin{array} { r } { \mathbf { a } = \frac { \mathbf { F } _ { \mathrm { n e t } } } { m } } \end{array}$ Given this, and given that we initialize a particle鈥檚 initial position $\mathbf { p } _ { 0 }$ and initial velocity $\mathbf { v } _ { 0 }$ , we can use the following formulas to update a particle鈥檚 position and velocity each frame: 
 
 $$
 \begin{array}{l} \mathbf {v} _ {n + 1} = \mathbf {v} _ {n} + \Delta t \mathbf {a} \\ \mathbf {p} _ {n + 1} = \mathbf {p} _ {n} + \Delta t \mathbf {v} _ {n} \\ \end{array}
@@ -200,11 +202,11 @@ Color: The current color of the particle. This is multiplied with the texture co
 
 Lifetime: The age at which the particle dies. Besides using the condition Age $> =$ Lifetime to destroy a particle, we can also use Age and Lifetime to fade in a particle at its birth and fade out a particle near its death. 
 
-• Age: The age of the particle 
+鈥?Age: The age of the particle 
 
 Rotation: The current rotation of the particle. The particle quad rotates in its 2D plane. 
 
-• RotationSpeed: The rotation speed 
+鈥?RotationSpeed: The rotation speed 
 
 DragScale: A coefficient to control the amount of drag applied to the particle. Specify 0 to disable drag. The drag force is the resistance when traveling in a fluid (such as air), and is a function of the size, shape, and speed or the particle. We essentially encode the size/shape into the DragScale variable. 
 
@@ -212,7 +214,7 @@ BindlessTextureIndex: Index to the texture that will be mapped onto the particle
 
 # 25.5.3 Particle Buffers
 
-To store a collection of particles on the GPU, we need a structured buffer. So that we do not have to resize the buffer at runtime (which would be slow), we allocate a buffer with a “max particle” count, which can vary from instance-to-instance. Given a snapshot in time, only some of the particles in the particle buffer will be alive. In addition, because particles have random lifetimes, there is no guarantee that living particles will be contiguous in the particle buffer. Therefore, we also maintain an alive buffer, which indexes into the particle buffer. The alive buffer list is cleared and rebuilt each frame so that we have a contiguous list of living particles to update/draw. Furthermore, when we go to create particles, we need to know which particles in the particle buffer are free (dead) so that we can emit new particles in free slots. The free buffer is used like a stack data structure that stores the indices of all the free particles. When a particle is destroyed, its index is pushed at the end of the free buffer. When a particle is created, we pop the index from the back of the free buffer. 
+To store a collection of particles on the GPU, we need a structured buffer. So that we do not have to resize the buffer at runtime (which would be slow), we allocate a buffer with a 鈥渕ax particle鈥?count, which can vary from instance-to-instance. Given a snapshot in time, only some of the particles in the particle buffer will be alive. In addition, because particles have random lifetimes, there is no guarantee that living particles will be contiguous in the particle buffer. Therefore, we also maintain an alive buffer, which indexes into the particle buffer. The alive buffer list is cleared and rebuilt each frame so that we have a contiguous list of living particles to update/draw. Furthermore, when we go to create particles, we need to know which particles in the particle buffer are free (dead) so that we can emit new particles in free slots. The free buffer is used like a stack data structure that stores the indices of all the free particles. When a particle is destroyed, its index is pushed at the end of the free buffer. When a particle is created, we pop the index from the back of the free buffer. 
 
 One implementation detail is that we have to ping-pong the alive buffers by maintaining a previous alive buffer and a current alive buffer. During a frame update, particles may be created, destroyed, or just updated, and we need to repopulate the current alive buffer from scratch, so it has a contiguous list of living particles to draw. But to do that, we need to know which particles were alive last frame. Basically, during an update, we read from the previous alive buffer while 
 
@@ -236,7 +238,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> mPrevAliveCountBuffer = nullptr;
 Microsoft::WRL::ComPtr<ID3D12Resource> mCurrAliveCountBuffer = nullptr; 
 ```
 
-Note that all these buffers, except the counts (which are just a single uint32_t), are created with a “max particle” count. 
+Note that all these buffers, except the counts (which are just a single uint32_t), are created with a 鈥渕ax particle鈥?count. 
 
 Let us summarize the particle system program flow with respect to the buffers: 
 
@@ -296,7 +298,7 @@ gMinScale/gMaxScale: The scale of newly created particles. Particles get a rando
 
 gDragScale: Scale factor used for controlling the drag of particles. This is a single value, but could be modified to be a range, as well. 
 
-• gEmitCount: The number of particles to emit in the given update. 
+鈥?gEmitCount: The number of particles to emit in the given update. 
 
 gBindlessTextureIndex: The texture index to assign to emitted particles during this update. This is a single index but could be modified to select randomly from a few different texture indices to give more variation. 
 
@@ -381,7 +383,7 @@ Then we can use the DecrementCounter/IncrementCounter methods to atomically decr
 
 # 25.5.5 Updating Particles
 
-Every frame (or at some discrete update interval), we need to update our particles. This includes updating their position based on physics (§25.2), and aging particles so that they naturally die out when they reach their lifetime. We could animate more particle properties here, but since we store the age and lifetime, we can defer animating particle properties as a function of age until we draw the particle. 
+Every frame (or at some discrete update interval), we need to update our particles. This includes updating their position based on physics (搂25.2), and aging particles so that they naturally die out when they reach their lifetime. We could animate more particle properties here, but since we store the age and lifetime, we can defer animating particle properties as a function of age until we draw the particle. 
 
 void UpdateParticle(inout Particle p)   
 { // Simulate a drag effect where the particle slows down over time. // This effect can be controlled with the gDragScale constant. float speedSquared $=$ dot(p.Velocity, p.Velocity); float3 drag $=$ float3(0.0f, 0.0f, 0.0f); if(speedSquared $>0.001\mathrm{f}$ { drag $=$ -p.DragScale \* speedSquared \* normalize(p.Velocity); } // Add in global acceleration due to wind, gravity, etc. float3 acceleration $=$ drag $^+$ gAcceleration; p.Position $= \mathbb{P}.$ Velocity \* gDeltaTime; p.Velocity $= =$ acceleration \* gDeltaTime; p.Rotation $= =$ p.RotationSpeed \* gDeltaTime; p.Age $= =$ gDeltaTime;   
@@ -550,18 +552,18 @@ As mentioned, the last two parameters are used for specifying GPU buffer data th
 
 # 25.5.6.4 More on Indirect Draw/Dispatch
 
-Our particle system use case is simple in that we only need commands to store D3D12_DISPATCH_ARGUMENTS and D3D12_DRAW_INDEXED_ARGUMENTS data. However, the API supports more flexibility. The draw “arguments” can be more than just the arguments needed for Dispatch or DrawIndexedInstanced: we can also set vertex buffer views, root constants, and root descriptors. Here is a slightly more complicated example from the “Indirect drawing and GPU culling demo” (https:// learn.microsoft.com/en-us/windows/win32/direct3d12/indirect-drawing-and-gpuculling-), where a root constant buffer view is also passed per indirect draw. 
+Our particle system use case is simple in that we only need commands to store D3D12_DISPATCH_ARGUMENTS and D3D12_DRAW_INDEXED_ARGUMENTS data. However, the API supports more flexibility. The draw 鈥渁rguments鈥?can be more than just the arguments needed for Dispatch or DrawIndexedInstanced: we can also set vertex buffer views, root constants, and root descriptors. Here is a slightly more complicated example from the 鈥淚ndirect drawing and GPU culling demo鈥?(https:// learn.microsoft.com/en-us/windows/win32/direct3d12/indirect-drawing-and-gpuculling-), where a root constant buffer view is also passed per indirect draw. 
 
 // Data structure to match the command signature used for ExecuteIndirect.   
 struct IndirectCommand   
 { D3D12_GPU_VIRTUAL_ADDRESS cbv; D3D12_DRAW.ArgUMENTS drawArguments;   
-}；   
+}锛?  
 // Each command consists of a CBV update and a DrawInstanced call.   
 D3D12_INDIRECT.ArgUMENT_DESC argumentDescs[2] $=$ {}; argumentDescs[0].Type $=$ D3D12_INDIRECT.ArgUMENT_TYPE_constant_buffer VIEW; argumentDescs[0].ConstantBufferViewRootParameterIndex $=$ Cbv; argumentDescs[1].Type $=$ D3D12_INDIRECT.ArgUMENT_TYPE_DRAW;   
 D3D12_COMMAND_SIGNATURE_DESC commandSignatureDesc $=$ {}; commandSignatureDesc.pArgumentDescs $=$ argumentDescs; commandSignatureDesc.NumArgumentDescs $=$ _countof(argumentDescs); commandSignatureDesc.ByteStride $=$ sizeof(IndirectCommand);   
 ThrowIfFailed(m_device->CreateCommandSignature( &commandSignatureDesc, m_rootSignature.Get(), IID_PPV_args(&m_commandSignature)); 
 
-We recommend the reader study the “Indirect drawing and GPU culling demo” at some point. Briefly, the idea is to do object/frustum culling on the GPU in a compute shader. Because we do not know on the CPU which objects get culled 
+We recommend the reader study the 鈥淚ndirect drawing and GPU culling demo鈥?at some point. Briefly, the idea is to do object/frustum culling on the GPU in a compute shader. Because we do not know on the CPU which objects get culled 
 
 or not, we need indirect draw. At initialization time, the CPU will populate an input command buffer for all the objects that could be drawn for a frame (visible or not). We also allocate an output command buffer and a count buffer to store the draw commands of visible objects and the number of visible objects. Then for each frame, a compute shader is dispatched where each thread will correspond to a draw call in the input command buffer and do a culling test. If the object is not culled, the draw command is appended to the output command buffer and the count is incremented. Finally, we can use ExecuteIndirect with the output command buffer and the count buffer to draw the visible objects. 
 
@@ -846,7 +848,7 @@ mSpawnExplosion = false;
 
 2. We model our particles by points for the purposes of motion calculations and by small quads that face the camera for rendering. This means that we get the efficiency of only having to apply physics to one point instead of four quad vertices and get the ability to have different sized particles with textures mapped onto them. 
 
-3. If we specify the acceleration vector a as a constant value per frame, and initialize a particle’s initial position ${ \bf p } _ { 0 }$ and initial velocity $\mathbf { v } _ { 0 }$ , then we can estimate a particle’s new velocity and new position for the next frame with the following formulas: 
+3. If we specify the acceleration vector a as a constant value per frame, and initialize a particle鈥檚 initial position ${ \bf p } _ { 0 }$ and initial velocity $\mathbf { v } _ { 0 }$ , then we can estimate a particle鈥檚 new velocity and new position for the next frame with the following formulas: 
 
 $$
 \begin{array}{l} \mathbf {v} _ {n + 1} = \mathbf {v} _ {n} + \Delta t \mathbf {a} \\ \mathbf {p} _ {n + 1} = \mathbf {p} _ {n} + \Delta t \mathbf {v} _ {n} \\ \end{array}
@@ -856,7 +858,7 @@ If we make Dt small, say $1 / 6 0 ^ { \mathrm { t h } }$ of a second, then the a
 
 4. Use additive blending when you want the intensity of a particle system to be proportional with the particle density. Use transparency blending for transparent particles. Not sorting a transparent particle system in back-tofront order may or may not be a problem (i.e., the problems may or may not be noticeable). Commonly for particle systems, depth writes are disabled so that particles do not obscure each other. The depth test, however, is still enabled so that non-particle objects do obscure particles. 
 
-5. We use a compute shader to implement the particle systems. In this way, the GPU is doing all the work to create and update the particles. This requires a structured buffer of particles, as well as some other “bookkeeping” buffers to track which particles are alive, and which elements in the buffer are essentially dead so that the memory can be reused for newly created particles. 
+5. We use a compute shader to implement the particle systems. In this way, the GPU is doing all the work to create and update the particles. This requires a structured buffer of particles, as well as some other 鈥渂ookkeeping鈥?buffers to track which particles are alive, and which elements in the buffer are essentially dead so that the memory can be reused for newly created particles. 
 
 6. For rendering, we draw two triangles to form a quad for each particle. Because particles are created and destroyed on the GPU, we do not know how many particles to draw on the CPU. To overcome this, we use the draw indirect API, which enables us to fill out a GPU buffer from the GPU with the arguments we would pass to a draw/dispatch call. Then we can execute the draw/dispatch using the arguments in the GPU buffer. Thus, because we know how many particles to draw on the GPU, we can have a compute shader fill out the indirect draw buffer arguments. 
 
@@ -866,6 +868,6 @@ If we make Dt small, say $1 / 6 0 ^ { \mathrm { t h } }$ of a second, then the a
 
 2. Modify Exercise 1 by passing a ground plane to the compute shaders via a buffer (constant or structured). When the particles intersect the ground plane, have them reflect off the ground plane like a bouncing ball. 
 
-3. For particle systems that use transparency blending and require proper backto-front sorting, we need to sort the particles on the GPU. One GPU-friendly sorting algorithm is called bitonic sort. Implement bitonic sort or integrate an  open-source implementation to sort particles in back-to-front order on the GPU. 
+3. For particle systems that use transparency blending and require proper backto-front sorting, we need to sort the particles on the GPU. One GPU-friendly sorting algorithm is called bitonic sort. Implement bitonic sort or integrate an聽 open-source implementation to sort particles in back-to-front order on the聽GPU. 
 
 4. Implement a smoke particle system where the particles use transparency blending. Use the result of Exercise 3 to sort the particles correctly. 

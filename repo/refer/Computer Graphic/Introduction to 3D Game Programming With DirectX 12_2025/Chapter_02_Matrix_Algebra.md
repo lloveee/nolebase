@@ -1,3 +1,5 @@
+﻿# Chapter 02 Matrix Algebra
+
 # Chapter 2 Matrix Algebra
 
 In 3D computer graphics, we use matrices to compactly describe geometric transformations such as scaling, rotation, and translation, and also to change the coordinates of a point or vector from one frame to another. This chapter explores the mathematics of matrices. 
@@ -31,7 +33,7 @@ $$
 
 2. We identify the element in the fourth row and second column of the matrix A by ${ \cal A } _ { 4 2 } = - 5$ . We identify the element in the second row and first column of the matrix B by $B _ { 2 1 }$ . 
 
-3. The matrices u and v are special matrices in the sense that they contain a single row or column, respectively. We sometimes call these kinds of matrices row vectors or column vectors because they are used to represent a vector in matrix form (e.g., we can freely interchange the vector notations $( x , y , z )$ and $[ x , y , z ] ,$ ). Observe that for row and column vectors, it is unnecessary to use a double subscript to denote the elements of the matrix—we only need one subscript. 
+3. The matrices u and v are special matrices in the sense that they contain a single row or column, respectively. We sometimes call these kinds of matrices row vectors or column vectors because they are used to represent a vector in matrix form (e.g., we can freely interchange the vector notations $( x , y , z )$ and $[ x , y , z ] ,$ ). Observe that for row and column vectors, it is unnecessary to use a double subscript to denote the elements of the matrix鈥攚e only need one subscript. 
 
 Occasionally we like to think of the rows of a matrix as vectors. For example, we might write: 
 
@@ -53,7 +55,7 @@ $$
 \mathbf {A} _ {\star , 1} = \left[ \begin{array}{l} A _ {1 1} \\ A _ {2 1} \\ A _ {3 1} \end{array} \right], \quad \mathbf {A} _ {\star , 2} = \left[ \begin{array}{l} A _ {1 2} \\ A _ {2 2} \\ A _ {3 2} \end{array} \right], \quad \mathbf {A} _ {\star , 3} = \left[ \begin{array}{l} A _ {1 3} \\ A _ {2 3} \\ A _ {3 3} \end{array} \right]
 $$
 
-In this notation, the second index specifies the column, and we put a ‘*’ in the first index to indicate that we are referring to the entire column vector. 
+In this notation, the second index specifies the column, and we put a 鈥?鈥?in the first index to indicate that we are referring to the entire column vector. 
 
 We now define equality, addition, scalar multiplication, and subtraction on matrices. 
 
@@ -118,7 +120,7 @@ $$
 
 So note that in order for the matrix product AB to be defined, we require that the number of columns in A equal the number of rows in B, which is to say, we require that the dimension of the row vectors in A equal the dimension of the column vectors in B. If these dimensions did not match, then the dot product in Equation 2.1 would not make sense. 
 
-# ☞	Example 2.3
+# 鈽?Example 2.3
 
 Let 
 
@@ -246,7 +248,7 @@ $$
 
 # Example 2.6
 
-Let $\mathbf { M } = { \left[ \begin{array} { l l } { 1 } & { 2 } \\ { 0 } & { 4 } \end{array} \right] }$ and let $\mathbf { I } = { \left[ \begin{array} { l l } { 1 } & { 0 } \\ { 0 } & { 1 } \end{array} \right] } .$ 1 0 Verify that $\mathbf { M I } = \mathbf { I M } = \mathbf { M }$ 
+Let $\mathbf { M } = { \left[ \begin{array} { l l } { 1 } & { 2 } \\ { 0 } & { 4 } \end{array} \right] }$ and let $\mathbf { I } = { \left[ \begin{array} { l l } { 1 } & { 0 } \\ { 0 } & { 1 } \end{array} \right] } .$ 铮? 铮? Verify that $\mathbf { M I } = \mathbf { I M } = \mathbf { M }$ 
 
 Applying Equation 2.1 yields: 
 
@@ -279,15 +281,15 @@ Note that we cannot take the product Iu because the matrix multiplication is not
 
 # 2.5 THE DETERMINANT OF A MATRIX
 
-The determinant is a special function which inputs a square matrix and outputs a real number. The determinant of a square matrix A is commonly denoted by det  A. It can be shown that the determinant has a geometric interpretation related to volumes of boxes and that the determinant provides information on how volumes change under linear transformations. In addition, determinants are 
+The determinant is a special function which inputs a square matrix and outputs a real number. The determinant of a square matrix A is commonly denoted by det聽 A. It can be shown that the determinant has a geometric interpretation related to volumes of boxes and that the determinant provides information on how volumes change under linear transformations. In addition, determinants are 
 
-used to solve systems of linear equations using Cramer’s Rule. However, for our purposes, we are mainly motivated to study the determinant because it gives us an explicit formula for finding the inverse of a matrix (the topic of $\ S 2 . 7 \AA$ ). In addition, it can be proved that: A square matrix A is invertible if and only if det $\mathbf A \neq 0$ . This fact is useful because it gives us a computational tool for determining if a matrix is invertible. Before we can define the determinant, we first introduce the concept of matrix minors. 
+used to solve systems of linear equations using Cramer鈥檚 Rule. However, for our purposes, we are mainly motivated to study the determinant because it gives us an explicit formula for finding the inverse of a matrix (the topic of $\ S 2 . 7 \AA$ ). In addition, it can be proved that: A square matrix A is invertible if and only if det $\mathbf A \neq 0$ . This fact is useful because it gives us a computational tool for determining if a matrix is invertible. Before we can define the determinant, we first introduce the concept of matrix minors. 
 
 # 2.5.1 Matrix Minors
 
 Given an $n \times n$ matrix A, the minor matrix $\overline { { \mathbf { A } } } _ { i j }$ is the $\left( n - 1 \right) \times \left( n - 1 \right)$ matrix found by deleting the ith row and jth column of A. 
 
-# ☞	Example 2.8
+# 鈽?Example 2.8
 
 Find the minor matrices $\overline { { \mathbf { A } } } _ { 1 1 }$ , $\overline { { \mathbf { A } } } _ { 2 2 }$ , and $\overline { { \mathbf { A } } } _ { 1 3 }$ of the following matrix: 
 
@@ -437,7 +439,7 @@ $$
 \mathbf {A} ^ {- 1} = \frac {\mathbf {A} ^ {*}}{\det \mathbf {A}} = \frac {\mathbf {C} _ {\mathbf {A}} ^ {T}}{\det \mathbf {A}} = \frac {1}{A _ {1 1} A _ {2 2} - A _ {1 2} A _ {2 1}} \left[ \begin{array}{l l} A _ {2 2} & - A _ {1 2} \\ - A _ {2 1} & A _ {1 1} \end{array} \right]
 $$
 
-Now we apply this formula to invert $\mathbf { M } = { \left[ \begin{array} { l l } { 3 } & { 0 } \\ { - 1 } & { 2 } \end{array} \right] } \colon$  3 0 : 
+Now we apply this formula to invert $\mathbf { M } = { \left[ \begin{array} { l l } { 3 } & { 0 } \\ { - 1 } & { 2 } \end{array} \right] } \colon$ 铮?3 0 : 
 
 $$
 \mathbf {M} ^ {- 1} = \frac {1}{3 \cdot 2 - 0 \cdot (- 1)} \left[ \begin{array}{l l} 2 & 0 \\ 1 & 3 \end{array} \right] = \left[ \begin{array}{l l} 1 / 3 & 0 \\ 1 / 6 & 1 / 2 \end{array} \right]
@@ -584,7 +586,7 @@ typedef const XMMatrix FXMMatrix;
 typedef const XMMatrix& CXMMatrix; 
 ```
 
-Observe that on 32-bit Windows with __fastcall, a XMMATRIX cannot be passed through SSE/SSE2 registers because only three XMVECTOR arguments via registers are supported, and a XMMATRIX requires four; thus the matrix is just passed on the stack by reference. For the details on how these types are defined for the other platforms, see “Calling Conventions” under “Library Internals” in the DirectXMath documentation [DirectXMath]. The exception to these rules is with constructor methods. [DirectXMath] recommends always using CXMMATRIX for constructors that takes XMMATRIX parameters. Furthermore, do not use the annotation XM_CALLCONV for constructors. 
+Observe that on 32-bit Windows with __fastcall, a XMMATRIX cannot be passed through SSE/SSE2 registers because only three XMVECTOR arguments via registers are supported, and a XMMATRIX requires four; thus the matrix is just passed on the stack by reference. For the details on how these types are defined for the other platforms, see 鈥淐alling Conventions鈥?under 鈥淟ibrary Internals鈥?in the DirectXMath documentation [DirectXMath]. The exception to these rules is with constructor methods. [DirectXMath] recommends always using CXMMATRIX for constructors that takes XMMATRIX parameters. Furthermore, do not use the annotation XM_CALLCONV for constructors. 
 
 # 2.8.3 DirectX Math Matrix Sample Program
 
@@ -679,7 +681,7 @@ XMMatrix XM_CALLCONV XMMatrixInverse(XMVECTOR* pDeterminant, FXMMatrix M);
 
 # 2.10 EXERCISES
 
-1. Solve the following matrix equation for X: 3 2 01 3 2 2 2 01 3−  −   = − X  . 
+1. Solve the following matrix equation for X: 3 2 01 3 2 2 2 01 3铮垝铮帮／ 铮癸；铮?鈭?铮－铮， 铮讹８铮凤７ = 铮垝铮帮／ 铮癸；X 铮?. 
 
 2. Compute the following matrix products: 
 
@@ -693,7 +695,7 @@ ${ \left[ \begin{array} { l l } { 1 } & { 2 } \\ { 3 } & { 4 } \\ { } & { } \end
 
 3. Compute the transpose of the following matrices: 
 
-(a) 1 2 , , 3   , 
+(a) 铮? 2 , , 3 铮?铮癸； , 
 
 ${ \left[ \begin{array} { l l } { x } & { y } \\ { z } & { w } \end{array} \right] } ,$ 
 
@@ -725,7 +727,7 @@ $$
 
 $\mathbf { 8 . ~ L e t } = { \left[ \begin{array} { l l l } { 2 } & { 0 } & { 1 } \\ { 0 } & { - 1 } & { - 3 } \\ { 0 } & { 0 } & { 1 } \end{array} \right] } . { \mathrm { ~ I s ~ } } \mathbf { B } = { \left[ \begin{array} { l l l } { 1 / 2 } & { 0 } & { - 1 / 2 } \\ { 0 } & { - 1 } & { - 3 } \\ { 0 } & { 0 } & { 1 } \end{array} \right] } { \mathrm { ~ t h e ~ i n v e r s e ~ o f ~ } } \mathbf { A } \mathbf { 2 }$ 
 
-9. Let $\mathbf { A } = { \left[ \begin{array} { l l } { 1 } & { 2 } \\ { 3 } & { 4 } \end{array} \right] } .$ . Is $\mathbf { B } = \left[ { \begin{array} { c c } { - 2 } & { 1 } \\ { 3 / 2 } & { 1 / 2 } \end{array} } \right]$ the inverse of A? 3 
+9. Let $\mathbf { A } = { \left[ \begin{array} { l l } { 1 } & { 2 } \\ { 3 } & { 4 } \end{array} \right] } .$ . Is $\mathbf { B } = \left[ { \begin{array} { c c } { - 2 } & { 1 } \\ { 3 / 2 } & { 1 / 2 } \end{array} } \right]$ the inverse of A? 铮帮／3 
 
 10. Find the determinants of the following matrices: 
 
@@ -755,7 +757,7 @@ $$
 
 13. Show that $( \mathbf { A } ^ { - 1 } ) ^ { T } = ( \mathbf { A } ^ { T } ) ^ { - 1 }$ , assuming A is invertible. 
 
-14. Let A and $\mathbf { B }$ be $n \times n$ matrices. A fact proved in linear algebra books is that det(AB) = det A ⋅ det B. Use this fact along with the fact that det I $\ l = 1$ to prove det $\mathbf { A } ^ { - 1 } = { \frac { 1 } { \operatorname* { d e t } \mathbf { A } } }$ assuming A is invertible. 
+14. Let A and $\mathbf { B }$ be $n \times n$ matrices. A fact proved in linear algebra books is that det(AB) = det A 鈰?det B. Use this fact along with the fact that det I $\ l = 1$ to prove det $\mathbf { A } ^ { - 1 } = { \frac { 1 } { \operatorname* { d e t } \mathbf { A } } }$ assuming A is invertible. 
 
 15. Prove that the 2D determinant $\begin{array} { r } { \left[ \begin{array} { l l } { u _ { x } } & { u _ { y } } \\ { \nu _ { x } } & { \nu _ { y } } \end{array} \right] } \end{array}$ gives the signed area of the parallelogram spanned by $\mathbf { u } = ( u _ { x } , u _ { y } )$ and $\mathbf { v } = ( \nu _ { x } , \nu _ { y } )$ . The result is positive if u can be rotated counterclockwise to coincide with $\mathbf { v }$ by an angle $\theta \in ( 0 , \pi )$ , and negative otherwise. 
 
@@ -768,7 +770,7 @@ $$
 
 (b) $\mathbf { u } = ( - 1 , - 1 )$ and $\mathbf { v } = ( 0 , 1 )$ 
 
-$\mathbf { A } = { \left[ \begin{array} { l l } { A _ { 1 1 } } & { A _ { 1 2 } } \\ { A _ { 2 1 } } & { A _ { 2 2 } } \end{array} \right] } , \quad \mathbf { B } = { \left[ \begin{array} { l l } { B _ { 1 1 } } & { B _ { 1 2 } } \\ { B _ { 2 1 } } & { B _ { 2 2 } } \end{array} \right] } , \quad { \mathrm { a n d } } \quad \mathbf { C } = { \left[ \begin{array} { l l } { C _ { 1 1 } } & { C _ { 1 2 } } \\ { C _ { 2 1 } } & { C _ { 2 2 } } \end{array} \right] } .$  B 1 2 $\mathbf { C } = { \left[ \begin{array} { l l } { C _ { 1 1 } } & { C _ { 1 2 } } \\ { C _ { 2 1 } } & { C _ { 2 2 } } \end{array} \right] } .$ 17. Let Show that  A 2 2 $\mathbf { A } ( \mathbf { B C } ) = ( \mathbf { A B } ) \mathbf { C }$ . This shows that matrix multiplication is associative for $2 \times 2$ matrices. (In fact, matrix multiplication is associative for general sized matrices, whenever the multiplication is defined.) 
+$\mathbf { A } = { \left[ \begin{array} { l l } { A _ { 1 1 } } & { A _ { 1 2 } } \\ { A _ { 2 1 } } & { A _ { 2 2 } } \end{array} \right] } , \quad \mathbf { B } = { \left[ \begin{array} { l l } { B _ { 1 1 } } & { B _ { 1 2 } } \\ { B _ { 2 1 } } & { B _ { 2 2 } } \end{array} \right] } , \quad { \mathrm { a n d } } \quad \mathbf { C } = { \left[ \begin{array} { l l } { C _ { 1 1 } } & { C _ { 1 2 } } \\ { C _ { 2 1 } } & { C _ { 2 2 } } \end{array} \right] } .$ 铮?B 1 2 $\mathbf { C } = { \left[ \begin{array} { l l } { C _ { 1 1 } } & { C _ { 1 2 } } \\ { C _ { 2 1 } } & { C _ { 2 2 } } \end{array} \right] } .$ 17. Let Show that 铮?A 2 2 $\mathbf { A } ( \mathbf { B C } ) = ( \mathbf { A B } ) \mathbf { C }$ . This shows that matrix multiplication is associative for $2 \times 2$ matrices. (In fact, matrix multiplication is associative for general sized matrices, whenever the multiplication is defined.) 
 
 18. Write a computer program that computes the transpose of an $m \times n$ matrix without using DirectX Math (just use an array of arrays in $\mathrm { C } { + + }$ ). 
 

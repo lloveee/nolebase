@@ -1,3 +1,5 @@
+﻿# Chapter 18 Cube Mapping
+
 # Chapter
 
 # 18 Cube Mapp ing
@@ -16,7 +18,7 @@ In this chapter, we study cube maps, which are basically arrays of six textures 
 
 # 18.1 CUBE MAPPING
 
-The idea of cube mapping is to store six textures and to visualize them as the faces of a cube—hence the name cube map—centered and axis aligned about some coordinate system. Since the cube texture is axis aligned, each face corresponds with a direction along the three major axes; therefore, it is natural to a reference a particular face on a cube map based on the axis direction $( \pm X , \pm Y , \pm Z )$ that intersects the face. 
+The idea of cube mapping is to store six textures and to visualize them as the faces of a cube鈥攈ence the name cube map鈥攃entered and axis aligned about some coordinate system. Since the cube texture is axis aligned, each face corresponds with a direction along the three major axes; therefore, it is natural to a reference a particular face on a cube map based on the axis direction $( \pm X , \pm Y , \pm Z )$ that intersects the face. 
 
 ![](images/ebca6b31d9d48d9c42c4890372c13f36a797593b410ebaa494ec1752f7ab2a0a.jpg)
 
@@ -62,7 +64,7 @@ The lookup vector should be in the same space the cube map is relative to. For e
 
 # 18.2 ENVIRONMENT MAPS
 
-The primary application of cube maps is environment mapping. The idea is to position a camera at the center of some object O in the scene with a $9 0 ^ { \circ }$ field of view angle (both vertically and horizontally). Then have the camera look down the positive $x$ -axis, negative $x$ -axis, positive y-axis, negative y-axis, positive $z$ -axis, and negative $z$ -axis, and to take a picture of the scene (excluding the object O) from each of these six viewpoints. Because the field of view angle is $9 0 ^ { \circ }$ , these six images will have captured the entire surrounding environment (see Figure 18.2) from the perspective of the object O. We then store these six images of the surrounding environment in a cube map, which leads to the name environment map. In other words, an environment map is a cube map where the cube faces store the surrounding images of an environment. 
+The primary application of cube maps is environment mapping. The idea is to position a camera at the center of some object O in the scene with a $9 0 ^ { \circ }$ field of view angle (both vertically and horizontally). Then have the camera look down the positive $x$ -axis, negative $x$ -axis, positive y-axis, negative y-axis, positive $z$ -axis, and negative $z$ -axis, and to take a picture of the scene (excluding the object O) from each of these six viewpoints. Because the field of view angle is $9 0 ^ { \circ }$ , these six images will have captured the entire surrounding environment (see Figure聽18.2) from the perspective of the object O. We then store these six images of the surrounding environment in a cube map, which leads to the name environment map. In other words, an environment map is a cube map where the cube faces store the surrounding images of an environment. 
 
 The above description suggests that we need to create an environment map for each object that is to use environment mapping. While this would be more accurate, it also requires more texture memory. A compromise would be to use 
 
@@ -70,17 +72,17 @@ The above description suggests that we need to create an environment map for eac
 
 
 
-Figure 18.2. An example of an environment map after “unfolding” the cube map. Imagine refolding these six faces into a 3D box, and then imagine being at the center of the box. From every direction you look, you see the surrounding environment.
+Figure 18.2. An example of an environment map after 鈥渦nfolding鈥?the cube map. Imagine refolding these six faces into a 3D box, and then imagine being at the center of the box. From every direction you look, you see the surrounding environment.
 
 
 ![](images/65972dec29d8cc852ec28fe8f6d4a5b07eca73f36f85fb756c2cb9924d50d69c.jpg)
 
 
 
-Figure 18.3. Screenshot of the “CubeAndNormalMaps” demo
+Figure 18.3. Screenshot of the 鈥淐ubeAndNormalMaps鈥?demo
 
 
-a few environment map “probes” that capture the environment at key points in the scene. Then objects will sample the environment map closest to them. This simplification usually works well in practice because with curved objects inaccurate reflections are hard to notice. Another simplification often taken with environment mapping is to omit certain objects from the scene. For example, the environment map in Figure 18.2 only captures the distant “background” information of the sky and mountains that are very far away. Local scene objects are omitted. Although the background environment map is, in some sense, incomplete, it works well in practice to create specular reflections. In order to capture local objects, we would have to use Direct3D to render the six images of our environment map; this is discussed in $\$ 18.5$ . In the demo for this chapter (Figure 18.3), all the objects in the scene share the same environment map shown in Figure 18.2. 
+a few environment map 鈥減robes鈥?that capture the environment at key points in the scene. Then objects will sample the environment map closest to them. This simplification usually works well in practice because with curved objects inaccurate reflections are hard to notice. Another simplification often taken with environment mapping is to omit certain objects from the scene. For example, the environment map in Figure 18.2 only captures the distant 鈥渂ackground鈥?information of the sky and mountains that are very far away. Local scene objects are omitted. Although the background environment map is, in some sense, incomplete, it works well in practice to create specular reflections. In order to capture local objects, we would have to use Direct3D to render the six images of our environment map; this is discussed in $\$ 18.5$ . In the demo for this chapter (Figure 18.3), all the objects in the scene share the same environment map shown in Figure 18.2. 
 
 ![](images/a6535d33fd48e5ea6fe6c058730777d2c03cc79e0bcf9b3559043ee6fe8ac36c.jpg)
 
@@ -89,7 +91,7 @@ We use the same demo for this chapter and the next on normal mapping. The effect
 
 If the axis directions the camera looked down to build the environment map images were the world space axes, then the environment map is said to be generated relative to the world space. You could, of course, capture the environment from a different orientation (say the local space of an object). However, the lookup vector coordinates must be in the space the cube map is relative to. 
 
-Because cube maps just store texture data, their contents can be pre-generated by an artist (just like the 2D textures we’ve been using). Consequently, we do not need to use real-time rendering to compute the images of a cube map. That is, we can create a scene in a 3D world editor, and then pre-render the six cube map face images in the editor. For outdoor environment maps with distant terrains and sky, the program Terragen (http://www.planetside.co.uk/) is commonly used, and it can create photorealistic outdoor scenes. Another option for rapid prototyping 
+Because cube maps just store texture data, their contents can be pre-generated by an artist (just like the 2D textures we鈥檝e been using). Consequently, we do not need to use real-time rendering to compute the images of a cube map. That is, we can create a scene in a 3D world editor, and then pre-render the six cube map face images in the editor. For outdoor environment maps with distant terrains and sky, the program Terragen (http://www.planetside.co.uk/) is commonly used, and it can create photorealistic outdoor scenes. Another option for rapid prototyping 
 
 is to use AI software to generate cube maps such as https://skybox.blockadelabs. com/. The environment map shown in Figure 18.2 was made using https://skybox. blockadelabs.com/. 
 
@@ -100,7 +102,7 @@ texassemble -cube -w 256 -h 256 -o cubemap.dds lobbyxposjpg lobbyxneg. jpg lobby
 ![](images/1c2283bad00958b5422c2e742d8879364922b68f57b9ea2ad275142846ac5784.jpg)
 
 
-NVIDIA’s texture exporter tool can also be used for generating cube maps from individual images (https://developer.nvidia.com/nvidia-texture-tools-exporter). 
+NVIDIA鈥檚 texture exporter tool can also be used for generating cube maps from individual images (https://developer.nvidia.com/nvidia-texture-tools-exporter). 
 
 # 18.2.1 Loading and Using Cube Maps in Direct3D
 
@@ -120,7 +122,7 @@ inline void CreateSrvCube(ID3D12Device* device, ID3D12Resource* resource, DXGI_F
 
 # 18.3 TEXTURING A SKY
 
-We can use an environment map to texture a sky. We create a large sphere that surrounds the entire scene. To create the illusion of distant mountains far in the horizon and a sky, we texture the sphere using an environment map by the method shown in Figure 18.4. In this way, the environment map is projected onto the sphere’s surface. 
+We can use an environment map to texture a sky. We create a large sphere that surrounds the entire scene. To create the illusion of distant mountains far in the horizon and a sky, we texture the sphere using an environment map by the method shown in Figure 18.4. In this way, the environment map is projected onto the sphere鈥檚 surface. 
 
 We assume that the sky sphere is infinitely far away (i.e., it is centered about the world space but has infinite radius), and so no matter how the camera moves in the world, we never appear to get closer or farther from the surface of the sky sphere. To implement this infinitely faraway sky, we simply center the sky sphere about the camera in world space so that it is always centered about the camera. Consequently, as the camera moves, we are getting no closer to the surface of the sphere. If we did not do this, and we let the camera move closer to the sky surface, the whole illusion would break down, as the trick we use to simulate the sky would be obvious. 
 
@@ -128,7 +130,7 @@ The shader file for the sky is given below:
 
 ```cpp
 include"Shaders/Common.hlsl"   
-struct VertexIn { float3PosL ：POSITION; float3 NormalL：NORMAL; float2TexC ：TEXCOORD; }； 
+struct VertexIn { float3PosL 锛歅OSITION; float3 NormalL锛歂ORMAL; float2TexC 锛歍EXCOORD; }锛?
 ```
 
 ![](images/885cae2fbdd1ae6985919c01bf4e73198c0430011cbb42f99a419dfec57a0cd0.jpg)
@@ -167,7 +169,7 @@ The sky shader programs are significantly different than the shader programs for
 
 # Note:
 
-In the past, applications would draw the sky first and use it as a replacement to clearing the render target and depth/stencil buffer. However, the “ATI Radeon HD 2000 Programming Guide” (http://developer.amd.com/media/ gpu_assets/ATI_Radeon_HD_2000_programming_guide.pdf) now advises against this for the following reasons. First, the depth/stencil buffer needs to be explicitly cleared for internal hardware depth optimizations to perform well. The situation is similar with render targets. Second, typically most of the sky is occluded by other geometry such as buildings and terrain. Therefore, if we draw the sky first, then we are wasting resources by drawing pixels that will only get overridden later by geometry closer to the camera. Therefore, it is now recommended to always clear, and to draw the sky last. 
+In the past, applications would draw the sky first and use it as a replacement to clearing the render target and depth/stencil buffer. However, the 鈥淎TI Radeon HD 2000 Programming Guide鈥?(http://developer.amd.com/media/ gpu_assets/ATI_Radeon_HD_2000_programming_guide.pdf) now advises against this for the following reasons. First, the depth/stencil buffer needs to be explicitly cleared for internal hardware depth optimizations to perform well. The situation is similar with render targets. Second, typically most of the sky is occluded by other geometry such as buildings and terrain. Therefore, if we draw the sky first, then we are wasting resources by drawing pixels that will only get overridden later by geometry closer to the camera. Therefore, it is now recommended to always clear, and to draw the sky last. 
 
 Drawing the sky requires different shader programs, and hence a new PSO. Therefore, we draw the sky as a separate layer in our drawing code: 
 
@@ -207,7 +209,7 @@ if( gReflectionsEnabled )
 { TextureCube gCubeMap $=$ ResourceDescriptorHeap[gSkyBoxIndex]; float3 r $=$ reflect(-toEyeW,bumpedNormalW); float4 reflectionColor $=$ gCubeMap/sample(GetLinearWrapSampler(), r); float3 fresnelFactor $=$ SchlickFresnel(fresnelR0,bumpedNormalW,r); litColor.rgb $+ =$ ambientAccess\*shininess \* fresnelFactor \* reflectionColor.rgb;   
 } 
 
-Because we are talking about reflections, we need to apply the Fresnel effect, which determines how much light is reflected from the environment into the eye based on the material properties of the surface and the angle between the light vector (reflection vector) and normal. In addition, we scale the amount of reflection based on the shininess of the material—a rough material should have a low amount of reflection, but still some reflection. Another new component we introduce is the additional glossHeightAo.x factor, which provides another way to scale the shininess, but coming from a texture. This is to obtain per-texel granularity to control the shininess. 
+Because we are talking about reflections, we need to apply the Fresnel effect, which determines how much light is reflected from the environment into the eye based on the material properties of the surface and the angle between the light vector (reflection vector) and normal. In addition, we scale the amount of reflection based on the shininess of the material鈥攁 rough material should have a low amount of reflection, but still some reflection. Another new component we introduce is the additional glossHeightAo.x factor, which provides another way to scale the shininess, but coming from a texture. This is to obtain per-texel granularity to control the shininess. 
 
 Figure 18.6 shows that reflections via environment mapping do not work well for flat surfaces. 
 
@@ -405,7 +407,7 @@ XMFLOAT3 targets[6] = {
 ```
 
 XMFLOAT3(x, y, z - 1.0f) // -Z   
-}；   
+}锛?  
 // Use world up vector (0,1,0) for all directions except $+Y / - Y$ // In these cases, we are looking down $+Y$ or $-Y$ , so we need   
 // a different "up" vector.   
 XMFLOAT3 ups[6] = { XMFLOAT3(0.0f, 1.0f, 0.0f), // +X XMFLOAT3(0.0f, 1.0f, 0.0f), // -X XMFLOAT3(0.0f, 0.0f, -1.0f), // +Y XMFLOAT3(0.0f, 0.0f, +1.0f), // -Y XMFLOAT3(0.0f, 1.0f, 0.0f), // +Z XMFLOAT3(0.0f, 1.0f, 0.0f) // -Z   
@@ -416,7 +418,7 @@ for(int i = 0; i < 6; ++i) { mCubeMapCamera[i].LookAt(center, targets[i], ups[i]
 Because rendering to each cube map face utilizes a different camera, each cube face needs its own set of PassConstants. This is easy enough, as we just increase our PassConstants count by six when we create our frame resources. 
 
 void DynamicCubeMap::BuildFrameResources()   
-{ constexpr UINT mainPassCount $= 1$ . constexpr UINT cubeMapPassCount $= 6$ constexpr UINT passCount $=$ mainPassCount $^+$ cubeMapPassCount; for(int $\mathrm{i} = 0$ ;i $<$ gNumFrameResources; ++i) { mFrameResources.push_back( std::make_unique<FrameResource>(md3dDevice.Get(), passCount， (UINT)mAllRItems.size(), MaterialLib::GetLib().GetMaterialCount()); }   
+{ constexpr UINT mainPassCount $= 1$ . constexpr UINT cubeMapPassCount $= 6$ constexpr UINT passCount $=$ mainPassCount $^+$ cubeMapPassCount; for(int $\mathrm{i} = 0$ ;i $<$ gNumFrameResources; ++i) { mFrameResources.push_back( std::make_unique<FrameResource>(md3dDevice.Get(), passCount锛?(UINT)mAllRItems.size(), MaterialLib::GetLib().GetMaterialCount()); }   
 } 
 
 Element 0 will correspond to our main rendering pass, and elements 1-6 will correspond to our cube map faces. 
@@ -435,7 +437,7 @@ void DynamicCubeMapApp::UpdateCubeMapFacePassCBs()
 
 XMMatrix view $=$ mCubeMapCamera[i].GetView(); XMMatrix proj $=$ mCubeMapCamera[i].GetProj();   
 XMMatrix viewProj $=$ XMMatrixMultiply_view,proj); XMMatrix invView $=$ XMMatrixInverse(&XMMatrixDeterminant.view), view); XMMatrix invProj $=$ XMMatrixInverse(&XMMatrixDeterminant(proj), proj); XMMatrix invViewProj $=$ XMMatrixInverse(&XMMatrixDeterminant.view Proj),viewProj);   
-XMStoreFloat4x4(&cubeFacePassCB.View,XMMatrixTranspose/view)); XMStoreFloat4x4(&cubeFacePassCB.InvView, XMMatrixTranspose(微观))； XMStoreFloat4x4(&cubeFacePassCB.Proj,XMMatrixTranspose(proj)); XMStoreFloat4x4(&cubeFacePassCB.InvProj, XMMatrixTranspose(微观))； XMStoreFloat4x4(&cubeFacePassCB.ViewProj, XMMatrixTranspose(微观))； XMStoreFloat4x4(&cubeFacePassCB.InvProj,XMMatrixTranspose(微观))； cubeFacePassCB.EyePosW $=$ mCubeMapCamera[i].GetPosition3f(); cubeFacePassCBRenderTargetSize $\equiv$ XMFLOAT2((float)CubeMapSize,(float)CubeMapSize); cubeFacePassCB.InvRenderTargetSize $\equiv$ XMFLOAT2(1.0f/CubeMapSize,1.0f/CubeMapSize); auto currPassCB $=$ mCurrFrameResource->PassCB.get(); // Cube map pass cbuffers are stored in elements 1-6. currPassCB->CopyData(1+i,cubeFacePassCB); 
+XMStoreFloat4x4(&cubeFacePassCB.View,XMMatrixTranspose/view)); XMStoreFloat4x4(&cubeFacePassCB.InvView, XMMatrixTranspose(寰))锛?XMStoreFloat4x4(&cubeFacePassCB.Proj,XMMatrixTranspose(proj)); XMStoreFloat4x4(&cubeFacePassCB.InvProj, XMMatrixTranspose(寰))锛?XMStoreFloat4x4(&cubeFacePassCB.ViewProj, XMMatrixTranspose(寰))锛?XMStoreFloat4x4(&cubeFacePassCB.InvProj,XMMatrixTranspose(寰))锛?cubeFacePassCB.EyePosW $=$ mCubeMapCamera[i].GetPosition3f(); cubeFacePassCBRenderTargetSize $\equiv$ XMFLOAT2((float)CubeMapSize,(float)CubeMapSize); cubeFacePassCB.InvRenderTargetSize $\equiv$ XMFLOAT2(1.0f/CubeMapSize,1.0f/CubeMapSize); auto currPassCB $=$ mCurrFrameResource->PassCB.get(); // Cube map pass cbuffers are stored in elements 1-6. currPassCB->CopyData(1+i,cubeFacePassCB); 
 
 # 18.5.8 Drawing into the Cube Map
 
@@ -495,7 +497,7 @@ mCommandList->>ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentB
 
 # 18.6 DYNAMIC CUBE MAPS WITH THE GEOMETRY SHADER
 
-In the previous section, we redrew the scene six times to generate the cube map— once for each cube map face. Draw calls are not free, and we should work to minimize them. There is a Direct3D 10 sample called “CubeMapGS,” which uses the geometry shader to render a cube map by drawing the scene only once. In this section, we highlight the main ideas of how this sample works. Note that even though we show the Direct3D 10 code, the same strategy can be used in Direct3D 12 and porting the code is straightforward. 
+In the previous section, we redrew the scene six times to generate the cube map鈥?once for each cube map face. Draw calls are not free, and we should work to minimize them. There is a Direct3D 10 sample called 鈥淐ubeMapGS,鈥?which uses the geometry shader to render a cube map by drawing the scene only once. In this section, we highlight the main ideas of how this sample works. Note that even though we show the Direct3D 10 code, the same strategy can be used in Direct3D 12 and porting the code is straightforward. 
 
 First, it creates a render target view to the entire texture array (not each individual face texture): 
 
@@ -564,20 +566,20 @@ void GS_CubeMap( triangle GS_CUBEMAP_IN input[3],
 } 
 ```
 
-output.Tex $\equiv$ input[v].Tex; CubeMapStream.Addend(output）; } CubeMapStream RestartStrip(); 1 
+output.Tex $\equiv$ input[v].Tex; CubeMapStream.Addend(output锛? } CubeMapStream RestartStrip(); 1 
 
 Thus, we see that we have rendered the scene to each cube map face by rendering the scene only once instead of six times. 
 
 ![](images/86b411c8accf0858b717d81eb3c1607b0eee380a91fd56df1b42d405a304abd4.jpg)
 
 
-We have summarized the main idea of this sample, but refer to the “CubeMapGS” Direct3D 10 sample for the full source code to fill in any details. 
+We have summarized the main idea of this sample, but refer to the 鈥淐ubeMapGS鈥?Direct3D 10 sample for the full source code to fill in any details. 
 
 This strategy is interesting and demonstrates simultaneous render targets and the SV_RenderTargetArrayIndex system value; however, it is not a definite win. There are two issues that make this method unattractive: 
 
 1. It uses the geometry shader to output a large set of data. Recall from Chapter 12 that we mentioned the geometry shader acts inefficiently when outputting a large set of data. Therefore, using a geometry shader for this purpose could hurt performance. 
 
-2. In a typical scene, a triangle will not overlap more than one cube map face (see again Figure 18.9). Therefore, the act of replicating a triangle and rendering it onto each cube face when it will be clipped by five out of six of the faces is wasteful. Admittedly, our demo for this chapter also renders the entire scene to each cube map face for simplicity. However, in real applications (non-demo), we would use frustum culling (Chapter 16), and only render the objects visible to a particular cube map face. Frustum culling at the object level cannot be done by a geometry shader implementation. 
+2. In a typical scene, a triangle will not overlap more than one cube map face (see again Figure 18.9). Therefore, the act of replicating a triangle and rendering it onto each cube face when it will be clipped by five out of six of the faces is wasteful. Admittedly, our demo for this chapter also renders the entire scene to each cube map face for simplicity. However, in real applications (non-demo), we would use frustum culling (Chapter聽16), and only render the objects visible to a particular cube map face. Frustum culling at the object level cannot be done by a geometry shader implementation. 
 
 On the other hand, a situation where this strategy does work well would be rendering a mesh that surrounds the scene. For example, suppose that you had a dynamic sky system where the clouds moved and the sky color changed based on the time of day. Because the sky is changing, we cannot use a prebaked cube map texture to reflect the sky, so we have to use a dynamic cube map. Since the sky mesh surrounds the entire scene, it is visible by all six cube map faces. Therefore, the second bullet point above does not apply, and the geometry shader method could be a win by reducing draw calls from six to one, assuming usage of the geometry shader does not hurt performance too much. 
 
@@ -599,7 +601,7 @@ if(
 
 When Direct3D 12 first came out, this feature was not widely available, but at the time of this second edition printing, it should be common on modern cards that also support ray tracing. 
 
-So how does this help us? It means we can write this system value from a vertex shader. If we combine this with instancing, we can instance an object 6 times (one for each cube face), use the instance ID to index the cube face’s view and projection matrix, and then write the instance ID to the SV_ RenderTargetArrayIndex vertex attribute. Exercise 5 asks you to implement this technique. 
+So how does this help us? It means we can write this system value from a vertex shader. If we combine this with instancing, we can instance an object 6 times (one for each cube face), use the instance ID to index the cube face鈥檚 view and projection matrix, and then write the instance ID to the SV_ RenderTargetArrayIndex vertex attribute. Exercise 5 asks you to implement this technique. 
 
 With this method, you can also do object frustum culling on the CPU. For example, if, after frustum culling, an object is only visible to two cube map faces then you would instance the object only two times. However, now there is no longer a one-to-one relationship between the instance ID and the cube map face index, so you will need a mapping from the instance ID to the cube map face index. This could be an indirection array stored in a constant buffer or from an instance buffer (i.e., a buffer that stores instance data that varies per-instance). 
 
@@ -615,11 +617,11 @@ With this method, you can also do object frustum culling on the CPU. For example
 
 # 18.9 EXERCISES
 
-1. Experiment with different FresnelR0 and Roughness material values in the “Cube Map” demo. Also try to make the cylinders and box reflective. 
+1. Experiment with different FresnelR0 and Roughness material values in the 鈥淐ube Map鈥?demo. Also try to make the cylinders and box reflective. 
 
-2. Find six images that capture an environment (either find cube map images online or use a program like Terragen or https://skybox.blockadelabs.com/ to make them), and assemble them into a cube map using the texassemble tool. Test your cube map out in the “Cube Map” demo. 
+2. Find six images that capture an environment (either find cube map images online or use a program like Terragen or https://skybox.blockadelabs.com/ to make them), and assemble them into a cube map using the texassemble tool. Test your cube map out in the 鈥淐ube Map鈥?demo. 
 
-3. A dielectric is a transparent material that refracts light; see Figure 18.10. When a ray strikes a dielectric, some light reflects and some light refracts based on Snell’s Law of Refraction. The indices of refraction $n _ { 1 }$ and $n _ { 2 }$ determine how much the light bends: 
+3. A dielectric is a transparent material that refracts light; see Figure 18.10. When a ray strikes a dielectric, some light reflects and some light refracts based on Snell鈥檚 Law of Refraction. The indices of refraction $n _ { 1 }$ and $n _ { 2 }$ determine how much the light bends: 
 
 1. If $\mathbf { n } 1 = \mathbf { n } 2$ , then $\theta _ { 1 } = \theta _ { 2 }$ (no bending). 
 
@@ -640,15 +642,15 @@ The incident vector is the incoming light ray vector $\mathbf { \dot { v } } _ {
 Figure 18.10. The incident vector $\pmb { v } _ { 0 }$ travels through a medium with index of refraction $n _ { 1 }$ . The ray strikes a transparent material with index of refraction $n _ { 2 }$ , and refracts into the vector $\mathbf { v } _ { 1 }$ . We use the refracted vector $\pmb { v } _ { 1 }$ as a look up into the cube map. This is almost like alpha blending transparency, except alpha blending transparency does not bend the incident vector.
 
 
-parameter is the ratio of the indices of refraction $n _ { 1 } / n _ { 2 }$ . The index of refraction of a vacuum is 1.0; some other index of refactions: water—1.33; glass—1.51. For this exercise, modify the “Cube Map” demo to do refraction instead of reflection (see Figure 18.11); you may need to adjust the Material::Reflect values. Try out eta $= ~ 1 . 0$ , eta $= ~ 0 . 9 5$ , eta $\ c = ~ 0 . 9$ . 
+parameter is the ratio of the indices of refraction $n _ { 1 } / n _ { 2 }$ . The index of refraction of a vacuum is 1.0; some other index of refactions: water鈥?.33; glass鈥?.51. For this exercise, modify the 鈥淐ube Map鈥?demo to do refraction instead of reflection (see Figure 18.11); you may need to adjust the Material::Reflect values. Try out eta $= ~ 1 . 0$ , eta $= ~ 0 . 9 5$ , eta $\ c = ~ 0 . 9$ . 
 
 ![](images/b4c44736b97a6ace00bbc4743c32abcdfd75944dbc03af4ac9331ad4e6e99c57.jpg)
 
 
 
-Figure 18.11. “Cube Demo” with refraction instead of reflection.
+Figure 18.11. 鈥淐ube Demo鈥?with refraction instead of reflection.
 
 
 4. Just like with specular highlights from light sources, roughness will cause the specular reflections to spread out. Thus rougher surfaces will have blurry reflections as multiple samples from the environment map will average and scatter into the same direction into the eye. Research techniques for modeling blurry reflections with environment maps. 
 
-5. Reimplement the “DynamicCubeMap” demo using the technique described in $\$ 18.7$ . Check that your GPU supports this feature using the ID3D12Device ::CheckFeatureSupport API. If it is not supported, use the geometry shader technique described in $\$ 18.6$ . 
+5. Reimplement the 鈥淒ynamicCubeMap鈥?demo using the technique described in $\$ 18.7$ . Check that your GPU supports this feature using the ID3D12Device ::CheckFeatureSupport API. If it is not supported, use the geometry shader technique described in $\$ 18.6$ . 

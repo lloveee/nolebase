@@ -1,3 +1,5 @@
+﻿# Chapter 22 Quaternions
+
 # 22 Quaternions Chapter
 
 In Chapter 1, we introduced a new class of mathematical objects called vectors. In particular, we learned that a 3D vector consists of an ordered 3-tuple of real numbers, and we defined operators on vectors that are useful geometrically. Likewise, in Chapter 2 we introduced matrices, which are rectangular tables of real numbers with operations defined on them that are useful; for example, we saw how matrices can represent linear and affine transformations, and how matrix multiplication corresponds to transformation composition. In this chapter, we learn about another type of mathematical objects called quaternions. We will see that a unit quaternion can be used to represent a 3D rotation, and has convenient interpolation properties. For readers looking for a comprehensive treatment of quaternions (and rotations), we like the book devoted to the topic by [Kuipers99]. 
@@ -14,7 +16,7 @@ In Chapter 1, we introduced a new class of mathematical objects called vectors. 
 
 5. To learn how to interpolate between unit quaternions, and understand that this is geometrically equivalent to interpolating between 3D orientations. 
 
-6. To become familiar with the DirectX Math library’s quaternion functions and classes. 
+6. To become familiar with the DirectX Math library鈥檚 quaternion functions and classes. 
 
 # 22.1 REVIEW OF THE COMPLEX NUMBERS
 
@@ -142,7 +144,7 @@ An ordered 4-tuple of real numbers $\mathbf { q } = ( x , y , z , w ) = ( q _ { 
 
 3. $( \mathbf { u } , a ) ( \mathbf { v } , b ) = ( a \mathbf { v } + b \mathbf { u } + \mathbf { u } \times \mathbf { v } , a b - \mathbf { u } \cdot \mathbf { v } )$ 
 
-The definition of multiplication may seem “weird,” but these operations are definitions, so we can define them however we want—and this definition turns out to be useful. The definition of matrix multiplication may have seemed weird at first, but it turned out to be useful. 
+The definition of multiplication may seem 鈥渨eird,鈥?but these operations are definitions, so we can define them however we want鈥攁nd this definition turns out to be useful. The definition of matrix multiplication may have seemed weird at first, but it turned out to be useful. 
 
 Let $\mathbf { p } = ( \mathbf { u } , p _ { 4 } ) = ( p _ { 1 } , p _ { 2 } , p _ { 3 } , p _ { 4 } )$ and $\begin{array} { r } { \mathbf q = ( \mathbf v , q _ { 4 } ) = ( q _ { 1 } , q _ { 2 } , q _ { 3 } , q _ { 4 } ) } \end{array}$ . Then $\mathbf { u } \times \mathbf { v } { } = ( p _ { 2 } q _ { 3 } -$ $p _ { 3 } q _ { 2 } , p _ { 3 } q _ { 1 } - p _ { 1 } q _ { 3 } , p _ { 1 } q _ { 2 } - p _ { 2 } q _ { 1 } )$ and $\mathbf { u \cdot v } = p _ { 1 } q _ { 1 } + p _ { 2 } q _ { 2 } + p _ { 3 } q _ { 3 }$ . Now, in component form, the quaternion product $\mathbf { r } = \mathbf { p q }$ takes on the form: 
 
@@ -198,7 +200,7 @@ We relate real numbers, vectors (or points), and quaternions in the following wa
 
 In other words, any real number can be thought of as a quaternion with a zero vector part, and any vector can be thought of as a quaternion with zero real part. In particular, note that for the identity quaternion, $1 = ( 0 , 0 , 0 , 1 )$ . A quaternion with zero real part is called a pure quaternion. 
 
-Observe, using the definition of quaternion multiplication, that a real number times a quaternion is just “scalar multiplication” and it is commutative: 
+Observe, using the definition of quaternion multiplication, that a real number times a quaternion is just 鈥渟calar multiplication鈥?and it is commutative: 
 
 $$
 s \left(p _ {1}, p _ {2}, p _ {3}, p _ {4}\right) = (0, 0, 0, s) \left(p _ {1}, p _ {2}, p _ {3}, p _ {4}\right) = \left[ \begin{array}{l l l l} s & 0 & 0 & 0 \\ 0 & s & 0 & 0 \\ 0 & 0 & s & 0 \\ 0 & 0 & 0 & s \end{array} \right] \left[ \begin{array}{l} p _ {1} \\ p _ {2} \\ p _ {3} \\ p _ {4} \end{array} \right] = \left[ \begin{array}{l} s p _ {1} \\ s p _ {2} \\ s p _ {3} \\ s p _ {4} \end{array} \right]
@@ -282,7 +284,7 @@ Observe that if $\mathbf { q }$ is a unit quaternion, then $\left\| \mathbf { q 
 
 The following properties hold for the quaternion inverse: 
 
-1. ( ) q q − − = 1 1 
+1. ( ) q q 鈭?鈭?= 1 1 
 
 2. $\left( \mathbf { p } \mathbf { q } \right) ^ { - 1 } = \mathbf { q } ^ { - 1 } \mathbf { p } ^ { - 1 }$ 
 
@@ -331,10 +333,10 @@ The restriction of $\theta \in [ 0 , \pi ]$ is for when converting a quaternion 
 
 
 
-Figure 22.5. For a number y $\in [ - 1 , 1 ]$ there exists an angle $\theta$ such that y = cos θ
+Figure 22.5. For a number y $\in [ - 1 , 1 ]$ there exists an angle $\theta$ such that y = cos 胃
 
 
-to associate a unique angle with the quaternion ${ \bf q } = ( q _ { 1 } , q _ { 2 } , q _ { 3 } , q _ { 4 } )$ . Nothing stops us, however, from constructing a quaternion ${ \bf q } = ( s i n \ \theta { \bf n } , c o s \ \theta )$ from any angle θ, but observe that ${ \bf q } = ( s i n ( \theta + 2 \pi n ) { \bf n } , c o s ( \theta + 2 \pi n ) )$ for all integers n. So the quaternion does not have a unique polar representation without the angle restriction $\theta \in [ 0 , \pi ]$ . 
+to associate a unique angle with the quaternion ${ \bf q } = ( q _ { 1 } , q _ { 2 } , q _ { 3 } , q _ { 4 } )$ . Nothing stops us, however, from constructing a quaternion ${ \bf q } = ( s i n \ \theta { \bf n } , c o s \ \theta )$ from any angle 胃, but observe that ${ \bf q } = ( s i n ( \theta + 2 \pi n ) { \bf n } , c o s ( \theta + 2 \pi n ) )$ for all integers n. So the quaternion does not have a unique polar representation without the angle restriction $\theta \in [ 0 , \pi ]$ . 
 
 Observe that substituting $- \theta$ for $\theta$ is equivalent to negating the vector part of the quaternion: 
 
@@ -388,7 +390,7 @@ $$
 \mathbf {q p q} ^ {*} = \left(\left(w ^ {2} - \mathbf {u} \cdot \mathbf {u}\right) \mathbf {v} + 2 (\mathbf {u} \cdot \mathbf {v}) \mathbf {u} + 2 w (\mathbf {u} \times \mathbf {v}), 0\right) \tag {eq.22.1}
 $$
 
-Observe that this results in a vector or point since the real component is zero (which is necessary if this operator is to rotate a vector or point—it must evaluate to a vector or point). Therefore, in the subsequent equations, we drop the real component. 
+Observe that this results in a vector or point since the real component is zero (which is necessary if this operator is to rotate a vector or point鈥攊t must evaluate to a vector or point). Therefore, in the subsequent equations, we drop the real component. 
 
 Now, because q is a unit quaternion, it can be written as 
 
@@ -412,7 +414,7 @@ $$
 \begin{array}{l} \begin{array}{l} \mathbf {q p q} ^ {*} = (\cos^ {2} \theta - \sin^ {2} \theta) \mathbf {v} + 2 \sin^ {2} \theta (\mathbf {n} \cdot \mathbf {v}) \mathbf {n} + 2 \cos \theta \sin \theta (\mathbf {n} \times \mathbf {v}) \\ = \cos (2 \theta) \mathbf {v} + (1 - \cos (2 \theta)) (\mathbf {r} _ {\mathrm {x}} \cdot \mathbf {v}) \mathbf {r} _ {\mathrm {z}} + \sin (2 \theta) (\mathbf {r} _ {\mathrm {y}} \times \mathbf {v}) \end{array} \tag {eq.22.2} \\ = \cos (2 \theta) \mathbf {v} + (1 - \cos (2 \theta)) (\mathbf {n} \cdot \mathbf {v}) \mathbf {n} + \sin (2 \theta) (\mathbf {n} \times \mathbf {v}) \\ \end{array}
 $$
 
-Now, compare Equation 22.2 with the axis-angle rotation Equation 3.5 to see that this is just the rotation formula $\mathbf { R } _ { \mathbf { n } } ( \mathbf { v } )$ ; that is, it rotates the vector (or point) v about the axis n by an angle 2θ. 
+Now, compare Equation 22.2 with the axis-angle rotation Equation 3.5 to see that this is just the rotation formula $\mathbf { R } _ { \mathbf { n } } ( \mathbf { v } )$ ; that is, it rotates the vector (or point) v about the axis n by an angle 2胃. 
 
 $$
 \mathbf {R} _ {\mathbf {n}} (\mathbf {v}) = \cos \theta \mathbf {v} + (1 - \cos \theta) (\mathbf {n} \cdot \mathbf {v}) \mathbf {n} + \sin \theta (\mathbf {n} \times \mathbf {v})
@@ -424,7 +426,7 @@ $$
 \begin{array}{l} R _ {\mathbf {q}} (\mathbf {v}) = \mathbf {q} \mathbf {v} \mathbf {q} ^ {- 1} \\ = \mathbf {q} \mathbf {v} \mathbf {q} ^ {*} \tag {eq.22.3} \\ = \cos (2 \theta) \mathbf {v} + (1 - \cos (2 \theta)) (\mathbf {n} \cdot \mathbf {v}) \mathbf {n} + \sin (2 \theta) (\mathbf {n} \times \mathbf {v}) \\ \end{array}
 $$
 
-We have shown that the quaternion rotation operator $R _ { \mathbf { q } } \left( \mathbf { v } \right) = \mathbf { q v } \mathbf { q } ^ { - 1 }$ rotates a vector (or point) v about the axis n by an angle 2θ. 
+We have shown that the quaternion rotation operator $R _ { \mathbf { q } } \left( \mathbf { v } \right) = \mathbf { q v } \mathbf { q } ^ { - 1 }$ rotates a vector (or point) v about the axis n by an angle 2胃. 
 
 So suppose you are given an axis n and angle $\theta$ to rotate about the axis n. You construct the corresponding rotation quaternion by: 
 
@@ -432,7 +434,7 @@ $$
 \mathbf {q} = \left(\sin \left(\frac {\theta}{2}\right) \mathbf {n}, \cos \left(\frac {\theta}{2}\right)\right)
 $$
 
-Then apply the formula $R _ { \mathbf { q } } ( \mathbf { v } )$ . The division by 2 is to compensate for the 2θ because we want to rotate by the angle $\theta$ , not $2 \theta$ . 
+Then apply the formula $R _ { \mathbf { q } } ( \mathbf { v } )$ . The division by 2 is to compensate for the 2胃 because we want to rotate by the angle $\theta$ , not $2 \theta$ . 
 
 # 22.3.2 Quaternion Rotation Operator to Matrix
 
@@ -552,15 +554,15 @@ Because p and q are both unit quaternions, the product pq is also a unit quatern
 
 # 22.4 QUATERNION INTERPOLATION
 
-Since quaternions are 4-tuples of real numbers, geometrically, we can visualize them as 4D vectors. In particular, unit quaternions are 4D unit vectors that lie on the 4D unit sphere. With the exception of the cross product (which is only defined for 3D vectors), our vector math generalizes to 4-space—and even $n$ -space. Specifically, the dot product holds for quaternions. Let $\mathbf { p } = ( \mathbf { u } , s )$ and $\mathbf { q } = ( \mathbf { v } , t )$ , then: 
+Since quaternions are 4-tuples of real numbers, geometrically, we can visualize them as 4D vectors. In particular, unit quaternions are 4D unit vectors that lie on the 4D unit sphere. With the exception of the cross product (which is only defined for 3D vectors), our vector math generalizes to 4-space鈥攁nd even $n$ -space. Specifically, the dot product holds for quaternions. Let $\mathbf { p } = ( \mathbf { u } , s )$ and $\mathbf { q } = ( \mathbf { v } , t )$ , then: 
 
 $$
 \mathbf {p} \cdot \mathbf {q} = \mathbf {u} \cdot \mathbf {v} + s t = \| \mathbf {p} \| \| \mathbf {q} \| \cos \theta
 $$
 
-where $\theta$ is the angle between the quaternions. If the quaternions $\mathbf { p }$ and $\mathbf { q }$ are unit length, then $\mathbf { p } \cdot \mathbf { q } = \cos \theta$ . The dot product allows us to talk about the angle between two quaternions, as a measure of how “close” they are to each other on the unit sphere. 
+where $\theta$ is the angle between the quaternions. If the quaternions $\mathbf { p }$ and $\mathbf { q }$ are unit length, then $\mathbf { p } \cdot \mathbf { q } = \cos \theta$ . The dot product allows us to talk about the angle between two quaternions, as a measure of how 鈥渃lose鈥?they are to each other on the unit sphere. 
 
-For the purposes of animation, we want to interpolate from one orientation to another orientation. To interpolate quaternions, we want to interpolate on the arc of the unit sphere so that our interpolated quaternion is also a unit quaternion. To derive such a formula, consider Figure 22.6, where we want to interpolate between a to b by an angle tθ. We want to find weights $c _ { 1 }$ and $c _ { 2 }$ such that $\mathbf { p } = c _ { 1 } \mathbf { a } + c _ { 2 } \mathbf { b }$ , where $\left\| \dot { \mathbf { p } } \right\| = \left\| \mathbf { a } \right\| = \left\| \mathbf { b } \right\|$ . We setup two equations for the two unknowns as follows: 
+For the purposes of animation, we want to interpolate from one orientation to another orientation. To interpolate quaternions, we want to interpolate on the arc of the unit sphere so that our interpolated quaternion is also a unit quaternion. To derive such a formula, consider Figure 22.6, where we want to interpolate between a to b by an angle t胃. We want to find weights $c _ { 1 }$ and $c _ { 2 }$ such that $\mathbf { p } = c _ { 1 } \mathbf { a } + c _ { 2 } \mathbf { b }$ , where $\left\| \dot { \mathbf { p } } \right\| = \left\| \mathbf { a } \right\| = \left\| \mathbf { b } \right\|$ . We setup two equations for the two unknowns as follows: 
 
 $$
 \mathbf {a} \cdot \mathbf {p} = c _ {1} \mathbf {a} \cdot \mathbf {a} + c _ {2} \mathbf {a} \cdot \mathbf {b}
@@ -582,7 +584,7 @@ $$
 
 
 
-Figure 22.6. Interpolating along the 4D unit sphere from a to b by an angle tθ. The angle between a and b is $\theta$ , the angle between a and p is tθ, and the angle between p and b is $( 1 - t ) \theta$ .
+Figure 22.6. Interpolating along the 4D unit sphere from a to b by an angle t胃. The angle between a and b is $\theta$ , the angle between a and p is t胃, and the angle between p and b is $( 1 - t ) \theta$ .
 
 
 This yields the matrix equation: 
@@ -591,7 +593,7 @@ $$
 \left[ \begin{array}{c c} 1 & \cos (\theta) \\ \cos (\theta) & 1 \end{array} \right] \left[ \begin{array}{c} c _ {1} \\ c _ {2} \end{array} \right] = \left[ \begin{array}{c} \cos (t \theta) \\ \cos ((1 - t) \theta) \end{array} \right]
 $$
 
-Consider the matrix equation $\mathbf { A } \mathbf { x } = \mathbf { b }$ , where A is invertible. Then Cramer’s Rule tells us that $\boldsymbol { x } _ { i } = \operatorname* { d e t } \mathbf { A } _ { i }$ /  A det , where $\mathbf { A } _ { i }$ is found by swapping the ith column vector in A with b. Therefore: 
+Consider the matrix equation $\mathbf { A } \mathbf { x } = \mathbf { b }$ , where A is invertible. Then Cramer鈥檚 Rule tells us that $\boldsymbol { x } _ { i } = \operatorname* { d e t } \mathbf { A } _ { i }$ /  A det , where $\mathbf { A } _ { i }$ is found by swapping the ith column vector in A with b. Therefore: 
 
 $$
 c _ {1} = \frac {\operatorname* {d e t} \left[ \begin{array}{c c} \cos (t \theta) & \cos (\theta) \\ \cos ((1 - t) \theta) & 1 \end{array} \right]}{\operatorname* {d e t} \left[ \begin{array}{c c} 1 & \cos (\theta) \\ \cos (\theta) & 1 \end{array} \right]} = \frac {\cos (t \theta) - \cos (\theta) \cos ((1 - t) \theta)}{1 - \cos^ {2} (\theta)}
@@ -635,7 +637,7 @@ $$
 
 Thinking of unit quaternions as 4D unit vectors allows us to solve for the angle between the quaternions: $\theta = \operatorname { a r c c o s } ( \mathbf { a } \cdot \mathbf { b } )$ . 
 
-If θ, the angle between a and b is near zero, sinq is near zero, and the division can cause problems due to finite numerical precision. In this case, perform linear interpolation between the quaternions and normalize the result, which is actually a good approximation for small $\theta$ (see Figure 22.7). 
+If 胃, the angle between a and b is near zero, sinq is near zero, and the division can cause problems due to finite numerical precision. In this case, perform linear interpolation between the quaternions and normalize the result, which is actually a good approximation for small $\theta$ (see Figure 22.7). 
 
 Observe from Figure 22.8 that linear interpolation followed by projecting the interpolated quaternion back on to the unit sphere results in a nonlinear rate of rotation. Thus is you used linear interpolation for large angles, the speed of rotation will speed up and slow down. This effect is often undesirable, and one reason why spherical interpolation is preferred (which rotates at a constant speed). 
 
@@ -705,7 +707,7 @@ public static Quaternion Slerp(Quaternion p,Quaternion q,float s)
 
 # 22.5 DIRECTX MATH QUATERNION FUNCTIONS
 
-The DirectX math library supports quaternions. Because the “data” of a quaternion is four real numbers, DirectX math uses the XMVECTOR type for storing quaternions. Then some of the common quaternion functions defined are: 
+The DirectX math library supports quaternions. Because the 鈥渄ata鈥?of a quaternion is four real numbers, DirectX math uses the XMVECTOR type for storing quaternions. Then some of the common quaternion functions defined are: 
 
 // Returns the quaternion dot product $\mathbf{Q}_1\cdot \mathbf{Q}_2$ XMVECTOR XMQuaternionDot(XMVECTOR Q1, XMVECTOR Q2); 
 
@@ -720,7 +722,7 @@ The DirectX math library supports quaternions. Because the “data” of a quate
 XMVECTOR XMQuaternionNormalize(XMVECTOR Q); 
 ```
 
-//Computesthequaternionproduct $\mathbf{Q}_1\mathbf{Q}_2$ XMVECTORXMQuaternionMultiply(XMVECTORQ1，XMVECTORQ2); 
+//Computesthequaternionproduct $\mathbf{Q}_1\mathbf{Q}_2$ XMVECTORXMQuaternionMultiply(XMVECTORQ1锛孹MVECTORQ2); 
 
 ```cpp
 // Returns a quaternions from axis-angle rotation representation.  
@@ -728,7 +730,7 @@ XMVECTOR XMQuaternionRotationAxis(XMVECTOR Axis, FLOAT Angle);
 ```
 
 ```cpp
-// Returns a quaternions from axis-angle rotation representation, where the axis // vector is normalized—this is faster than XMQuaternionRotationAxis.  
+// Returns a quaternions from axis-angle rotation representation, where the axis // vector is normalized鈥攖his is faster than XMQuaternionRotationAxis.  
 XMVector XMQuaternionRotationNormal(XMVECTOR NormalAxis, FLOAT Angle); 
 ```
 
@@ -752,7 +754,7 @@ XMVECTOR XMQuaternionSlerp(XMVECTOR Q0, XMVECTOR Q1, FLOAT t);
 
 # 22.6 ROTATION DEMO
 
-For this chapter’s demo, we animate a skull mesh around a simple scene. The position, orientation, and scale of the mesh are animated. We use quaternions to represent the orientation of the skull, and use slerp to interpolate between orientations. We use linear interpolation to interpolate between position and scale. This demo also serves as an animation “warm up” to the next chapter on character animation. 
+For this chapter鈥檚 demo, we animate a skull mesh around a simple scene. The position, orientation, and scale of the mesh are animated. We use quaternions to represent the orientation of the skull, and use slerp to interpolate between orientations. We use linear interpolation to interpolate between position and scale. This demo also serves as an animation 鈥渨arm up鈥?to the next chapter on character animation. 
 
 A common form of animation is called key frame animation. A key frame specifies the position, orientation, and scale of an object at an instance in time. In our demo (in AnimationHelper.h/.cpp), we define the following key frame structure: 
 
@@ -780,7 +782,7 @@ struct BoneAnimation
 }; 
 ```
 
-The reason for using the term “bone” will be made clear in the next Chapter. For now, you can just think of animating a single bone as animating a single object. The method GetStartTime just returns the time of the first key frame. For example, maybe the object does not start animating until after ten seconds relative to some timeline. Similarly, the method GetEndTime returns the time of the last key frame. This is useful to know when the animation ends, and we can stop animating it. 
+The reason for using the term 鈥渂one鈥?will be made clear in the next Chapter. For now, you can just think of animating a single bone as animating a single object. The method GetStartTime just returns the time of the first key frame. For example, maybe the object does not start animating until after ten seconds relative to some timeline. Similarly, the method GetEndTime returns the time of the last key frame. This is useful to know when the animation ends, and we can stop animating it. 
 
 We now have a list of key frames, which define the rough overall look of the animation. So how will the animation look at time between the key frames? This is where interpolation comes in. For times $t$ between two key frames, say $K _ { i }$ and $K _ { i + 1 }$ , we interpolate between the two key frames $K _ { i }$ and $K _ { i + 1 }$ . 
 
@@ -831,7 +833,7 @@ XMStoreFloat4x4(&M, XMMatrixAffineTransformation(S, zero, Q, P));
 
 
 
-Figure 22.11. Key frame interpolation. The key frames define the “key” poses of the animation. The interpolated values represent the values between the key frames.
+Figure 22.11. Key frame interpolation. The key frames define the 鈥渒ey鈥?poses of the animation. The interpolated values represent the values between the key frames.
 
 
 ```cpp
@@ -912,7 +914,7 @@ The last step to get the animation working is to perform the interpolation to ge
 void QuatApp::UpdateScene(float dt)   
 { // Increase the time position. mAnimTimePos $+=$ dt; if(mAnimTimePos $>=$ mSkullAnimation.getTime()) { // Loop animation back to beginning. mAnimTimePos $= 0.0f$ . } // Get the skull's world matrix at this time instant. mSkullAnimation.Interpolate(mAnimTimePos, mSkullWorld); 
 
-The skull’s world matrix is now changing every frame in order to animate the skull. 
+The skull鈥檚 world matrix is now changing every frame in order to animate the skull. 
 
 # 22.7 SUMMARY
 
@@ -1016,7 +1018,7 @@ d. ${ \bf q } { \bf q } ^ { * } = { \bf q } ^ { * } { \bf q } = q _ { 1 } ^ { 2 
 
 e. $\left\| \mathbf { p q } \right\| = \left\| \mathbf { p } \right\| \left\| \mathbf { q } \right\|$ 
 
-17. Prove a ⋅ ${ \frac { \sin ( ( 1 - t ) \theta ) \mathbf { a } + \sin ( t \theta ) \mathbf { b } } { \sin \theta } } = \cos ( t \theta )$ algebraically. 
+17. Prove a 鈰?${ \frac { \sin ( ( 1 - t ) \theta ) \mathbf { a } + \sin ( t \theta ) \mathbf { b } } { \sin \theta } } = \cos ( t \theta )$ algebraically. 
 
 18. Let a, b, c be 3D vectors. Prove the identities: 
 

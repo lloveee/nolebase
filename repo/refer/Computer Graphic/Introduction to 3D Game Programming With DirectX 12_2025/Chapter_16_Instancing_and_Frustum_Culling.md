@@ -1,3 +1,5 @@
+﻿# Chapter 16 Instancing and Frustum Culling
+
 # Chapter
 
 # 16 Instancing and Frustum Cull ing
@@ -22,7 +24,7 @@ Instancing refers to drawing the same object more than once in a scene, but with
 
 3. A few different character models are drawn multiple times to build a crowd of people. 
 
-It would be wasteful to duplicate the vertex and index data for each instance. Instead, we store a single copy of the geometry (i.e., vertex and index lists) relative to the object’s local space. Then we draw the object several times, but each time with a different world matrix and a different material if additional variety is desired. 
+It would be wasteful to duplicate the vertex and index data for each instance. Instead, we store a single copy of the geometry (i.e., vertex and index lists) relative to the object鈥檚 local space. Then we draw the object several times, but each time with a different world matrix and a different material if additional variety is desired. 
 
 Although this strategy saves memory, it still requires per-object API overhead. That is, for each object, we must set its unique material, its world matrix, and invoke a draw command. Although Direct3D 12 was redesigned to minimize a lot of the API overhead that existed in Direct3D 11 when executing a draw call, there is still some overhead. The Direct3D instancing API allows you to instance an object multiple times with a single draw call; and moreover, with bindless heap indexing, instancing is more flexible than in Direct3D 11. 
 
@@ -185,7 +187,7 @@ std::vector< LPCWSTR> psDrawInstancedArgs = std::vector< LPCWSTR> {
 
 Note that we no longer use a per-object constant buffer if we are using instancing; the per-object data comes from the instance buffer. 
 
-The DefaultGeo.hlsl file contains our “default” vertex shader now, and the DefaultPS.hlsl contains our “default” pixel shader now. In other words, to avoid duplicating code, we are not going to introduce a new .hlsl file for each new feature we add to a shader. Instead, we have a “master/uber” shader and use constant 
+The DefaultGeo.hlsl file contains our 鈥渄efault鈥?vertex shader now, and the DefaultPS.hlsl contains our 鈥渄efault鈥?pixel shader now. In other words, to avoid duplicating code, we are not going to introduce a new .hlsl file for each new feature we add to a shader. Instead, we have a 鈥渕aster/uber鈥?shader and use constant 
 
 buffer variables to switch features on and off. Therefore, in DefaultGeo/DefaultPS. hlsl, you will see code that we have not discussed yet. Features will be turned off until they are covered in the book. For example, gShadowsEnabled is set to false in demos until Chapter 20, which covers shadow mapping. Also, the reason for splitting up the vertex shader from the pixel shader into separate files is that different vertex/geometry/domain/mesh shaders can be used with the same pixel shader. For example, in Chapter 19, we create a displacement mapped shader that uses hardware tessellation and ultimately a domain shader for vertex processing, but still uses DefaultPS.hlsl for shading pixels. 
 
@@ -223,7 +225,7 @@ struct RenderItem {
     ...
     std::vector<InstanceData> Instances;
     ...
-}； 
+}锛?
 ```
 
 For the GPU to consume the instance data, we need to create a structured buffer with element type InstanceData. Moreover, this buffer will be dynamic (i.e., an upload buffer) so that we can update it every frame; in our demo, we copy the instanced data of only the visible instances into the structure buffer (this is related to frustum culling, see $\ S 1 6 . 3$ ), and the set of visible instances will change as the camera moves/looks around. Creating a dynamic buffer is simple with our UploadBuffer helper class: 
@@ -254,7 +256,7 @@ Note that InstanceBuffer is not a constant buffer, so we specify false for the l
 
 # 16.2 BOUNDING VOLUMES AND FRUSTUMS
 
-In order to implement frustum culling, we need to become familiar with the mathematical representation of a frustum and various bounding volumes. Bounding volumes are primitive geometric objects that approximate the volume of an object—see Figure 16.1. The tradeoff is that although the bounding volume 
+In order to implement frustum culling, we need to become familiar with the mathematical representation of a frustum and various bounding volumes. Bounding volumes are primitive geometric objects that approximate the volume of an object鈥攕ee Figure 16.1. The tradeoff is that although the bounding volume 
 
 only approximates the object its form has a simple mathematical representation, which makes it easy to work with. 
 
@@ -315,7 +317,7 @@ $$
 \mathbf {e} = 0. 5 \left(\mathbf {v} _ {\max } - \mathbf {v} _ {\min }\right)
 $$
 
-The following code shows how we compute the bounding box of the skull mesh in this chapter’s demo: 
+The following code shows how we compute the bounding box of the skull mesh in this chapter鈥檚 demo: 
 
 XMFLOAT3 vMinf3(+MathHelper::Infinity, +MathHelper::Infinity, +MathHelper::Infinity);   
 XMFLOAT3 vMaxf3(-MathHelper::Infinity, -MathHelper::Infinity, -MathHelper::Infinity);   
@@ -342,7 +344,7 @@ $$
 
 Figure 16.4 shows that a box axis-aligned in one coordinate system may not be axis-aligned with a different coordinate system. In particular, if we compute the AABB of a mesh in local space, it gets transformed to an oriented bounding box (OBB) in world space. However, we can always transform into the local space of the mesh and do the intersection there where the box is axis-aligned. 
 
-Alternatively, we can recompute the AABB in the world space, but this can result in a “fatter” box that is a poorer approximation to the actual volume (see Figure 16.5). 
+Alternatively, we can recompute the AABB in the world space, but this can result in a 鈥渇atter鈥?box that is a poorer approximation to the actual volume (see Figure 16.5). 
 
 Yet another alternative is to abandon axis-aligned bounding boxes, and just work with oriented bounding boxes, where we maintain the orientation of the box relative to the world space. The DirectX collision library provides the following structure for representing an oriented bounding box. 
 
@@ -392,7 +394,7 @@ struct Basic32
 
 ```cpp
 XMFLOAT2TexC;   
-}； 
+}锛?
 ```
 
 And you have an array of vertices forming your mesh: 
@@ -451,7 +453,7 @@ void BoundingSphere::CreateFromPoints(
 
 # 16.2.4 Frustums
 
-We are well familiar with frustums from Chapter 5. One way to specify a frustum mathematically is as the intersection of six planes: the left/right planes, the top/ bottom planes, and the near/far planes. We assume the six frustum planes are “inward” facing—see Figure 16.6. 
+We are well familiar with frustums from Chapter 5. One way to specify a frustum mathematically is as the intersection of six planes: the left/right planes, the top/ bottom planes, and the near/far planes. We assume the six frustum planes are 鈥渋nward鈥?facing鈥攕ee Figure 16.6. 
 
 This six plane representation makes it easy to do frustum and bounding volume intersection tests. 
 
@@ -481,7 +483,7 @@ struct BoundingFrustum {
 
 In the local space of the frustum (e.g., view space for the camera), the Origin would be zero, and the Orientation would represent an identity transform (no rotation). We can position and orientate the frustum somewhere in the world by specifying an Origin position and Orientation quaternion. 
 
-If we cached the frustum vertical field of view, aspect ratio, near and far planes of our camera, then we can determine the frustum plane equations in view space with a little mathematical effort. However, it is also possible to derive the frustum plane equations in view space from the projection matrix in a number of ways (see [Lengyel02] or [Möller08] for two different ways). The XNA collision library takes the following strategy. In NDC space, the view frustum has been warped into the box $[ - 1 , 1 ] \times [ - 1 , 1 ] \times [ 0 , 1 ]$ . So the eight corners of the view frustum are simply: 
+If we cached the frustum vertical field of view, aspect ratio, near and far planes of our camera, then we can determine the frustum plane equations in view space with a little mathematical effort. However, it is also possible to derive the frustum plane equations in view space from the projection matrix in a number of ways (see [Lengyel02] or [M枚ller08] for two different ways). The XNA collision library takes the following strategy. In NDC space, the view frustum has been warped into the box $[ - 1 , 1 ] \times [ - 1 , 1 ] \times [ 0 , 1 ]$ . So the eight corners of the view frustum are simply: 
 
 ```c
 // Corners of the projection frustum in homogenous space.  
@@ -493,7 +495,7 @@ static XMVECTORF32 HomogeneousPoints[6] = {
 ```
 
 ```cpp
-{0.0f，0.0f，0.0f，1.0f}， //near{0.0f，0.0f，1.0f，1.0f} //far}; 
+{0.0f锛?.0f锛?.0f锛?.0f}锛?//near{0.0f锛?.0f锛?.0f锛?.0f} //far}; 
 ```
 
 We can compute the inverse of the projection matrix (as well is invert the homogeneous divide), to transform the eight corners from NDC space back to view space. One we have the eight corners of the frustum in view space, some simple mathematics is used to compute the plane equations (again, this is simple because in view space, the frustum is positioned at the origin, and axis aligned). The following DirectX collision code computes the frustum in view space from a projection matrix: 
@@ -559,7 +561,7 @@ The BoundingFrustum class provides the following member function to test if a sp
 
 
 
-(c）)
+(c锛?
 
 
 
@@ -602,7 +604,7 @@ Finding $P Q$ most aligned with the plane normal vector n can be done with the f
 
 
 
-(c）
+(c锛?
 
 
 
@@ -645,7 +647,7 @@ Figure 16.10. The objects bounded by volumes A and $D$ are completely outside th
 
 
 
-Figure 16.11. Screenshot of the “Instancing and Culling” demo.
+Figure 16.11. Screenshot of the 鈥淚nstancing and Culling鈥?demo.
 
 
 ```cpp
@@ -670,7 +672,7 @@ void InstancingAndCullingApp::UpdateInstanceData(const GameTimer& gt)
         // Perform the box/frustum intersection test in local space. 
 ```
 
-auto result $=$ localSpaceFrustum.Contains(e->Bounds); if(mFrustumCullingEnabled $\equiv$ false || result != DirectX::DISJOINT) { InstanceData data; XMStoreFloat4x4(&data.World, XMMatrixTranspose的世界)); XMStoreFloat4x4(&data.TexTransform, XMMatrixTranspose(t exTransform)); data.MaterialIndex $=$ instanceof[i].MaterialIndex; data.CubeMapIndex $=$ mSkyBindlessIndex; //Write the instance data to structured buffer for the //visible objects. currInstanceBuffer->CopyData(possibleInstanceCount++, data); } } e->InstanceCount $=$ visibleInstanceCount; std::wosingletonouts; outs.precision(6); outs<< L"Instancing and Culling Demo" << L" " $<  <   \mathrm{e - >}$ InstanceCount << L" objects visible out of" $<  <   \mathrm{e - >}$ Instances.size(); mMainWndCaption $=$ outs.str(); } 
+auto result $=$ localSpaceFrustum.Contains(e->Bounds); if(mFrustumCullingEnabled $\equiv$ false || result != DirectX::DISJOINT) { InstanceData data; XMStoreFloat4x4(&data.World, XMMatrixTranspose鐨勪笘鐣?); XMStoreFloat4x4(&data.TexTransform, XMMatrixTranspose(t exTransform)); data.MaterialIndex $=$ instanceof[i].MaterialIndex; data.CubeMapIndex $=$ mSkyBindlessIndex; //Write the instance data to structured buffer for the //visible objects. currInstanceBuffer->CopyData(possibleInstanceCount++, data); } } e->InstanceCount $=$ visibleInstanceCount; std::wosingletonouts; outs.precision(6); outs<< L"Instancing and Culling Demo" << L" " $<  <   \mathrm{e - >}$ InstanceCount << L" objects visible out of" $<  <   \mathrm{e - >}$ Instances.size(); mMainWndCaption $=$ outs.str(); } 
 
 When we build the instanced render-item, we assign each instance cycles through the materials in the material library in the following way: 
 
@@ -693,7 +695,7 @@ Figure 16.12 shows the performance difference between having frustum culling ena
 Figure 16.12. (Left) Frustum culling is turned off, and we are rendering all 3,375 instances; it takes about 33.33 ms to render a frame. (Right) Frustum culling is turned on, and we see that 163 out of 3,375 instances are visible, and our frame rate doubles.
 
 
-we can reject 60K triangles from even being sent to the graphics pipeline—this is the advantage of frustum culling and we see the difference in the frames per second. 
+we can reject 60K triangles from even being sent to the graphics pipeline鈥攖his is the advantage of frustum culling and we see the difference in the frames per second. 
 
 # 16.4 SUMMARY
 
@@ -707,7 +709,7 @@ The DirectXCollision.h library has structures representing bounding volumes, and
 
 # 16.5 EXERCISES
 
-1. Modify the “Instancing and Culling” demo to use bounding spheres instead of bounding boxes. 
+1. Modify the 鈥淚nstancing and Culling鈥?demo to use bounding spheres instead of bounding boxes. 
 
 2. The plane equations in NDC space take on a very simple form. All points inside the view frustum are bounded as follows: 
 
@@ -725,7 +727,7 @@ Here, the left plane is defined by $w = - x$ and the right plane is defined by $
 
 be a point in world space inside the frustum. Consider $( x _ { h } , y _ { h } , z _ { h } , w ) = \mathbf { v } \mathbf { M } =$ $( \mathbf { v } \cdot \mathbf { M } _ { * , 1 } , \mathbf { v } \cdot \mathbf { M } _ { * , 2 } , \mathbf { v } \cdot \mathbf { M } _ { * , 3 } , \mathbf { v } \cdot \mathbf { M } _ { * , 4 } )$ $\mathbf { v } \cdot \mathbf { M } _ { * , 2 }$ $\mathbf { v } \cdot \mathbf { M } _ { * , 3 }$ $\mathbf { v } \cdot \mathbf { M } _ { \ast , 4 } )$ to show that the inward facing frustum planes in world space are given by: 
 
-<table><tr><td>Left</td><td>0 = v · (M*,1, + M*,4)</td></tr><tr><td>Right</td><td>0 = v · (M*,4, - M*,1)</td></tr><tr><td>Bottom</td><td>0 = v · (M*,2, + M*,4)</td></tr><tr><td>Top</td><td>0 = v · (M*,4, - M*,2)</td></tr><tr><td>Near</td><td>0 = v · M*,3</td></tr><tr><td>Far</td><td>0 = v · (M*,4, - M*,3)</td></tr></table>
+<table><tr><td>Left</td><td>0 = v 路 (M*,1, + M*,4)</td></tr><tr><td>Right</td><td>0 = v 路 (M*,4, - M*,1)</td></tr><tr><td>Bottom</td><td>0 = v 路 (M*,2, + M*,4)</td></tr><tr><td>Top</td><td>0 = v 路 (M*,4, - M*,2)</td></tr><tr><td>Near</td><td>0 = v 路 M*,3</td></tr><tr><td>Far</td><td>0 = v 路 (M*,4, - M*,3)</td></tr></table>
 
 ![](images/9643dedd49ed107b6cfc35db22e0b42e1bd9c0fc7a4c52cdd55e18baffeac991.jpg)
 
@@ -740,7 +742,7 @@ c) The calculated plane normal vectors are not unit length; see Appendix C for h
 
 4. An OBB can be defined by a center point C, three orthonormal axis vectors $\mathbf { r } _ { 0 } , \mathbf { r } _ { 1 } ,$ , and $\mathbf { r } _ { 2 }$ defining the box orientation, and three extent lengths $a _ { 0 } , a _ { 1 } .$ , and $a _ { 2 }$ along the box axes $\mathbf { r } _ { 0 } , \mathbf { r } _ { 1 } ;$ and $\mathbf { r } _ { 2 } .$ , respectivey, that give the distance from the box center to the box sides. 
 
-a) Consider Figure 16.13 (which shows the situation in 2D) and conclude the projected “shadow” of the OBB onto the axis defined by the normal vector is $2 r _ { ; }$ , where 
+a) Consider Figure 16.13 (which shows the situation in 2D) and conclude the projected 鈥渟hadow鈥?of the OBB onto the axis defined by the normal vector is $2 r _ { ; }$ , where 
 
 $$
 r = \left| a _ {0} \mathbf {r} _ {0} \cdot \mathbf {n} \right| + \left| a _ {1} \mathbf {r} _ {1} \cdot \mathbf {n} \right| + \left| a _ {2} \mathbf {r} _ {2} \cdot \mathbf {n} \right|
@@ -757,3 +759,4 @@ d) An AABB is a special case of an OBB, so this test also works for an AABB. How
 
 
 Figure 16.13. Plane/OBB intersection setup
+

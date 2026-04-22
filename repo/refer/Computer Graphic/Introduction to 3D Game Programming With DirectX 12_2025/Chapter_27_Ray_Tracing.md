@@ -1,6 +1,8 @@
+﻿# Chapter 27 Ray Tracing
+
 # 27 Ray Tracing Chapter
 
-So far what we have been doing in this book is generically called rasterization. We define triangles in 3D space, project them on the screen, interpolate vertex attributes in a perspective-correct way, and then color the pixels. Ray tracing is an alternative approach, which has only recently received hardware acceleration support. With ray tracing, instead of projecting, we discretize the view window based on window resolution and cast one or more rays per pixel to “sample” the 3D world (see Figure 27.1). For each ray, we find the nearest intersection point, 
+So far what we have been doing in this book is generically called rasterization. We define triangles in 3D space, project them on the screen, interpolate vertex attributes in a perspective-correct way, and then color the pixels. Ray tracing is an alternative approach, which has only recently received hardware acceleration support. With ray tracing, instead of projecting, we discretize the view window based on window resolution and cast one or more rays per pixel to 鈥渟ample鈥?the 3D world (see Figure 27.1). For each ray, we find the nearest intersection point, 
 
 ![](images/83a4c436f87de34aa06437cfddf5bc4ac44f5adae386ceee530ae1f23f569d04.jpg)
 
@@ -11,7 +13,7 @@ Figure 27.1. The view window discretized into a grid. A ray cast from the eye th
 
 determine the surface attributes at the intersection point (e.g., normal and texture coordinates), and then generate a color. Some effects are more natural with ray tracing, such as reflections and shadows. 
 
-Some games have full ray traced renderers such as Portal with RTX. More popular large games already have a large investment in rasterization, but support hybrid ray tracing where a mix of rasterization and ray tracing is used. Although the ray tracing algorithm is old, real-time hardware accelerated ray tracing is relatively new, and it will take a while to determine what works and what does not. We use “RTX” to refer to the DirectX ray tracing API and system. 
+Some games have full ray traced renderers such as Portal with RTX. More popular large games already have a large investment in rasterization, but support hybrid ray tracing where a mix of rasterization and ray tracing is used. Although the ray tracing algorithm is old, real-time hardware accelerated ray tracing is relatively new, and it will take a while to determine what works and what does not. We use 鈥淩TX鈥?to refer to the DirectX ray tracing API and system. 
 
 # Chapter Objectives:
 
@@ -51,11 +53,11 @@ Figure 27.2. A line is shown on the left, and a ray is shown on the right.
 Figure 27.3. The numerical intersection point lies slightly beneath the real surface due to floatingpoint errors.
 
 
-similar to the “near” and “far” planes on the view frustum, respectively. The actual values used for $t _ { m i n }$ and $t _ { m a x }$ are scene dependent. In other words, you need to adjust them based on the scene. 
+similar to the 鈥渘ear鈥?and 鈥渇ar鈥?planes on the view frustum, respectively. The actual values used for $t _ { m i n }$ and $t _ { m a x }$ are scene dependent. In other words, you need to adjust them based on the scene. 
 
 # 27.1.2 View Rays
 
-With ray tracing, we discretize the view window based on window resolution and cast a ray through each pixel to “sample” the 3D world. For simplicity, let us only consider a scene with opaque objects. For each ray, we find the nearest point in the scene the ray intersects. We obtain the normal and texture coordinates at that point and use that information to shade the point the ray “sees.” This calculated shade becomes the pixel color for the corresponding ray. For a scene with transparent surfaces things are more complicated, and it would be handled by refraction (see $\ S 2 7 . 1 . 4 )$ . 
+With ray tracing, we discretize the view window based on window resolution and cast a ray through each pixel to 鈥渟ample鈥?the 3D world. For simplicity, let us only consider a scene with opaque objects. For each ray, we find the nearest point in the scene the ray intersects. We obtain the normal and texture coordinates at that point and use that information to shade the point the ray 鈥渟ees.鈥?This calculated shade becomes the pixel color for the corresponding ray. For a scene with transparent surfaces things are more complicated, and it would be handled by refraction (see $\ S 2 7 . 1 . 4 )$ . 
 
 There is nothing that forces us to cast rays into the scene only from the camera position through the view window. Given any position p and direction v, we can cast a ray $\mathbf { r } ( t ) = \mathbf { p } + t \mathbf { v }$ into the scene, find the point it intersects, and compute a color value that indicates what the point p sees in the direction v. This general way of thinking about ray casting is important for understanding reflections and refractions in the next two sections. 
 
@@ -63,7 +65,7 @@ There is nothing that forces us to cast rays into the scene only from the camera
 
 Some surfaces have mirror-like properties. For example, you can see reflections on a polished car. Adding mirror-like reflections to a ray tracer is quite simple; 
 
-Figure 27.4 shows the situation. Suppose the surface the point $\mathbf { e } _ { 1 }$ coincides with acts like a mirror to some degree. Due to the mirror properties, the eye at $\mathbf { e } _ { 0 }$ looking down the view ray $\mathbf { r } _ { 0 }$ toward $\mathbf { e } _ { 1 }$ sees what an eye positioned at $\mathbf { e } _ { 1 }$ looking down the reflected ray $\mathbf { r } _ { 1 }$ sees. Figuring out what an eye at $\mathbf { e } _ { 1 }$ sees looking down the ray $\mathbf { r } _ { 1 }$ is easy, as we just cast the ray $\mathbf { r } ( t ) = \mathbf { e } _ { 1 } + t \mathbf { r } _ { 1 }$ into the scene and shade the intersection point. 
+Figure聽27.4 shows the situation. Suppose the surface the point $\mathbf { e } _ { 1 }$ coincides with acts like a mirror to some degree. Due to the mirror properties, the eye at $\mathbf { e } _ { 0 }$ looking down the view ray $\mathbf { r } _ { 0 }$ toward $\mathbf { e } _ { 1 }$ sees what an eye positioned at $\mathbf { e } _ { 1 }$ looking down the reflected ray $\mathbf { r } _ { 1 }$ sees. Figuring out what an eye at $\mathbf { e } _ { 1 }$ sees looking down the ray $\mathbf { r } _ { 1 }$ is easy, as we just cast the ray $\mathbf { r } ( t ) = \mathbf { e } _ { 1 } + t \mathbf { r } _ { 1 }$ into the scene and shade the intersection point. 
 
 If many of the scene objects behave like mirrors, it is possible that the reflected ray will itself reflect off another mirror like surface. In this case, we then need to cast another reflection ray into the scene from $\mathbf { e } _ { 2 }$ in the reflected direction $\mathbf { r } _ { 2 }$ . This might seem complicated, but it is actually just recursively ray casting. The depth of the recursion can potentially become large, and not much is gained by following the reflection trail too deep. Therefore, it is common to set a maximum recursion depth for reflections. 
 
@@ -82,7 +84,7 @@ Figure 27.4. Ray traced reflections. The view ray $\mathbf { \boldsymbol { r } }
 
 # 27.1.4 Refraction
 
-A dielectric is a transparent material that refracts light (i.e., light can pass through the physical medium). Refraction is the reason why when you look through a glass cup, say on a table, the table behind it looks offset. Essentially, when a ray enters a new physical medium the speed of light changes, which causes a change in direction of the light ray. A typical surface will have both reflection and refraction, the amount being determined by the Fresnel equations. How light refracts from one medium to another is specified by Snell’s Law of Refraction. As mentioned, refraction occurs at the interface between a change of indices of refraction (i.e., a change in physical medium). Observe in Figure 27.5 that outside the block, the medium has an index of refraction $n _ { \mathrm { 1 : } }$ , and inside the block, the medium has an index of refraction $n _ { 2 }$ . The indices of refraction are physical constants based on the physical medium (e.g., air, water, and glass). 
+A dielectric is a transparent material that refracts light (i.e., light can pass through the physical medium). Refraction is the reason why when you look through a glass cup, say on a table, the table behind it looks offset. Essentially, when a ray enters a new physical medium the speed of light changes, which causes a change in direction of the light ray. A typical surface will have both reflection and refraction, the amount being determined by the Fresnel equations. How light refracts from one medium to another is specified by Snell鈥檚 Law of Refraction. As mentioned, refraction occurs at the interface between a change of indices of refraction (i.e., a change in physical medium). Observe in Figure 27.5 that outside the block, the medium has an index of refraction $n _ { \mathrm { 1 : } }$ , and inside the block, the medium has an index of refraction $n _ { 2 }$ . The indices of refraction are physical constants based on the physical medium (e.g., air, water, and glass). 
 
 The refract function (which is an intrinsic HLSL function) computes the refraction direction and has the following prototype: 
 
@@ -139,7 +141,7 @@ Consider Figure 27.6. We cast a ray r from the eye; it intersects a surface in t
 Figure 27.6. Note that the shadow ray is always directed in the same direction as the light vector. The point p is in shadow because its shadow ray intersects an object in the scene, whereas the point q is not in shadow because its shadow ray misses all objects in the scene.
 
 
-Figure 27.7 shows that if the shadow ray intersects a scene object, we must compare the distance $t _ { 0 }$ from $\mathbf { p }$ to the intersection point with the distance $d$ from p to the light source. If $t _ { 0 } > d$ , then the point is not really in shadow because the object lies behind the light source. Note that if the ray’s direction vector is of unit length, then the intersection parameter gives the distance from p to the intersection point. 
+Figure 27.7 shows that if the shadow ray intersects a scene object, we must compare the distance $t _ { 0 }$ from $\mathbf { p }$ to the intersection point with the distance $d$ from p to the light source. If $t _ { 0 } > d$ , then the point is not really in shadow because the object lies behind the light source. Note that if the ray鈥檚 direction vector is of unit length, then the intersection parameter gives the distance from p to the intersection point. 
 
 If the light source is a directional light (which is often used to model sun shadows), then it is infinitely far away, and we do not need to do this additional distance test. It is sufficient just to test if the shadow ray hits an object in the scene or not. 
 
@@ -155,19 +157,19 @@ Handling shadows with transparent objects is trickier. For example, consider Fig
 Figure 27.7. Comparing the intersection distance and the light distance from p
 
 
-only “partially” in shadow. Consequently, it should receive some light, but of a weaker intensity proportional to how transparent the object is. When several transparent objects line up and block the light, then each object successively weakens the light based on its transparency level. We do not implement this behavior, but it is an improvement that can be added to the ray tracer if desired. 
+only 鈥減artially鈥?in shadow. Consequently, it should receive some light, but of a weaker intensity proportional to how transparent the object is. When several transparent objects line up and block the light, then each object successively weakens the light based on its transparency level. We do not implement this behavior, but it is an improvement that can be added to the ray tracer if desired. 
 
 # 27.1.6 Ray/Object Intersection Examples
 
 One of the fundamental calculations of ray tracing is intersecting a ray with an object in the scene. Even though for game development we would primarily be interested in intersecting rays against triangle meshes, we should still know how to intersect rays against fundamental mathematical shapes. In the following subsections, we derive the formulas for intersecting a ray against various mathematical shapes. 
 
-When doing ray/object intersection tests, we transform the ray from view space to world space first. Then for each object, we transform the ray from world space to the object’s local space. We then do the ray/object intersection test in that local space. For an object O, let M be the matrix that transforms geometry from O’s local space to the world space. Then the matrix ${ { \bf { M } } ^ { - 1 } }$ transforms geometry from the world space to O’s local space. Let $\mathbf { r } ( t ) = \mathbf { p } + t \mathbf { v }$ be a ray relative to the world space, then that same ray relative to O’s local space is given by 
+When doing ray/object intersection tests, we transform the ray from view space to world space first. Then for each object, we transform the ray from world space to the object鈥檚 local space. We then do the ray/object intersection test in that local space. For an object O, let M be the matrix that transforms geometry from O鈥檚 local space to the world space. Then the matrix ${ { \bf { M } } ^ { - 1 } }$ transforms geometry from the world space to O鈥檚 local space. Let $\mathbf { r } ( t ) = \mathbf { p } + t \mathbf { v }$ be a ray relative to the world space, then that same ray relative to O鈥檚 local space is given by 
 
 $$
 \mathbf {r} ^ {\prime} (t) = \mathbf {M} ^ {- 1} \mathbf {r} (t) = \mathbf {M} ^ {- 1} \mathbf {p} + t \mathbf {M} ^ {- 1} \mathbf {v} = \mathbf {p} ^ {\prime} + t \mathbf {v} ^ {\prime}
 $$
 
-Observe from the equation above that $t$ remains invariant under the transformation from world space to local space (and vice-versa). That is, for some fixed $t _ { 0 } , \mathbf { r } ( t _ { 0 } ) = \mathbf { p } + t _ { 0 } \mathbf { v }$ is a point on the ray in world space. The same point relative to the local space is given by $\mathbf { r } ^ { \prime } ( t _ { 0 } ) = \mathbf { p } ^ { \prime } + t _ { 0 } \mathbf { v } ^ { \prime } .$ . In other words, the same parameter $t _ { 0 }$ works in either space. This works because when we apply ${ { \bf { M } } ^ { - 1 } }$ to v, the vector v gets stretched or compressed to account for any difference in scale between the two spaces. In particular, this means that if $t _ { 0 }$ is an intersection parameter corresponding to an intersection point, then $t _ { 0 }$ can be used in both world space and local space. That is, $\mathbf { r } ^ { \prime } ( t _ { 0 } )$ gives the intersection point relative to the local space, and $\mathbf { r } ( t _ { 0 } )$ gives the intersection point relative to the world space. (Note that for this to work, it is necessary to allow the direction vectors of the rays to be of non-unit length.) 
+Observe from the equation above that $t$ remains invariant under the transformation from world space to local space (and vice-versa). That is, for some fixed $t _ { 0 } , \mathbf { r } ( t _ { 0 } ) = \mathbf { p } + t _ { 0 } \mathbf { v }$ is a point on the ray in world space. The same point relative to the local space is given by $\mathbf { r } ^ { \prime } ( t _ { 0 } ) = \mathbf { p } ^ { \prime } + t _ { 0 } \mathbf { v } ^ { \prime } .$ . In other words, the same parameter $t _ { 0 }$ works in either space. This works because when we apply ${ { \bf { M } } ^ { - 1 } }$ to v, the vector聽v gets stretched or compressed to account for any difference in scale between the two spaces. In particular, this means that if $t _ { 0 }$ is an intersection parameter corresponding to an intersection point, then $t _ { 0 }$ can be used in both world space and local space. That is, $\mathbf { r } ^ { \prime } ( t _ { 0 } )$ gives the intersection point relative to the local space, and $\mathbf { r } ( t _ { 0 } )$ gives the intersection point relative to the world space. (Note that for this to work, it is necessary to allow the direction vectors of the rays to be of non-unit length.) 
 
 One of the advantages of this strategy is that the ray intersection test is simplified because the object takes on a simpler mathematical form relative to its local coordinate system than relative to the world coordinate system. For example, the ray-ellipsoid intersection test for an ellipsoid with arbitrary position and orientation in the world space is much more complicated than intersecting a ray with a unit sphere centered at the origin (see Figures 27.8 and 27.9). 
 
@@ -230,7 +232,7 @@ $$
 t = - \frac {p _ {y}}{v _ {y}}
 $$
 
-Thus, the ray/plane intersection point is $\mathbf { Q } = \mathbf { r } \left( - \frac { \hat { p } _ { y } } { \nu _ { y } } \right) = \mathbf { p } - \frac { \hat { p } _ { y } } { \nu _ { y } } \mathbf { v } .$ p v− p y . Now if $Q _ { x } \in \left[ - \frac { w } { 2 } , \frac { w } { 2 } \right]$ 2, and Q z ∈ $Q _ { z } \in \left[ - \frac { d } { 2 } , \frac { d } { 2 } \right] ,$ then the ray intersects the rectangle and v $\mathbf { Q }$ is the intersection point, otherwise the ray misses the rectangle. 
+Thus, the ray/plane intersection point is $\mathbf { Q } = \mathbf { r } \left( - \frac { \hat { p } _ { y } } { \nu _ { y } } \right) = \mathbf { p } - \frac { \hat { p } _ { y } } { \nu _ { y } } \mathbf { v } .$ p v鈭?p y . Now if $Q _ { x } \in \left[ - \frac { w } { 2 } , \frac { w } { 2 } \right]$ 2, and Q z 鈭?$Q _ { z } \in \left[ - \frac { d } { 2 } , \frac { d } { 2 } \right] ,$ then the ray intersects the rectangle and v $\mathbf { Q }$ is the intersection point, otherwise the ray misses the rectangle. 
 
 # 27.1.6.2 Ray/Cylinder
 
@@ -247,7 +249,7 @@ $$
 Figure 27.11. Ray/cylinder intersection
 
 
-In other words, the y-coordinate does not matter—a point is on the cylinder so long as its $( x , z )$ coordinates lie on the circle $x ^ { 2 } + z ^ { 2 } = r ^ { 2 }$ in the $_ { x z }$ -plane. Another way to think of the cylinder is by starting with the circle $x ^ { 2 } + z ^ { 2 } = r ^ { 2 }$ in the $x z$ -plane and then shifting it up and down to “sweep out” the cylinder. 
+In other words, the y-coordinate does not matter鈥攁 point is on the cylinder so long as its $( x , z )$ coordinates lie on the circle $x ^ { 2 } + z ^ { 2 } = r ^ { 2 }$ in the $_ { x z }$ -plane. Another way to think of the cylinder is by starting with the circle $x ^ { 2 } + z ^ { 2 } = r ^ { 2 }$ in the $x z$ -plane and then shifting it up and down to 鈥渟weep out鈥?the cylinder. 
 
 Plugging in the ray equation, component-by-component, into the equation of C leads to the following quadratic equation in $t \colon$ 
 
@@ -425,7 +427,7 @@ For the mathematics of the ray/triangle intersection test, refer to $\ S 1 7 . 3
 
 # 27.2 OVERVIEW OF THE RAY TRACING SHADERS
 
-For now, let us ignore the CPU side of the ray tracing API and focus on the shaders. GPU ray tracing introduces five new shaders. The example implementations of these shaders are from the demo “IntroRayTracing.” 
+For now, let us ignore the CPU side of the ray tracing API and focus on the shaders. GPU ray tracing introduces five new shaders. The example implementations of these shaders are from the demo 鈥淚ntroRayTracing.鈥?
 
 # 27.2.1 Ray Generation
 
@@ -490,7 +492,7 @@ uint missRayOffset $=$ COLOR_RAY_TYPE;
 TraceRay(gSceneTlas, RAY_FLAG_CULLBack_FACING_TRIANGLESS,   
 instanceMask, rayOffset, rayStride, missRayOffset, rayDesc, payload); 
 
-As the comment indicates, these IDs and stride are used to correctly index the shader binding table (§27.3) so that the ray can select the right hit/miss callback shaders. 
+As the comment indicates, these IDs and stride are used to correctly index the shader binding table (搂27.3) so that the ray can select the right hit/miss callback shaders. 
 
 ![](images/cf562672692cdbae367e702c636fdd7f2e72308a9fce0af0b919ae14d35fa951.jpg)
 
@@ -499,7 +501,7 @@ Casting a ray through each pixel is the typical pattern for drawing a scene with
 
 # 27.2.2 Intersection
 
-The intersection shader is used to write custom code to intersect geometry. DXR has built-in functionality for intersecting triangles, so we do not need to implement ray/triangle intersection code. (§27.6 will explain the demo that ray traces against triangles.) But for other shapes like spheres, cylinders, or other mathematical implicit surfaces, we have to write our own intersection shader that does the math. If a ray intersects the bounding box of a primitive, then the intersection shader is called. We have access to the ray and local constants of the geometry whose bounding box was intersected. From that, we intersection test the ray against the geometry, report a hit (unless the ray misses), and output any intersection attributes. Intersection attributes would be user-defined data we need to shade the pixel like the normal and texture-coordinates at the hit position. This data is propagated to the closest-hit and any-hit shaders. As with the ray payload 
+The intersection shader is used to write custom code to intersect geometry. DXR has built-in functionality for intersecting triangles, so we do not need to implement ray/triangle intersection code. (搂27.6 will explain the demo that ray traces against triangles.) But for other shapes like spheres, cylinders, or other mathematical implicit surfaces, we have to write our own intersection shader that does the math. If a ray intersects the bounding box of a primitive, then the intersection shader is called. We have access to the ray and local constants of the geometry whose bounding box was intersected. From that, we intersection test the ray against the geometry, report a hit (unless the ray misses), and output any intersection attributes. Intersection attributes would be user-defined data we need to shade the pixel like the normal and texture-coordinates at the hit position. This data is propagated to the closest-hit and any-hit shaders. As with the ray payload 
 
 data, the intersection attributes data structure should be kept as small as possible, such as 32-64 bytes or less, but not hundreds of bytes. 
 
@@ -572,7 +574,7 @@ We do not require an any hit shader in our ray tracing demos, but here is an exa
 void anyhit_main( inout MyPayload payload, in MyAttributes attr ) { 
 ```
 
-float3 hitLocation $=$ ObjectRayOrigin(） $^+$ ObjectRayDirection(）\* RayTCurrent(); float alpha $\equiv$ computeAlpha-hitLocation,attr，...); //Processing shadow and only care if a hit is registered? if(TerminateShadowRay(alpha)) AcceptHitAndEndSearch();//aborts function // Save alpha contribution and ignoring hit? if(SaveAndIgnore(payload，RayTCurrent(),alpha,attr，...) IgnoreHit); //aborts function //do something else //return to accept and update closest hit   
+float3 hitLocation $=$ ObjectRayOrigin(锛?$^+$ ObjectRayDirection(锛塡* RayTCurrent(); float alpha $\equiv$ computeAlpha-hitLocation,attr锛?..); //Processing shadow and only care if a hit is registered? if(TerminateShadowRay(alpha)) AcceptHitAndEndSearch();//aborts function // Save alpha contribution and ignoring hit? if(SaveAndIgnore(payload锛孯ayTCurrent(),alpha,attr锛?..) IgnoreHit); //aborts function //do something else //return to accept and update closest hit   
 1 
 
 # 27.2.4 Closest-Hit
@@ -790,14 +792,14 @@ const uint32_t shaderIdentifierSize = D3D12_SHADER_IDENTITY_SIZE_IN_BYTE;
 // Ray gen shader table   
 //   
 void* rayGenShaderIdentifier = stateObjectProperties->GetShaderIdentifier(RaygenShaderName); uint32_t numShaderRecords = 1;   
-uint32_t shaderRecordSize = shaderIdentifierSize; ShaderTable rayGenShaderTable(mdxrDevice, numShaderRecords, shaderRecordSize, L"RayGenShaderTable"); rayGenShaderTable.push_back(ShaderRecord( rayGenShaderIdentifier, shaderIdentifierSize)); mRayGenShaderTable = rayGenShaderTable资源共享();   
+uint32_t shaderRecordSize = shaderIdentifierSize; ShaderTable rayGenShaderTable(mdxrDevice, numShaderRecords, shaderRecordSize, L"RayGenShaderTable"); rayGenShaderTable.push_back(ShaderRecord( rayGenShaderIdentifier, shaderIdentifierSize)); mRayGenShaderTable = rayGenShaderTable璧勬簮鍏变韩();   
 //   
 // Miss Shader table: two entries, one for color rays and   
 // one for shadow rays.   
 //   
 void* colorMissShaderIdentifier = stateObjectProperties->GetShaderIdentifier(ColorMissShaderName);   
 void* shadowMissShaderIdentifier = stateObjectProperties->GetShaderIdentifier(ShadowMissShaderName); numShaderRecords = 2;   
-shaderRecordSize = shaderIdentifierSize; ShaderTable missShaderTable(mdxrDevice, numShaderRecords, shaderRecordSize, L"MissShaderTable"); missShaderTable.push_back(ShaderRecord( colorMissShaderIdentifier, shaderIdentifierSize)); missShaderTable.push_back(ShaderRecord( shadowMissShaderIdentifier, shaderIdentifierSize)); mMissShaderTableStrideInBytes = missShaderTable. GetShaderRecordSize(); mMissShaderTable = missShaderTable资源共享();   
+shaderRecordSize = shaderIdentifierSize; ShaderTable missShaderTable(mdxrDevice, numShaderRecords, shaderRecordSize, L"MissShaderTable"); missShaderTable.push_back(ShaderRecord( colorMissShaderIdentifier, shaderIdentifierSize)); missShaderTable.push_back(ShaderRecord( shadowMissShaderIdentifier, shaderIdentifierSize)); mMissShaderTableStrideInBytes = missShaderTable. GetShaderRecordSize(); mMissShaderTable = missShaderTable璧勬簮鍏变韩();   
 //   
 // Hit group shader table   
 //   
@@ -809,12 +811,12 @@ struct LocalRootArguments { uint32_t MaterialIndex;
 ```
 
 uint32_t PrimitiveType; XMFLOAT2 TexScale;   
-}；   
+}锛?  
 // Again, for simplicity, we assume in this demo that each   
 // instance only has one geometry. numShaderRecords $=$ RayCount \* mInstances.size(); shaderRecordSize $=$ shaderIdentifierSize + sizeof(LocalRootArguments); ShaderTable hitGroupShaderTable(mdxrDevice, numShaderRecords, shimmerRecordSize,L"HitGroupShaderTable");   
 // for each instance in the scene, add SBT entries for each   
 // ray type for each geometry (assumed 1 in our code).   
-for uint32_toodInstance $= 0$ ;instanceIndex $<$ mInstances.size(); ++instanceIndex) { for uint32_trayTypeIndex $= 0$ ;rayTypeIndex $<$ RayCount; ++rayTypeIndex) { // Use same root args for primary and shadow rays,but // could be different in general. LocalRootArguments rootArguments; rootArguments.MaterialIndex $=$ mInstances[instanceIndex]. MaterialIndex; rootArguments.PrimitiveType $=$ mInstances[instanceIndex]. PrimitiveType; rootArguments.TexScale $=$ mInstances[instanceIndex].TexScale; hitGroupShaderTable.push_back(ShaderRecord( hitGroupShaderIdentifier, shimmerIdentifierSize, &rootArguments, sizeof(LocalRootArguments))）; }   
+for uint32_toodInstance $= 0$ ;instanceIndex $<$ mInstances.size(); ++instanceIndex) { for uint32_trayTypeIndex $= 0$ ;rayTypeIndex $<$ RayCount; ++rayTypeIndex) { // Use same root args for primary and shadow rays,but // could be different in general. LocalRootArguments rootArguments; rootArguments.MaterialIndex $=$ mInstances[instanceIndex]. MaterialIndex; rootArguments.PrimitiveType $=$ mInstances[instanceIndex]. PrimitiveType; rootArguments.TexScale $=$ mInstances[instanceIndex].TexScale; hitGroupShaderTable.push_back(ShaderRecord( hitGroupShaderIdentifier, shimmerIdentifierSize, &rootArguments, sizeof(LocalRootArguments))锛? }   
 }   
 mHitGroupShaderTableStrideInBytes $=$ hitGroupShaderTable. GetShaderRecordSize(); mHitGroupShaderTable $=$ hitGroupShaderTable.GetResource(); 
 
@@ -832,7 +834,7 @@ Ray tracing has its own state object, which is its analog to a pipeline state ob
 
 3. The CD3DX12_RAYTRACING_SHADER_CONFIG_SUBOBJECT sub-object defines the number of bytes needed for the ray payload structures. Since we use multiple payload structures, we take the maximum byte size of them. 
 
-4. The CD3DX12_LOCAL_ROOT_SIGNATURE_SUBOBJECT sub-object configures the local root signature. We briefly discussed local root arguments in the previous section. The local root signature is like the root signatures we have been using thus far in the book, but they define additional “local” shader parameters whose arguments vary per shader table entry. In particular, this is how we pass per-object arguments. The data would be similar to per-object constants, except that the world transform is not needed because it is baked into the acceleration structure already. 
+4. The CD3DX12_LOCAL_ROOT_SIGNATURE_SUBOBJECT sub-object configures the local root signature. We briefly discussed local root arguments in the previous section. The local root signature is like the root signatures we have been using thus far in the book, but they define additional 鈥渓ocal鈥?shader parameters whose arguments vary per shader table entry. In particular, this is how we pass per-object arguments. The data would be similar to per-object constants, except that the world transform is not needed because it is baked into the acceleration structure already. 
 
 ```c
 struct LocalRootArguments
@@ -854,9 +856,9 @@ CD3DX12_ROOT_SIGNATURE_DESC rtLocalRootSigDesc(
 rtLocalRootSigDescFLAGS $\equiv$ D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOTSIGNATURE;   
 ComPtr<ID3DBlob> serializedRootSig $=$ nullptr;   
 ComPtr<ID3DBlob> errorBlob $=$ nullptr;   
-HRESULT hr $=$ D3D12SerializerRootSignature( &rtLocalRootSigDesc，D3D_ROOT_SIGNATURE_VERSION_1, serializedRootSig↘GetAddressOf(),errorBlob↘GetAddressOf()); 
+HRESULT hr $=$ D3D12SerializerRootSignature( &rtLocalRootSigDesc锛孌3D_ROOT_SIGNATURE_VERSION_1, serializedRootSig鈫楪etAddressOf(),errorBlob鈫楪etAddressOf()); 
 
-5. The CD3DX12_GLOBAL_ROOT_SIGNATURE_SUBOBJECT sub-object configures the global root signature, which is similar to the root signatures we have been using so far with the exception of per-object constants, which come from the local root signature. Here we would specify the scene constants, global material buffer, and, in the case of ray tracing, the acceleration structure (§27.5.2) that defines our scene geometry to DXR. 
+5. The CD3DX12_GLOBAL_ROOT_SIGNATURE_SUBOBJECT sub-object configures the global root signature, which is similar to the root signatures we have been using so far with the exception of per-object constants, which come from the local root signature. Here we would specify the scene constants, global material buffer, and, in the case of ray tracing, the acceleration structure (搂27.5.2) that defines our scene geometry to DXR. 
 
 ```cpp
 // Define shader parameters global to all ray-trace shaders.  
@@ -872,7 +874,7 @@ HRESULT hr = D3D12SerializerRootSignature(&rtGlobalRootSigDesc, D3D_ROOT_SIGNATU
 
 6. The CD3DX12_RAYTRACING_PIPELINE_CONFIG_SUBOBJECT sub-object is currently used to set the maximum recursion depth for ray tracing. This tells DXR how much stack space it needs to allocate to support the amount of recursion. This should be kept low, and only specify the what you actually need. In our demos, we specify 3. 
 
-The following code shows how we fill out the pipeline state in the “IntroRayTracing” demo. 
+The following code shows how we fill out the pipeline state in the 鈥淚ntroRayTracing鈥?demo. 
 
 ```c
 static constexpr wchar_t* HitGroupName = L"HitGroup0";  
@@ -939,7 +941,7 @@ Each instance in our scene is represented with the following structure:
 
 
 
-Figure 27.16. Screenshot from the “IntroRayTracing” demo. Each shape in the scene is procedurally ray traced—there are no triangle primitives in the scene. The center sphere is refractive, and the column spheres are reflective.
+Figure 27.16. Screenshot from the 鈥淚ntroRayTracing鈥?demo. Each shape in the scene is procedurally ray traced鈥攖here are no triangle primitives in the scene. The center sphere is refractive, and the column spheres are reflective.
 
 
 ```cpp
@@ -1092,7 +1094,7 @@ The following code puts things together to enqueue the work on the command queue
 // From Microsoft utility code "DirectXRayTracingHelper.h"   
 struct AccelerationStructureBuffers   
 { Microsoft::WRL::ComPtr<ID3D12Resource> scratch; Microsoft::WRL::ComPtr<ID3D12Resource> accelerationStructure; // Used only for top-level AS Microsoft::WRL::ComPtr<ID3D12Resource> instanceDesc; UINT64 ResultDataMaxSizeInBytes;   
-}；   
+}锛?  
 void ProceduralRayTracer::ExecuteBuildAccelerationStructureCommands( ID3D12CommandQueue* commandQueue)   
 { BuildShaderBindingTables(); AccelerationStructureBuffers primitiveBlas $=$ BuildPrimitiveBlas(); mdxrCmdList->ResourceBarrier(1, &CD3DX12RESOURCE_BARRIER::UAV( primitiveBlas.accelerationStructure.Get()); AccelerationStructureBuffers tlas $=$ BuildTlas( primitiveBlas.accelerationStructure->GetGPUVirtualAddress()); // Build acceleration structures on GPU and wait until it is done. ThrowIfFailed(mdxrCmdList->Close()); ID3D12CommandList\*commandLists[] $=$ { mdxrCmdList }; commandQueue->ExecuteCommandLists(ARRAYSIZE commandedLists), commandLists); // Need to finish building on GPU before / AccelerationStructureBuffers goes out / of scope. D3DApp::GetApp()->FlushCommandQueue(); // Building uses intermediate resources, but we only need to save / the final results for rendering. mPrimitiveBlas $=$ primitiveBlas.accelerationStructure; mSceneTlas $=$ tlas.accelerationStructure;   
 } 
@@ -1114,7 +1116,7 @@ This demo is more practical from a game development standpoint. We will ray trac
 
 
 
-Figure 27.17. Screenshot from the “HybridRayTracing” demo showing real-time local reflections. The bottom-right view shows the generated reflection map.
+Figure 27.17. Screenshot from the 鈥淗ybridRayTracing鈥?demo showing real-time local reflections. The bottom-right view shows the generated reflection map.
 
 
 # 27.6.1 Hybrid Strategy
@@ -1148,11 +1150,11 @@ UINT StartIndexLocation $= 0$ .
 UINT BaseVertexLocation $= 0$ .   
 UINT VertexSizeInBytes $= 0$ .   
 UINT IndexSizeInBytes $= 2$ ..   
-}； 
+}锛?
 
 One item that might be unexpected is the addition of the vertex/index bindless indices. With rasterization, we call IASetVertexBuffers and IASetIndexBuffer to bind the buffers used in the draw call. We do not have that with ray tracing. Instead, we create SRVs to the vertex and index buffers and store their corresponding heap index. Then in the SBT, we store the bindless indices and offsets for each entry in the local root arguments. 
 
-for uint32_tDUCTIndex $= 0$ ;instanceIndex $\text{一}$ mInstances.size(); ++instanceIndex)   
+for uint32_tDUCTIndex $= 0$ ;instanceIndex $\text{涓€}$ mInstances.size(); ++instanceIndex)   
 { for uint32_trayTypeIndex $= 0$ ;rayTypeIndex $<$ RayCount; ++rayTypeIndex) { LocalRootArguments rootArguments; const RTModelDef& model $=$ mModels[mInstances[instanceIndex]. ModelName]; rootArguments.MaterialIndex $=$ mInstances[instanceIndex]. MaterialIndex; rootArguments.VezteBufferBindlessIndex $=$ model. VertexBufferBindlessIndex; rootArguments.VezteBufferOffset $=$ model.BaseVertexLocation; rootArguments.IndexBufferBindlessIndex $=$ model. IndexBufferBindlessIndex; rootArguments.IndexBufferOffset $=$ model.StartIndexLocation; rootArguments.TexScale $=$ mInstances[instanceIndex].TexScale; hitGroupShaderTable.push_back(ShaderRecord( hitGroupShaderIdentifier, 
 
 ```javascript
@@ -1340,7 +1342,7 @@ float NdcDepthToViewDepth(float z_nde)
 
 [shader("raygeneration")]   
 void RaygenShader()   
-{ uint2 rayIndex $=$ DispatchRaysIndex().xy; uint2 imageSize $=$ DispatchRaysDimensions().xy; float2 screenPos $=$ rayIndex $+0.5\mathrm{f}$ //offset to pixel center. //Remap to NDC space[-1,1]. float2 posNdc $=$ (screenPos / imageSize) $\star 2.0\mathrm{f}-1.0\mathrm{f};$ posNdc.y $=$ -posNdc.y; // $^+$ yup //Transform NDC to view space. float4 rayDirV $=$ mul(float4(posNdc,0.0f,1.0f),gInvProj); rayDirV.xyz $=$ rayDirV.w; Texture2D depthMap $=$ ResourceDescriptorHeap[gSceneDepthMapIndex]; Texture2D normalMap $=$ ResourceDescriptorHeap[gSceneNormalMapIndex]; float depthNdc $=$ depthMap.Load(int3(index.x,rayIndex.y,0)).r; float3 bumpedNormalW $=$ normalMap.Load(int3(index.x,rayIndex.y, 0)).xyz; float4 result $=$ float4(0.0f,0.0f,0.0f,0.0f); float shadowFactor $= 1.0f$ . //Filter pixels that never got written. if(depthNdc<1.0f） { // // Reconstruct 3D world space position and normal. // float depthV $=$ NdcDepthToViewDepth(depthNdc); //Scale by t such that t\*rayDirV.z $=$ depthV float3 posV $=$ (depthV / rayDirV.z) \* rayDirV.xyz; float3 posW $=$ mul(float4(posV,1.0f)，gInvView).xyz; uint currentRecursionDepth $= 0$ ： //Cast primary shadow ray from reconstructed position. //Only the first light casts a shadow and we assume //it is a directional light. float3 lightVec $=$ -gLights[O].Direction; // Cast shadow ray. bool shadowRayHit $=$ CastShadowRay(posW,lightVec, currentRecursionDepth); shadowFactor $=$ shadowRayHit?0.0f:1.0f; 
+{ uint2 rayIndex $=$ DispatchRaysIndex().xy; uint2 imageSize $=$ DispatchRaysDimensions().xy; float2 screenPos $=$ rayIndex $+0.5\mathrm{f}$ //offset to pixel center. //Remap to NDC space[-1,1]. float2 posNdc $=$ (screenPos / imageSize) $\star 2.0\mathrm{f}-1.0\mathrm{f};$ posNdc.y $=$ -posNdc.y; // $^+$ yup //Transform NDC to view space. float4 rayDirV $=$ mul(float4(posNdc,0.0f,1.0f),gInvProj); rayDirV.xyz $=$ rayDirV.w; Texture2D depthMap $=$ ResourceDescriptorHeap[gSceneDepthMapIndex]; Texture2D normalMap $=$ ResourceDescriptorHeap[gSceneNormalMapIndex]; float depthNdc $=$ depthMap.Load(int3(index.x,rayIndex.y,0)).r; float3 bumpedNormalW $=$ normalMap.Load(int3(index.x,rayIndex.y, 0)).xyz; float4 result $=$ float4(0.0f,0.0f,0.0f,0.0f); float shadowFactor $= 1.0f$ . //Filter pixels that never got written. if(depthNdc<1.0f锛?{ // // Reconstruct 3D world space position and normal. // float depthV $=$ NdcDepthToViewDepth(depthNdc); //Scale by t such that t\*rayDirV.z $=$ depthV float3 posV $=$ (depthV / rayDirV.z) \* rayDirV.xyz; float3 posW $=$ mul(float4(posV,1.0f)锛実InvView).xyz; uint currentRecursionDepth $= 0$ 锛?//Cast primary shadow ray from reconstructed position. //Only the first light casts a shadow and we assume //it is a directional light. float3 lightVec $=$ -gLights[O].Direction; // Cast shadow ray. bool shadowRayHit $=$ CastShadowRay(posW,lightVec, currentRecursionDepth); shadowFactor $=$ shadowRayHit?0.0f:1.0f; 
 
 ```javascript
 // Cast primary reflection ray from reconstructed position. // float3 rayOriginW = gEyePosW; float3 rayDirW = normalize(posW - rayOriginW); float3 reflectionDirW = reflect(rayDirW, bumpedNormalW); float4 reflectionColor = CastColorRay(posW, reflectionDirW, currentRecursionDepth); result.rgb = reflectionColor.rgb; } RWTexture2D<float4> reflectionMap = ResourceDescriptorHeap[gReflectionMapUavIndex]; reflectionMap[rayIndex] = float4(result.rgb, shadowFactor); } 
@@ -1497,7 +1499,7 @@ When we fill out the D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS struct
 
 typedef   
 enum D3D12_RAYTRACING_ACCELERATIONSTRUCTURE Builds_FLAGS   
-{ D3D12_RAYTRACING_ACCELERATIONSTRUCTURE Builds_FLAG_NON $= 0$ ， D3D12_RAYTRACING_ACCELERATIONSTRUCTURE Builds_FLAG Allows_UPDATE $= 0\mathrm{x}1,$ （20 $D3D12\_ RAYTRACING\_ ACCELERATION\_ STRUCTURE\_ BUILD\_ FLAG\_ ALLOW\_ COMPACTION$ $= 0\times 2$ ， D3D12_RAYTRACING_ACCELERATIONSTRUCTURE Builds_FLAG}}>FREFAST_ TRACE $= 0\times 4$ ， D3D12_RAYTRACING_ACCELERATIONSTRUCTURE Builds_FLAG}>FREFAST_ BUILD $= 0\times 8$ 
+{ D3D12_RAYTRACING_ACCELERATIONSTRUCTURE Builds_FLAG_NON $= 0$ 锛?D3D12_RAYTRACING_ACCELERATIONSTRUCTURE Builds_FLAG Allows_UPDATE $= 0\mathrm{x}1,$ 锛?0 $D3D12\_ RAYTRACING\_ ACCELERATION\_ STRUCTURE\_ BUILD\_ FLAG\_ ALLOW\_ COMPACTION$ $= 0\times 2$ 锛?D3D12_RAYTRACING_ACCELERATIONSTRUCTURE Builds_FLAG}}>FREFAST_ TRACE $= 0\times 4$ 锛?D3D12_RAYTRACING_ACCELERATIONSTRUCTURE Builds_FLAG}>FREFAST_ BUILD $= 0\times 8$ 
 
 D3D12_RAYTRACING_ACCELERATIONSTRUCTURE Builds_FLAG_MINIMIZE_MEMORY $= 0\mathrm{x}10$ D3D12_RAYTRACING_ACCELERATIONSTRUCTURE Builds_FLAG_PERFORM_UPDATE $= 0\mathrm{x}20$ } D3D12_RAYTRACING_ACCELERATIONSTRUCTURE Builds_FLAGS; 
 
@@ -1539,7 +1541,7 @@ As noted earlier, to implement super sampling we need to cast several rays per p
 
 In the distribution ray tracing algorithm, we shoot multiple rays per pixel and average the contribution of each to get the final pixel color. Other than this, the rest of the ray tracer runs exactly the same way. However, we can take the idea of casting multiple rays and integrate it into other parts of the ray tracer to achieve other special effects. In particular, we now show how to achieve soft shadows. 
 
-Soft shadows arise from an area light source (see Figure $2 7 . 2 0 a )$ ). You can think of every point on an area light as being a point of light—so an area light is a collection of point lights packed densely together—thus every point on the area light emits a light ray in every direction. 
+Soft shadows arise from an area light source (see Figure $2 7 . 2 0 a )$ ). You can think of every point on an area light as being a point of light鈥攕o an area light is a collection of point lights packed densely together鈥攖hus every point on the area light emits a light ray in every direction. 
 
 Now, there are three ways to categorize a surface point with respect to an area light. 
 
@@ -1591,7 +1593,7 @@ However, random sampling suffers from the possibility that the random samples wi
 
 # 27.10 SUMMARY
 
-1. With ray tracing, we discretize the view window based on window resolution and cast a ray through each pixel to “sample” the 3D world. If we consider only opaque objects, for each ray, we find the nearest point in the scene the ray intersects. We obtain the normal and texture coordinates at that point and use that information to shade the point the ray “sees.” This calculated shade becomes the pixel color for the corresponding ray. 
+1. With ray tracing, we discretize the view window based on window resolution and cast a ray through each pixel to 鈥渟ample鈥?the 3D world. If we consider only opaque objects, for each ray, we find the nearest point in the scene the ray intersects. We obtain the normal and texture coordinates at that point and use that information to shade the point the ray 鈥渟ees.鈥?This calculated shade becomes the pixel color for the corresponding ray. 
 
 2. The ray generation shader is where we spawn our initial view rays. A typical thread in this shader casts a ray into the scene from the eye through its corresponding pixel in the output image. The miss shader is called for a ray if it does not intersect anything in the scene; usually, this is used to set a background color or sample a skybox. The any hit shader is called each time the ray hits geometry (not just the closest hit). The closest hit shader is called after all any hit shaders are executed. For opaque geometry, this shader indicates the point in the scene the eye sees, and so it is where we do our shading calculations that resemble what we typically do in a pixel shader. Finally, the intersection shader is used to implement custom ray/ shape intersection calculations. This is so that you can ray trace against custom shapes like spheres, cylinders, or other mathematically implicit surfaces. 
 

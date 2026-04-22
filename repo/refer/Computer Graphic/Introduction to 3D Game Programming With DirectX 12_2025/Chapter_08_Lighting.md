@@ -1,5 +1,7 @@
+﻿# Chapter 08 Lighting
+
 # Chapter 8 Lighting
-Consider Figure 8.1. On the left we have an unlit sphere, and on the right, we have a lit sphere. As you can see, the sphere on the left looks rather flat—maybe it is not even a sphere at all, but just a 2D circle! On the other hand, the sphere in the right does look 3D—the lighting and shading aid in our perception of the solid form and volume of the object. In fact, our visual perception of the world depends on light and its interaction with materials, and consequently, much of the problem of generating photorealistic scenes has to do with physically accurate lighting models. 
+Consider Figure 8.1. On the left we have an unlit sphere, and on the right, we have a lit sphere. As you can see, the sphere on the left looks rather flat鈥攎aybe it is not even a sphere at all, but just a 2D circle! On the other hand, the sphere in the right does look 3D鈥攖he lighting and shading aid in our perception of the solid form and volume of the object. In fact, our visual perception of the world depends on light and its interaction with materials, and consequently, much of the problem of generating photorealistic scenes has to do with physically accurate lighting models. 
 
 Of course, in general, the more accurate the model, the more computationally expensive it is; thus a balance must be reached between realism and speed. For example, 3D special FX scenes for films can be much more complex and utilize very realistic lighting models than a game because the frames for a film are 
 
@@ -12,7 +14,7 @@ Figure 8.1. (a) An unlit sphere looks 2D. (b) A lit sphere looks 3D.
 
 pre-rendered, so they can afford to take hours or days to process a frame. Games, on the other hand, are real-time applications, and therefore, the frames need to be drawn at a rate of at least 30 frames per second. 
 
-Note that the lighting model explained and implemented in this book is largely based off the one described in [Möller08]. 
+Note that the lighting model explained and implemented in this book is largely based off the one described in [M枚ller08]. 
 
 # Chapter Objectives:
 
@@ -20,7 +22,7 @@ Note that the lighting model explained and implemented in this book is largely b
 
 2. To understand the differences between local illumination and global illumination 
 
-3. To find out how we can mathematically describe the direction a point on a surface is “facing” so that we can determine the angle at which incoming light strikes the surface 
+3. To find out how we can mathematically describe the direction a point on a surface is 鈥渇acing鈥?so that we can determine the angle at which incoming light strikes the surface 
 
 4. To learn how to correctly transform normal vectors 
 
@@ -47,9 +49,9 @@ Figure 8.2. (a) Flux of incoming white light. (b) The light strikes the cylinder
 
 again absorbed and reflected. A light ray may strike many objects before it is fully absorbed. Presumably, some light rays eventually travel into the eye (see Figure 8.2) and strike the light receptor cells (named cones and rods) on the retina. 
 
-According to the trichromatic theory (see [Santrock03]), the retina contains three kinds of light receptors, each one sensitive to red, green, and blue light (with some overlap). The incoming RGB light stimulates its corresponding light receptors to varying intensities based on the strength of the light. As the light receptors are stimulated (or not), neural impulses are sent down the optic nerve toward the brain, where the brain generates an image in your head based on the stimulus of the light receptors. (Of course, if you close/cover your eyes, the receptor cells receive no stimulus and the brain registers this as black.) 
+According to the trichromatic theory (see [Santrock03]), the retina contains three kinds of light receptors, each one sensitive to red, green, and blue light (with some overlap). The incoming RGB light stimulates its corresponding light receptors to varying intensities based on the strength of the light. As the light聽receptors are stimulated (or not), neural impulses are sent down the optic nerve toward the brain, where the brain generates an image in your head based on the stimulus of the light receptors. (Of course, if you close/cover your eyes, the receptor cells receive no stimulus and the brain registers this as black.) 
 
-For example, consider Figure 8.2 again. Suppose that the material of the cylinder reflects $7 5 \%$ red light, $7 5 \%$ green light, and absorbs the rest, and the sphere reflects $2 5 \%$ red light and absorbs the rest. Also suppose that pure white light is being emitted from the light source. As the light rays strike the cylinder, all the blue light is absorbed and only $7 5 \%$ red and green light is reflected (i.e., a medium-high intensity yellow). This light is then scattered—some of it travels into the eye and some of it travels toward the sphere. The part that travels into the eye primarily stimulates the red and green cone cells to a semi-high degree; hence, the viewer sees the cylinder as a semi-bright shade of yellow. Now, the other light rays travel toward the sphere and strike it. The sphere reflects $2 5 \%$ red light and absorbs the rest; thus, the diluted incoming red light (medium-high intensity red) is diluted further and reflected, and all of the incoming green light is absorbed. This remaining red light then travels into the eye and primarily stimulates the red cone cells to a low degree. Thus the viewer sees the sphere as a dark shade of red. 
+For example, consider Figure 8.2 again. Suppose that the material of the cylinder reflects $7 5 \%$ red light, $7 5 \%$ green light, and absorbs the rest, and the sphere reflects $2 5 \%$ red light and absorbs the rest. Also suppose that pure white light is being emitted from the light source. As the light rays strike the cylinder, all the blue light is absorbed and only $7 5 \%$ red and green light is reflected (i.e., a medium-high intensity yellow). This light is then scattered鈥攕ome of it travels into the eye and some of it travels toward the sphere. The part that travels into the eye primarily stimulates the red and green cone cells to a semi-high degree; hence, the viewer sees the cylinder as a semi-bright shade of yellow. Now, the other light rays travel toward the sphere and strike it. The sphere reflects $2 5 \%$ red light and absorbs the rest; thus, the diluted incoming red light (medium-high intensity red) is diluted further and reflected, and all of the incoming green light is absorbed. This remaining red light then travels into the eye and primarily stimulates the red cone cells to a low degree. Thus the viewer sees the sphere as a dark shade of red. 
 
 The lighting models we (and most real-time applications) adopt in this book are called local illumination models. With a local model, each object is lit independently of another object, and only the light directly emitted from light sources is taken into account in the lighting process (i.e., light that has bounced off other scene objects to strikes the object currently being lit is ignored). Figure 8.3 shows a consequence of this model. 
 
@@ -64,9 +66,9 @@ On the other hand, global illumination models light objects by taking into consi
 
 # 8.2 NORMAL VECTORS
 
-A face normal is a unit vector that describes the direction a polygon is facing (i.e., it is orthogonal to all points on the polygon); see Figure 8.4a. A surface normal is a unit vector that is orthogonal to the tangent plane of a point on a surface; see Figure $8 . 4 b$ . Observe that surface normals determine the direction a point on a surface is “facing.” 
+A face normal is a unit vector that describes the direction a polygon is facing (i.e., it is orthogonal to all points on the polygon); see Figure 8.4a. A surface normal is a unit vector that is orthogonal to the tangent plane of a point on a surface; see Figure $8 . 4 b$ . Observe that surface normals determine the direction a point on a surface is 鈥渇acing.鈥?
 
-For lighting calculations, we need the surface normal at each point on the surface of a triangle mesh so that we can determine the angle at which light strikes the point on the mesh surface. To obtain surface normals, we specify the surface normals only at the vertex points (so-called vertex normals). Then, in order to obtain a surface normal approximation at each point on the surface of a triangle mesh, these vertex normals will be interpolated across the triangle during rasterization (recall §5.10.3 and see Figure 8.5). 
+For lighting calculations, we need the surface normal at each point on the surface of a triangle mesh so that we can determine the angle at which light strikes the point on the mesh surface. To obtain surface normals, we specify the surface normals only at the vertex points (so-called vertex normals). Then, in order to obtain a surface normal approximation at each point on the surface of a triangle mesh, these vertex normals will be interpolated across the triangle during rasterization (recall 搂5.10.3 and see Figure 8.5). 
 
 ![](images/527043b881cf9efcdfd35506ba89a37896a34394291cf42523d7a05ea41fcac9.jpg)
 
@@ -92,7 +94,7 @@ Interpolating the normal and doing lighting calculations per pixel is called pix
 
 # 8.2.1 Computing Normal Vectors
 
-To find the face normal of a triangle $\Delta { \bf p } _ { 0 } { \bf p } _ { 1 } { \bf p } _ { 2 }$ , we first compute two vectors that lie on the triangle’s edges: 
+To find the face normal of a triangle $\Delta { \bf p } _ { 0 } { \bf p } _ { 1 } { \bf p } _ { 2 }$ , we first compute two vectors that lie on the triangle鈥檚 edges: 
 
 $$
 \mathbf {u} = \mathbf {p} _ {1} - \mathbf {p} _ {0}
@@ -108,7 +110,7 @@ $$
 \mathbf {n} = \frac {\mathbf {u} \times \mathbf {v}}{\left| \left| \mathbf {u} \times \mathbf {v} \right| \right|}
 $$
 
-Below is a function that computes the face normal of the front side (§5.10.2) of a triangle from the three vertex points of the triangle. 
+Below is a function that computes the face normal of the front side (搂5.10.2) of a triangle from the three vertex points of the triangle. 
 
 ```cpp
 XMVECTOR ComputeNormal(FXMVECTOR p0, FXMVECTOR p1, FXMVECTOR p2)  
@@ -173,7 +175,7 @@ Consider Figure $8 . 7 a$ where we have a tangent vector $ { \mathbf { u } } =  
 
 So our problem is this: Given a transformation matrix A that transforms points and vectors (non-normal), we want to find a transformation matrix B that transforms normal vectors such that the transformed tangent vector is orthogonal to the transformed normal vector (i.e., $\mathbf { u A \cdot n B } = 0$ ). To do this, let us first start with something we know: we know that the normal vector n is orthogonal to the tangent vector u: 
 
-<table><tr><td>u·n = 0</td><td>Tangent vector orthogonal to normal vector</td></tr><tr><td>unT = 0</td><td>Rewriting the dot product as a matrix multiplication</td></tr><tr><td>u(AA-1)nT = 0</td><td>Inserting the identity matrix I = AA-1</td></tr><tr><td>(uA)(A-1nT) = 0</td><td>Associative property of matrix multiplication</td></tr><tr><td>(uA)((A-1nT)T) = 0</td><td>Transpose property (A^T)T = A</td></tr><tr><td>(uA)(n(A-1)^T)T = 0</td><td>Transpose property (AB)^T = B^T A^T</td></tr><tr><td>uA·n(A-1)^T = 0</td><td>Rewriting the matrix multiplication as a dot product</td></tr><tr><td>uA·nB = 0</td><td>Transformed tangent vector orthogonal to transformed normal vector</td></tr></table>
+<table><tr><td>u路n = 0</td><td>Tangent vector orthogonal to normal vector</td></tr><tr><td>unT = 0</td><td>Rewriting the dot product as a matrix multiplication</td></tr><tr><td>u(AA-1)nT = 0</td><td>Inserting the identity matrix I = AA-1</td></tr><tr><td>(uA)(A-1nT) = 0</td><td>Associative property of matrix multiplication</td></tr><tr><td>(uA)((A-1nT)T) = 0</td><td>Transpose property (A^T)T = A</td></tr><tr><td>(uA)(n(A-1)^T)T = 0</td><td>Transpose property (AB)^T = B^T A^T</td></tr><tr><td>uA路n(A-1)^T = 0</td><td>Rewriting the matrix multiplication as a dot product</td></tr><tr><td>uA路nB = 0</td><td>Transformed tangent vector orthogonal to transformed normal vector</td></tr></table>
 
 ![](images/a382965c4659ad8075497100c40a63797cc9d867482b0950cbd908d93039bfe2.jpg)
 
@@ -204,7 +206,7 @@ static XMMatrix InverseTranspose(CXMMatrix M)
 } 
 ```
 
-We clear out any translation from the matrix because we use the inverse-transpose to transform vectors, and translations only apply to points. However, from $\ S 3 . 2 . 1$ we know that setting $w = 0$ for vectors (using homogeneous coordinates) prevents vectors from being modified by translations. Therefore, we should not need to zero out the translation in the matrix. The problem is if we want to concatenate the inverse-transpose and another matrix that does not contain nonuniform scaling, say the view matrix ${ ( \mathbf { A } ^ { - 1 } ) ^ { T } } \mathbf { V }$ , the transposed translation in the fourth column of $( \mathbf { \dot { A } } ^ { - 1 } ) ^ { T }$ “leaks” into the product matrix causing errors. Hence, we zero out the translation as a precaution to avoid this error. The proper way would be to transform the normal by: $( ( \mathbf { A V } ) ^ { - 1 } ) ^ { T }$ . Below is an example of a scaling and translation matrix, and what the inverse-transpose looks like with a fourth column not $[ 0 , 0 , 0 , 1 ] ^ { T }$ : 
+We clear out any translation from the matrix because we use the inverse-transpose to transform vectors, and translations only apply to points. However, from $\ S 3 . 2 . 1$ we know that setting $w = 0$ for vectors (using homogeneous coordinates) prevents vectors from being modified by translations. Therefore, we should not need to zero out the translation in the matrix. The problem is if we want to concatenate the inverse-transpose and another matrix that does not contain nonuniform scaling, say the view matrix ${ ( \mathbf { A } ^ { - 1 } ) ^ { T } } \mathbf { V }$ , the transposed translation in the fourth column of $( \mathbf { \dot { A } } ^ { - 1 } ) ^ { T }$ 鈥渓eaks鈥?into the product matrix causing errors. Hence, we zero out the translation as a precaution to avoid this error. The proper way would be to transform the normal by: $( ( \mathbf { A V } ) ^ { - 1 } ) ^ { T }$ . Below is an example of a scaling and translation matrix, and what the inverse-transpose looks like with a fourth column not $[ 0 , 0 , 0 , 1 ] ^ { T }$ : 
 
 $$
 \mathbf {A} = \left[ \begin{array}{c c c c} 1 & 0 & 0 & 0 \\ 0 & 0. 5 & 0 & 0 \\ 0 & 0 & 0. 5 & 0 \\ 1 & 1 & 1 & 1 \end{array} \right]
@@ -230,13 +232,13 @@ Figure 8.9. Geometry of reflection.
 
 # 8.3 IMPORTANT VECTORS IN LIGHTING
 
-In this section, we summarize some important vectors involved with lighting. Referring to Figure 8.8, E is the eye position, and we are considering the point p the eye sees along the line of site defined by the unit vector v. At the point p the surface has normal n, and the point is hit by a ray of light traveling with incident direction I. The light vector L is the unit vector that aims in the opposite direction of the light ray striking the surface point. Although it may be more intuitive to work with the direction the light travels I, for lighting calculations we work with the light vector L; in particular, for calculating Lambert’s Cosine Law, the vector L is used to evaluate $\mathbf { L } \cdot \mathbf { n } = \cos \theta _ { i }$ , where $\theta _ { i }$ is the angle between L and n. The reflection vector r is the reflection of the incident light vector about the surface normal n. The view vector (or to-eye vector) ${ \bf \nabla v } =$ normalize $\left( \mathbf { E } - \mathbf { p } \right)$ is the unit vector from the surface point p to the eye point E that defines the line of site from the eye to the point on the surface being seen. Sometimes we need to use the vector $- \mathbf { v }$ , which is the unit vector from the eye to the point on the surface we are evaluating the lighting of. 
+In this section, we summarize some important vectors involved with lighting. Referring to Figure 8.8, E is the eye position, and we are considering the point p the eye sees along the line of site defined by the unit vector v. At the point p the surface has normal n, and the point is hit by a ray of light traveling with incident direction I. The light vector L is the unit vector that aims in the opposite direction of the light ray striking the surface point. Although it may be more intuitive to work with the direction the light travels I, for lighting calculations we work with the light vector L; in particular, for calculating Lambert鈥檚 Cosine Law, the vector L is used to evaluate $\mathbf { L } \cdot \mathbf { n } = \cos \theta _ { i }$ , where $\theta _ { i }$ is the angle between L and n. The reflection vector r is the reflection of the incident light vector about the surface normal n. The view vector (or to-eye vector) ${ \bf \nabla v } =$ normalize $\left( \mathbf { E } - \mathbf { p } \right)$ is the unit vector from the surface point p to the eye point E that defines the line of site from the eye to the point on the surface being seen. Sometimes we need to use the vector $- \mathbf { v }$ , which is the unit vector from the eye to the point on the surface we are evaluating the lighting of. 
 
 The reflection vector is given by: $\mathbf { r } = \mathbf { I } - 2 ( \mathbf { n } \cdot \mathbf { I } ) \mathbf { n }$ ;  see Figure 8.9. (It is assumed that n is a unit vector.) However, we can actually use the HLSL intrinsic reflect function to compute r for us in a shader program. 
 
 Observe that I, the incident vector, is the direction of the incoming light (i.e., opposite direction of the light vector L). 
 
-# 8.4 LAMBERT’S COSINE LAW
+# 8.4 LAMBERT鈥橲 COSINE LAW
 
 We can think of light as a collection of photons traveling through space in a certain direction. Each photon carries some (light) energy. The amount of (light) energy emitted per second is called radiant flux. The density of radiant flux per area (called irradiance) is important because that will determine how much light an 
 
@@ -244,18 +246,18 @@ We can think of light as a collection of photons traveling through space in a ce
 
 
 
-（a）
+锛坅锛?
 
 
 ![](images/023cfef574601b67879a4ff14ed7ce4186ce8666336667a381389d4ba7063e21.jpg)
 
 
 
-（b）
+锛坆锛?
 
 
 
-Figure 8.10. (a) A light beam with cross sectional area $A _ { 1 }$ strikes a surface head-on. (b) A light beam with cross sectional area $A _ { 1 }$ strikes a surface at an angle to cover a larger area $A _ { 2 }$ on the surface, thereby spreading the light energy over a larger area, thus making the light appear “dimmer.”
+Figure 8.10. (a) A light beam with cross sectional area $A _ { 1 }$ strikes a surface head-on. (b) A light beam with cross sectional area $A _ { 1 }$ strikes a surface at an angle to cover a larger area $A _ { 2 }$ on the surface, thereby spreading the light energy over a larger area, thus making the light appear 鈥渄immer.鈥?
 
 
 area on a surface receives (and thus how bright it will appear to the eye). Loosely, we can think of irradiance as the amount of light striking an area on a surface, or the amount of light passing through an imaginary area in space. 
@@ -272,7 +274,7 @@ $$
 E _ {2} = \frac {P}{A _ {2}} = \frac {P}{A _ {1}} \cos \theta = E _ {1} \cos \theta = E _ {1} (\mathbf {n} \cdot \mathbf {L})
 $$
 
-In other words, the irradiance striking area $A _ { 2 }$ is equal to the irradiance at the area $A _ { 1 }$ perpendicular to the light direction scaled by $\mathbf { n } \cdot \mathbf { L } = \cos \theta$ . This is called Lambert’s Cosine Law. To handle the case where light strikes the back of the surface (which results in the dot product being negative), we clamp the result with the max function: 
+In other words, the irradiance striking area $A _ { 2 }$ is equal to the irradiance at the area $A _ { 1 }$ perpendicular to the light direction scaled by $\mathbf { n } \cdot \mathbf { L } = \cos \theta$ . This is called Lambert鈥檚 Cosine Law. To handle the case where light strikes the back of the surface (which results in the dot product being negative), we clamp the result with the max function: 
 
 $$
 f (\theta) = \max  (\cos \theta , 0) = \max  (\mathbf {L} \cdot \mathbf {n}, 0)
@@ -308,7 +310,7 @@ $$
 
 Note that the diffuse albedo components must be in the range 0.0 to 1.0 so that they describe the fraction of light reflected. 
 
-The above formula is not quite correct, however. We still need to include Lambert’s cosine law (which controls how much of the original light the surface receives based on the angle between the surface normal and light vector). Let $\mathbf { B } _ { L }$ represent the quantity of incoming light, ${ \mathbf { m } } _ { d }$ be the diffuse albedo color, L be the light vector, and n be the surface normal. Then the amount of diffuse light reflected off a point is given by: 
+The above formula is not quite correct, however. We still need to include Lambert鈥檚 cosine law (which controls how much of the original light the surface receives based on the angle between the surface normal and light vector). Let $\mathbf { B } _ { L }$ represent the quantity of incoming light, ${ \mathbf { m } } _ { d }$ be the diffuse albedo color, L be the light vector, and n be the surface normal. Then the amount of diffuse light reflected off a point is given by: 
 
 $$
 \mathbf {c} _ {d} = \max  (\mathbf {L} \cdot \mathbf {n}, 0) \cdot \mathbf {B} _ {L} \otimes \mathbf {m} _ {d} \tag {eq.8.1}
@@ -324,7 +326,7 @@ $$
 \mathbf {c} _ {a} = \mathbf {A} _ {L} \otimes \mathbf {m} _ {d} \tag {eq.8.2}
 $$
 
-The color $\mathbf { A } _ { L }$ specifies the total amount of indirect (ambient) light a surface receives, which may be different than the light emitted from the source due to the absorption that occurred when the light bounced off other surfaces. The diffuse albedo ${ \mathbf { m } } _ { d }$ specifies the amount of incoming light that the surface reflects due to diffuse reflectance. We use the same value for specifying the amount of incoming ambient light the surface reflects; that is, for ambient lighting, we are modeling the diffuse reflectance of the indirect (ambient) light. All ambient light does is uniformly brighten up the object a bit—there is no real physics calculation at all. The idea is that the indirect light has scattered and bounced around the scene so many times that it strikes the object equally in every direction. 
+The color $\mathbf { A } _ { L }$ specifies the total amount of indirect (ambient) light a surface receives, which may be different than the light emitted from the source due to the absorption that occurred when the light bounced off other surfaces. The diffuse albedo ${ \mathbf { m } } _ { d }$ specifies the amount of incoming light that the surface reflects due to diffuse reflectance. We use the same value for specifying the amount of incoming ambient light the surface reflects; that is, for ambient lighting, we are modeling the diffuse reflectance of the indirect (ambient) light. All ambient light does is uniformly brighten up the object a bit鈥攖here is no real physics calculation at all. The idea is that the indirect light has scattered and bounced around the scene so many times that it strikes the object equally in every direction. 
 
 # 8.7 SPECULAR LIGHTING
 
@@ -337,7 +339,7 @@ We used diffuse lighting to model diffuse reflection, where light enters a mediu
 
 
 
-Figure 8.13. (a) The Fresnel effect for a perfectly flat mirror with normal n. The incident light I is split where some of it reflects in the reflection direction r and the remaining light refracts into the medium in the refraction direction t. All these vectors are in the same plane. The angle between the reflection vector and normal is always $\theta _ { i }$ , which is the same as the angle between the light vector ${ \bf L } = - { \bf I }$ and normal n. The angle $\theta _ { t }$ between the refraction vector and -n depends in the indices of refraction between the two mediums and is specified by Snell’s Law. (b) Most objects are not perfectly flat mirrors but have microscopic roughness. This causes the reflected and refracted light to spread about the reflection and refraction vectors.
+Figure 8.13. (a) The Fresnel effect for a perfectly flat mirror with normal n. The incident light I is split where some of it reflects in the reflection direction r and the remaining light refracts into the medium in the refraction direction t. All these vectors are in the same plane. The angle between the reflection vector and normal is always $\theta _ { i }$ , which is the same as the angle between the light vector ${ \bf L } = - { \bf I }$ and normal n. The angle $\theta _ { t }$ between the refraction vector and -n depends in the indices of refraction between the two mediums and is specified by Snell鈥檚 Law. (b) Most objects are not perfectly flat mirrors but have microscopic roughness. This causes the reflected and refracted light to spread about the reflection and refraction vectors.
 
 
 ![](images/9035eeb61776486bfec48b128129a6a0106a3a49adfdc2199abe5210f9d71055.jpg)
@@ -364,13 +366,13 @@ $$
 \mathbf {R} _ {F} (\theta_ {i}) = \mathbf {R} _ {F} (0 ^ {\circ}) + (1 - \mathbf {R} _ {F} (0 ^ {\circ})) (1 - \cos \theta_ {i}) ^ {5}
 $$
 
-${ \bf R } _ { F } ( 0 ^ { \circ } )$ is a property of the medium; below are some values for common materials [Möller08]: 
+${ \bf R } _ { F } ( 0 ^ { \circ } )$ is a property of the medium; below are some values for common materials [M枚ller08]: 
 
-<table><tr><td>Medium</td><td>RF(0°)</td></tr><tr><td>Water</td><td>(0.02, 0.02, 0.02)</td></tr><tr><td>Glass</td><td>(0.08, 0.08, 0.08)</td></tr><tr><td>Plastic</td><td>(0.05, 0.05, 0.05)</td></tr><tr><td>Gold</td><td>(1.0, 0.71, 0.29)</td></tr><tr><td>Silver</td><td>(0.95, 0.93, 0.88)</td></tr><tr><td>Copper</td><td>(0.95, 0.64, 0.54)</td></tr></table>
+<table><tr><td>Medium</td><td>RF(0掳)</td></tr><tr><td>Water</td><td>(0.02, 0.02, 0.02)</td></tr><tr><td>Glass</td><td>(0.08, 0.08, 0.08)</td></tr><tr><td>Plastic</td><td>(0.05, 0.05, 0.05)</td></tr><tr><td>Gold</td><td>(1.0, 0.71, 0.29)</td></tr><tr><td>Silver</td><td>(0.95, 0.93, 0.88)</td></tr><tr><td>Copper</td><td>(0.95, 0.64, 0.54)</td></tr></table>
 
 Figure 8.15 shows a plot of the Schlick approximation for a couple different ${ \bf R } _ { F } ( 0 ^ { \circ } )$ . The key observation is that the amount of reflection increases as $\theta _ { i } \to 9 0 ^ { \circ }$ . Let us look at a real-world example. Consider Figure 8.16. Suppose we are standing a couple feet deep in a calm pond of relatively clear water. If we look down, we mostly see the bottom sand and rocks of the pond. This is because the light coming down from the environment that reflects into our eye forms a small angle $\theta _ { i }$ near $0 . 0 ^ { \circ }$ ; thus, the amount of reflection is low, and, by energy conservation, the amount of refraction high. On the other hand, if we look towards the horizon, we will see a strong reflection in the pond water. This is because the light coming down from the environment that makes it into our eye forms an angle $\theta _ { i }$ closer to $9 0 . 0 ^ { \circ }$ , thus increasing the amount of reflection. This behavior is often referred to as the Fresnel effect. To summarize the Fresnel effect briefly: the amount of reflected light depends on the material $( \mathbf { R } _ { F } ( 0 ^ { \circ } ) )$ and the angle between the normal and light vector. 
 
-Metals absorb transmitted light [Möller08], which means they will not have body reflectance. Metals do not appear black, however, as they have high ${ \bf R } _ { F } ( 0 ^ { \circ } )$ 
+Metals absorb transmitted light [M枚ller08], which means they will not have body reflectance. Metals do not appear black, however, as they have high ${ \bf R } _ { F } ( 0 ^ { \circ } )$ 
 
 ![](images/1c2de4459d1d2890de90436794dd08086af8d41b125a1b9b6bdd47a4f0497115.jpg)
 
@@ -393,7 +395,7 @@ values which means they reflect a fair amount of specular light even at small in
 
 # 8.7.2 Roughness
 
-Reflective objects in the real world tend not to be perfect mirrors. Even if an object’s surface appears flat, at the microscopic level we can think of it as having roughness. Referring to Figure 8.17, we can think of a perfect mirror as having no roughness and its micro-normals all aim in the same direction as the macro-normal. As the roughness increases, the direction of the micro-normals diverge from the macronormal, causing the reflected light to spread out into a specular lobe. 
+Reflective objects in the real world tend not to be perfect mirrors. Even if an object鈥檚 surface appears flat, at the microscopic level we can think of it as having roughness. Referring to Figure 8.17, we can think of a perfect mirror as having no roughness and its micro-normals all aim in the same direction as the macro-normal. As the roughness increases, the direction of the micro-normals diverge from the macronormal, causing the reflected light to spread out into a specular lobe. 
 
 To model roughness mathematically, we employ the microfacet model, where we model the microscopic surface as a collection of tiny flat elements called microfacets; the micro-normals are the normals to the microfacets. For a given view v and light vector L, we want to know the fraction of microfacets that reflect L into v; in other words, the fraction of microfacets with normal $\mathbf { h } =$ normalize $\mathbf { \tau } ( \mathbf { L } + \mathbf { v } )$ ; see Figure 8.18. This will tell us how much light is reflected 
 
@@ -414,7 +416,7 @@ Figure 8.17. (a) The black horizontal bar represents the magnification of a smal
 Figure 8.18. The microfacets with normal h reflect L into v.
 
 
-into the eye from specular reflection—the more microfacets that reflect $\mathbf { L }$ into v the brighter the specular light the eye sees. 
+into the eye from specular reflection鈥攖he more microfacets that reflect $\mathbf { L }$ into v the brighter the specular light the eye sees. 
 
 The vector h is called the halfway vector as it lies halfway between $\mathbf { L }$ and v. Moreover, let us also introduce the angle $\theta _ { h }$ between the halfway vector $\mathbf { h }$ and the macro-normal n. 
 
@@ -488,7 +490,7 @@ All of the vectors in this equation are assumed to be unit length.
 
 
 
-Figure 8.21. (a) Sphere colored with ambient light only, which uniformly brightens it. (b) Ambient and diffuse lighting combined. There is now a smooth transition from bright to dark due to Lambert’s cosine law. (c) Ambient, diffuse, and specular lighting. The specular lighting yields a specular highlight.
+Figure 8.21. (a) Sphere colored with ambient light only, which uniformly brightens it. (b) Ambient and diffuse lighting combined. There is now a smooth transition from bright to dark due to Lambert鈥檚 cosine law. (c) Ambient, diffuse, and specular lighting. The specular lighting yields a specular highlight.
 
 
 3. h: The halfway vector lies halfway between the light vector and view vector (vector from surface point being lit to the eye point). 
@@ -499,7 +501,7 @@ Figure 8.21. (a) Sphere colored with ambient light only, which uniformly brighte
 
 6. $\mathbf { m } _ { d }$ : Specifies the amount of incoming diffuse light that the surface reflects due to diffuse reflectance. 
 
-7. L⋅n: Lambert’s Cosine Law. 
+7. L鈰卬: Lambert鈥檚 Cosine Law. 
 
 8. $\alpha _ { h }$ : Angle between the half vector h and light vector L. 
 
@@ -594,9 +596,9 @@ struct MaterialData
 that can be used in $\mathrm { C } { + + }$ code and HLSL code. For $\mathrm { C } { + + }$ , the vector and matrix types become the DirectX Math types. Also note that the way DEFINE_CBUFFER is defined allows us to write code that evaluates to a struct in $\mathrm { C } { + + }$ , but evaluates to the corresponding constant buffer in HLSL: 
 
 ```cpp
-DEFINE_CBUFFER(PerObjectCB，b0)   
+DEFINE_CBUFFER(PerObjectCB锛宐0)   
 { float4x4 gWorld; float4x4 gTexTransform; uint gMaterialIndex; float3 gMiscFloat3;   
-}； 
+}锛?
 ```
 
 ```c
@@ -659,9 +661,9 @@ float IndexOfRefraction = 0.0f;
 }; 
 ```
 
-Modeling real-world materials will require a combination of setting realistic values for the DiffuseAlbedo and FresnelR0, and some artistic tweaking. For example, metal conductors absorb refracted light [Möller08] that enters the interior of the metal, which means metals will not have diffuse reflection (i.e., the DiffuseAlbedo would be zero). However, to compensate for the fact that we are not doing $1 0 0 \%$ physical simulation of lighting, it may give better artistic results to give a low DiffuseAlbedo value rather than zero. The point is: we will try to use physically realistic material values but are free to tweak the values as we want if the end result looks better from an artistic point of view. 
+Modeling real-world materials will require a combination of setting realistic values for the DiffuseAlbedo and FresnelR0, and some artistic tweaking. For example, metal conductors absorb refracted light [M枚ller08] that enters the interior of the metal, which means metals will not have diffuse reflection (i.e., the DiffuseAlbedo would be zero). However, to compensate for the fact that we are not doing $1 0 0 \%$ physical simulation of lighting, it may give better artistic results to give a low DiffuseAlbedo value rather than zero. The point is: we will try to use physically realistic material values but are free to tweak the values as we want if the end result looks better from an artistic point of view. 
 
-In our material structure, roughness is specified in a normalized floating-point value in the [0, 1] range. A roughness of 0 would indicate a perfectly smooth surface, and a roughness of 1 would indicate the roughest surface physically possible. The normalized range makes it easier to author roughness and compare the roughness between different materials. For example, a material with a roughness of 0.6 is twice as rough as a material with roughness 0.3. In the shader code, we will use the roughness to derive the exponent m used in Equation 8.4. Note that with our definition of roughness, the shininess of a surface is just the inverse of the roughness: shininess r = −1 0 oughness ∈[ , 1]. 
+In our material structure, roughness is specified in a normalized floating-point value in the [0, 1] range. A roughness of 0 would indicate a perfectly smooth surface, and a roughness of 1 would indicate the roughest surface physically possible. The normalized range makes it easier to author roughness and compare the roughness between different materials. For example, a material with a roughness of 0.6 is twice as rough as a material with roughness 0.3. In the shader code, we will use the roughness to derive the exponent m used in Equation 8.4. Note that with our definition of roughness, the shininess of a surface is just the inverse of the roughness: shininess r = 鈭? 0 oughness 鈭圼 , 1]. 
 
 A question now is at what granularity we should specify the material values? The material values may vary over the surface; that is, different points on the surface may have different material values. For example, consider a car model as shown in Figure 8.22, where the frame, windows, lights, and tires reflect and absorb light differently, and so the material values would need to vary over the car surface. 
 
@@ -672,7 +674,7 @@ A question now is at what granularity we should specify the material values? The
 Figure 8.22. A car mesh divided into five material attribute groups.
 
 
-To implement this variation, one solution might be to specify material values on a per vertex basis. These per vertex materials would then be interpolated across the triangle during rasterization, giving us material values for each point on the surface of the triangle mesh. However, as we saw from the “Waves” demo in Chapter 7, per vertex colors are still too coarse to realistically model fine details. Moreover, per vertex colors add additional data to our vertex structures, and we need to have tools to paint per vertex colors. Instead, the prevalent solution is to use texture mapping (Chapter 9). For this chapter, we allow material changes at the draw call frequency. To do this, we define the properties of each unique material and put them in a table: 
+To implement this variation, one solution might be to specify material values on a per vertex basis. These per vertex materials would then be interpolated across the triangle during rasterization, giving us material values for each point on the surface of the triangle mesh. However, as we saw from the 鈥淲aves鈥?demo in Chapter 7, per vertex colors are still too coarse to realistically model fine details. Moreover, per vertex colors add additional data to our vertex structures, and we need to have tools to paint per vertex colors. Instead, the prevalent solution is to use texture mapping (Chapter 9). For this chapter, we allow material changes at the draw call frequency. To do this, we define the properties of each unique material and put them in a table: 
 
 std::unordered_map<std::string, std::unique_ptr<Material>> mMaterials;   
 void LitWavesApp::BuildMaterials()   
@@ -680,19 +682,19 @@ void LitWavesApp::BuildMaterials()
 auto AddMaterial $\equiv$ [&matIndex,this] ( const std::string& name, const XMFLOAT4& diffuse, const XMFLOAT3& fresnel, float roughness)   
 { auto mat $=$ std::make_unique<Material>(); mat->Name $\equiv$ name; mat->MatIndex $\equiv$ matIndex; mat->DiffuseAlbedo $\equiv$ diffuse; mat->FresnelR0 $\equiv$ fresnel; mat->Roughness $\equiv$ roughness; // Ignore material properties that do not apply to this demo. mMaterials[name] $=$ std::move(mat); 
 
-$\mathbf{++matIndex}$ }；  
-AddMaterial("forestGreen",XMFLOAT4(Colors::ForestGreen)，XMFLOAT3(0.02f，0.02f，0.02f)，0.1f);  
-AddMaterial("steelBlue",XMFLOAT4(Colors::SteelBlue)，XMFLOAT3(0.05f，0.05f，0.05f)，0.3f);  
-AddMaterial("lightGray",XMFLOAT4(Colors::LightGray)，XMFLOAT3(0.02f，0.02f，0.02f)，0.2f);  
-AddMaterial("skullMat",XMFLOAT4(1.0f，1.0f，1.0f，1.0f)，XMFLOAT3(0.05f，0.05f，0.05f)，0.3f);  
-AddMaterial("lakeBlue",XMFLOAT4(0.2f，0.2f，0.8f，1.0f)，XMFLOAT3(0.05f，0.05f，0.05f），0.3f); 
+$\mathbf{++matIndex}$ }锛? 
+AddMaterial("forestGreen",XMFLOAT4(Colors::ForestGreen)锛孹MFLOAT3(0.02f锛?.02f锛?.02f)锛?.1f);  
+AddMaterial("steelBlue",XMFLOAT4(Colors::SteelBlue)锛孹MFLOAT3(0.05f锛?.05f锛?.05f)锛?.3f);  
+AddMaterial("lightGray",XMFLOAT4(Colors::LightGray)锛孹MFLOAT3(0.02f锛?.02f锛?.02f)锛?.2f);  
+AddMaterial("skullMat",XMFLOAT4(1.0f锛?.0f锛?.0f锛?.0f)锛孹MFLOAT3(0.05f锛?.05f锛?.05f)锛?.3f);  
+AddMaterial("lakeBlue",XMFLOAT4(0.2f锛?.2f锛?.8f锛?.0f)锛孹MFLOAT3(0.05f锛?.05f锛?.05f锛夛紝0.3f); 
 
 Note how each material stores its index; this will be used when the material collection is flattened out into an array. The above table stores the material data in system memory. For the GPU to access the material data in a shader, we need to mirror the relevant data in a buffer. Similar to the per-pass constant buffer, we add a buffer of materials to each FrameResource: 
 
 ```cpp
 // Defined in SharedTypes.h   
 struct MaterialData   
-{ float4 DiffuseAlbedo; float3 FresnelR0; float Roughness; float DisplacementScale; uint DiffuseMapIndex; uint NormalMapIndex; uint GlossHeightAoMapIndex; // Used in texture mapping. float4x4 MatTransform; // Used in ray tracing demos only. float TransparencyWeight; float IndexOfRefraction; }； 
+{ float4 DiffuseAlbedo; float3 FresnelR0; float Roughness; float DisplacementScale; uint DiffuseMapIndex; uint NormalMapIndex; uint GlossHeightAoMapIndex; // Used in texture mapping. float4x4 MatTransform; // Used in ray tracing demos only. float TransparencyWeight; float IndexOfRefraction; }锛?
 ```
 
 ```cpp
@@ -716,7 +718,7 @@ FrameResource::FrameResource(ID3D12Device* device,
 
 The MaterialData structure contains a subset of the Material data; specifically, it contains just the data the shaders need for rendering. 
 
-Note that the MaterialBuffer is a regular structured buffer, not a constant buffer. We could have used a constant buffer and set the material constants for each object like we do for per-object constant data. However, for more advanced effects it is convenient to have all the scene materials available in a shader in one large buffer and to just index into the buffer in the shader. To facilitate this, we add a Material* to our RenderItem structure, and when we go to create a render item, we also specify the material of the render item. Note that multiple render items can refer to the same Material object; for example, multiple render items might use the same “brick” material. 
+Note that the MaterialBuffer is a regular structured buffer, not a constant buffer. We could have used a constant buffer and set the material constants for each object like we do for per-object constant data. However, for more advanced effects it is convenient to have all the scene materials available in a shader in one large buffer and to just index into the buffer in the shader. To facilitate this, we add a Material* to our RenderItem structure, and when we go to create a render item, we also specify the material of the render item. Note that multiple render items can refer to the same Material object; for example, multiple render items might use the same 鈥渂rick鈥?material. 
 
 ```cpp
 struct RenderItem
@@ -773,12 +775,12 @@ mCommandList->SetGraphicsRootShaderResourceView( GFX_ROOT.Arg_MATERIAL_SRV, matB
 
 Most materials will be static, such as brick, stone, or wood material. However, we make it possible to change the properties of a material at runtime. This could be used to highlight or animate certain materials in the scene. In the UpdateMaterialBuffer function, the material data is copied into the material 
 
-buffer whenever it is changed (“dirty”) so that the GPU material buffer data is kept up to date with the system memory material data: 
+buffer whenever it is changed (鈥渄irty鈥? so that the GPU material buffer data is kept up to date with the system memory material data: 
 
 void LitWavesApp::UpdateMaterialBuffer(const GameTimer& gt)   
 { auto currMaterialBuffer $=$ mCurrFrameResource->MaterialBuffer.get(); forauto& e : mMaterials) { //Only update the buffer data if the data has changed. If the //buffer data changes, it needs to be updated for each //FrameResource. Material\*mat $\equiv$ e(second.get(); if(mat->NumFramesDirty>0) { XMMatrix matTransform $\equiv$ XMLoadFloat4x4(&mat->MatTransform); MaterialData matData; matData.DiffuseAlbedo $\equiv$ mat->DiffuseAlbedo; matData.FresnelR0 $\equiv$ mat->FresnelR0; matData.Roughness $\equiv$ mat->Roughness; currMaterialBuffer->CopyData(mat->MatIndex,matData); //Next FrameResource need to be updated too. mat->NumFramesDirty--; } 1 
 
-We remind the reader that we need normal vectors at each point on the surface of a triangle mesh so that we can determine the angle at which light strikes a point on the mesh surface (for Lambert’s cosine law). To obtain a normal vector approximation at each point on the surface of the triangle mesh, we specify normals at the vertex level. These vertex normals will be interpolated across the triangle during rasterization. 
+We remind the reader that we need normal vectors at each point on the surface of a triangle mesh so that we can determine the angle at which light strikes a point on the mesh surface (for Lambert鈥檚 cosine law). To obtain a normal vector approximation at each point on the surface of the triangle mesh, we specify normals at the vertex level. These vertex normals will be interpolated across the triangle during rasterization. 
 
 So far, we have discussed the components of light, but we have not discussed specific kinds of light sources. The next three sections describe how to implement parallel, point, and spotlights. 
 
@@ -810,7 +812,7 @@ $$
 \mathbf {L} = \frac {\mathbf {Q} - \mathbf {P}}{\left\| \mathbf {Q} - \mathbf {P} \right\|}
 $$
 
-Essentially, the only difference between point lights and parallel lights is how the light vector is computed—it varies from point to point for point lights, but remains constant for parallel lights. 
+Essentially, the only difference between point lights and parallel lights is how the light vector is computed鈥攊t varies from point to point for point lights, but remains constant for parallel lights. 
 
 # 8.11.1 Attenuation
 
@@ -860,9 +862,9 @@ $$
 \mathbf {L} = \frac {\mathbf {Q} - \mathbf {P}}{\| \mathbf {Q} - \mathbf {P} \|}
 $$
 
-where $\mathbf { P }$ is the position of the point being lit and Q is the position of the spotlight. Observe from Figure 8.27 that $\mathbf { P }$ is inside the spotlight’s cone (and therefore receives light) if and only if the angle $\phi$ between $\mathbf { - L }$ and d is smaller than the cone angle $\phi _ { m a x }$ . Moreover, all the light in the spotlight’s cone should not be of equal intensity; the light at the center of the cone should be the most intense and the light intensity should fade to zero as $\phi$ increases from 0 to $\phi _ { m a x }$ . 
+where $\mathbf { P }$ is the position of the point being lit and Q is the position of the spotlight. Observe from Figure 8.27 that $\mathbf { P }$ is inside the spotlight鈥檚 cone (and therefore receives light) if and only if the angle $\phi$ between $\mathbf { - L }$ and d is smaller than the cone angle $\phi _ { m a x }$ . Moreover, all the light in the spotlight鈥檚 cone should not be of equal intensity; the light at the center of the cone should be the most intense and the light intensity should fade to zero as $\phi$ increases from 0 to $\phi _ { m a x }$ . 
 
-So how do we control the intensity falloff as a function of $\phi ,$ , and also how do we control the size of the spotlight’s cone? We can use a function with the same graph as in Figure 8.19, but replace $\theta _ { h }$ with $\phi$ and $m$ with s: 
+So how do we control the intensity falloff as a function of $\phi ,$ , and also how do we control the size of the spotlight鈥檚 cone? We can use a function with the same graph as in Figure 8.19, but replace $\theta _ { h }$ with $\phi$ and $m$ with s: 
 
 $$
 k _ {s p o t} (\phi) = \max  (\cos \phi , 0) ^ {s} = \max  (- \mathbf {L} \cdot \mathbf {d}, 0) ^ {s}
@@ -901,7 +903,7 @@ struct Light
 }; 
 ```
 
-The order of data members listed in the Light structure (and also the MaterialConstants structure) is not arbitrary. They are cognizant of the HLSL structure packing rules. See Appendix B (“Structure Packing”) for details, but the main idea is that in HLSL, structure padding occurs so that elements are packed into 4D vectors, with the restriction that a single element cannot be split across two 4D vectors. This means the above structure gets nicely packed into three 4D vectors like this: 
+The order of data members listed in the Light structure (and also the MaterialConstants structure) is not arbitrary. They are cognizant of the HLSL structure packing rules. See Appendix B (鈥淪tructure Packing鈥? for details, but the main idea is that in HLSL, structure padding occurs so that elements are packed into 4D vectors, with the restriction that a single element cannot be split across two 4D vectors. This means the above structure gets nicely packed into three 4D vectors like this: 
 
 ```cpp
 vector 1: (Strength.x, Strength.y, Strength.z, FalloffStart)  
@@ -980,7 +982,7 @@ Our formula for computing the specular albedo allows for specular values to be g
 specAlbedo = specAlbedo / (specAlbedo + 1.0f); 
 ```
 
-High-Dynamic-Range (HDR) lighting uses floating-point render targets that allows light values to go outside the range [0, 1], and then a tonemapping step is performed to remap the high-dynamic-range back to [0, 1] for display, while preserving the details that are important. HDR rendering and tonemapping is a subject on its own—see the textbook by [Reinhard10]. However, [Pettineo12] provides a good introduction and demo to experiment with. 
+High-Dynamic-Range (HDR) lighting uses floating-point render targets that allows light values to go outside the range [0, 1], and then a tonemapping step is performed to remap the high-dynamic-range back to [0, 1] for display, while preserving the details that are important. HDR rendering and tonemapping is a subject on its own鈥攕ee the textbook by [Reinhard10]. However, [Pettineo12] provides a good introduction and demo to experiment with. 
 
 ![](images/1f1494340bf281f813a0fd06102b369ac48bc90cc96d87798c18d96ad16c15ca.jpg)
 
@@ -1020,7 +1022,7 @@ Lighting is additive, so supporting multiple lights in a scene simply means we n
 
 define MaxLights 16   
 DEFINE_CBUFFER(PerPassCB, b1)   
-{ int gNumDirLights; uint gNumPointLights; uint gNumSpotLights; uint PerPassCB_pad2; //Indices[0,gNumDirLights)are directional lights; //indices[gNumDirLights,gNumDirLights+gNumPointLights)are point lights; //indices[gNumDirLights+gNumPointLights, //gNumDirLights+gNumPointLights+gNumSpotLights) //are spot lights for a maximum of MaxLights per object. Light gLights[MaxLights];}; float4 ComputeLighting(Light gLights[MaxLights],Material mat, float3pos,float3normal,float3toEye, float3 shadowFactor) { float3 result $= 0$ .0f; int $\mathrm{i} = 0$ · for(i $= 0$ ;i $<$ gNumDirLights; $^{+ + i}$ { result $+ =$ shadowFactor[i] \*ComputeDirectionalLight( gLights[i],mat,normal,toEye); } for(i=gNumDirLights;i $<$ gNumDirLights+gNumPointLights; $^{+ + i}$ { result $+ =$ ComputePointLight(gLights[i],mat,pos,normaI, toEye); } for(i=gNumDirLights+gNumPointLights; i $<$ gNumDirLights+gNumPointLights+gNumSpotLights; $^{+ + i}$ { result $+ =$ ComputeSpotLight(gLights[i],mat,pos,normaI, toEye); } return float4(result,0.0f); 
+{ int gNumDirLights; uint gNumPointLights; uint gNumSpotLights; uint PerPassCB_pad2; //Indices[0,gNumDirLights)are directional lights; //indices[gNumDirLights,gNumDirLights+gNumPointLights)are point lights; //indices[gNumDirLights+gNumPointLights, //gNumDirLights+gNumPointLights+gNumSpotLights) //are spot lights for a maximum of MaxLights per object. Light gLights[MaxLights];}; float4 ComputeLighting(Light gLights[MaxLights],Material mat, float3pos,float3normal,float3toEye, float3 shadowFactor) { float3 result $= 0$ .0f; int $\mathrm{i} = 0$ 路 for(i $= 0$ ;i $<$ gNumDirLights; $^{+ + i}$ { result $+ =$ shadowFactor[i] \*ComputeDirectionalLight( gLights[i],mat,normal,toEye); } for(i=gNumDirLights;i $<$ gNumDirLights+gNumPointLights; $^{+ + i}$ { result $+ =$ ComputePointLight(gLights[i],mat,pos,normaI, toEye); } for(i=gNumDirLights+gNumPointLights; i $<$ gNumDirLights+gNumPointLights+gNumSpotLights; $^{+ + i}$ { result $+ =$ ComputeSpotLight(gLights[i],mat,pos,normaI, toEye); } return float4(result,0.0f); 
 
 The shadowFactor parameter will not be used until the chapter on shadowing. For now, we just set this to the vector (1, 1, 1), which makes the shadow factor have no effect in the equation. 
 
@@ -1033,11 +1035,11 @@ The following code contains the vertex and pixel shaders used for the demo of th
 //BasicLit.hlsl1   
 //   
 //Include common HLSL code. #include"Shaders/Common.hlsl"   
-struct VertexIn { float3PosL：POSITION; float3 NormalL：NORMAL;   
-}；   
-struct VertexOut { float4 PosH：SV POSITION; float3 PosW：POSITION2; float3 NormalW：NORMAL;   
-}；   
-VertexOut VS(VertexIn vin) { VertexOut vout $=$ (VertexOut)0.0f; //Transform to world space. float4 posW $=$ mul(float4(vin(PosL,1.0f)，gWorld); vout-posW $=$ posW.xyz; 
+struct VertexIn { float3PosL锛歅OSITION; float3 NormalL锛歂ORMAL;   
+}锛?  
+struct VertexOut { float4 PosH锛歋V POSITION; float3 PosW锛歅OSITION2; float3 NormalW锛歂ORMAL;   
+}锛?  
+VertexOut VS(VertexIn vin) { VertexOut vout $=$ (VertexOut)0.0f; //Transform to world space. float4 posW $=$ mul(float4(vin(PosL,1.0f)锛実World); vout-posW $=$ posW.xyz; 
 
 ```cpp
 // Assumes nonuniform scaling; otherwise, need to use
@@ -1071,7 +1073,7 @@ float4 PS(VertexOut pin) : SV_Target
 
 # 8.14 LIGHTING DEMO
 
-The lighting demo builds off the “Waves” demo from the previous chapter. It uses a three-point lighting system that is commonly used in film and photography to get better lighting than just one light source can provide. It consists of a primary light source called the key light, a secondary fill light usually aiming in the side direction from the key light, and a back light. We use three-point lighting to fake indirect lighting that gives better object definition than just using the ambient component for indirect lighting. For an outdoor scene in the daytime, the key light will be the sun. In our demo, all three lights are directional lights. To show that the lighting is 
+The lighting demo builds off the 鈥淲aves鈥?demo from the previous chapter. It uses a three-point lighting system that is commonly used in film and photography to get better lighting than just one light source can provide. It consists of a primary light source called the key light, a secondary fill light usually aiming in the side direction from the key light, and a back light. We use three-point lighting to fake indirect lighting that gives better object definition than just using the ambient component for indirect lighting. For an outdoor scene in the daytime, the key light will be the sun. In our demo, all three lights are directional lights. To show that the lighting is 
 
 ![](images/c69236d0d72b9a5aab3433d290f0cc7b9894642c73bd9b6eaf88c298a979cf37.jpg)
 
@@ -1113,7 +1115,7 @@ ModelVertex has two extra members we do not need yet, namely TexC and TangentU. 
 
 When we add/change a vertex format, we need to update the input layout description: 
 
-mInputLayout $=$ { {"POSITION",0，DXGI_FORMAT_R32G32B32_FLOAT，0，0, D3D12_INPUT_CLASSIFICATION_PER踮X_DATA，0}， {"NORMAL",0，DXGI_FORMAT_R32G32B32_FLOAT，0，12, D3D12_INPUT_CLASSIFICATION_PER踮X_DATA，0}， {"TEXCOORD",0，DXGI_FORMAT_R32G32_FLOAT，0，24, D3D12_INPUT_CLASSIFICATION_PER踮X_DATA，0}， {"TANGENT",0，DXGI_FORMAT_R32G32B32_FLOAT，0，32, D3D12_INPUT_CLASSIFICATION_PER踮X_DATA，0}， }； 
+mInputLayout $=$ { {"POSITION",0锛孌XGI_FORMAT_R32G32B32_FLOAT锛?锛?, D3D12_INPUT_CLASSIFICATION_PER韪甔_DATA锛?}锛?{"NORMAL",0锛孌XGI_FORMAT_R32G32B32_FLOAT锛?锛?2, D3D12_INPUT_CLASSIFICATION_PER韪甔_DATA锛?}锛?{"TEXCOORD",0锛孌XGI_FORMAT_R32G32_FLOAT锛?锛?4, D3D12_INPUT_CLASSIFICATION_PER韪甔_DATA锛?}锛?{"TANGENT",0锛孌XGI_FORMAT_R32G32B32_FLOAT锛?锛?2, D3D12_INPUT_CLASSIFICATION_PER韪甔_DATA锛?}锛?}锛?
 
 # 8.14.2 Normal Computation
 
@@ -1171,7 +1173,7 @@ If you do not know much calculus, do not worry as it will not play a major role 
 
 1. With lighting, we no longer specify per-vertex colors but instead define scene lights and per-vertex materials. Materials can be thought of as the properties that determine how light interacts with a surface of an object. The per-vertex materials are interpolated across the face of the triangle to obtain material values at each surface point of the triangle mesh. The lighting equations then compute a surface color the eye sees based on the interaction between the light and surface materials; other parameters are also involved, such as the surface normal and eye position. 
 
-2. A surface normal is a unit vector that is orthogonal to the tangent plane of a point on a surface. Surface normals determine the direction a point on a surface is “facing.” For lighting calculations, we need the surface normal at each point on the surface of a triangle mesh so that we can determine the angle at which light strikes the point on the mesh surface. To obtain surface normals, we specify the surface normals only at the vertex points (so-called vertex normals). Then, in order to obtain a surface normal approximation at each point on the surface of a triangle mesh, these vertex normals will be interpolated across the triangle during rasterization. For arbitrary triangle 
+2. A surface normal is a unit vector that is orthogonal to the tangent plane of a point on a surface. Surface normals determine the direction a point on a surface is 鈥渇acing.鈥?For lighting calculations, we need the surface normal at each point on the surface of a triangle mesh so that we can determine the angle at which light strikes the point on the mesh surface. To obtain surface normals, we specify the surface normals only at the vertex points (so-called vertex normals). Then, in order to obtain a surface normal approximation at each point on the surface of a triangle mesh, these vertex normals will be interpolated across the triangle during rasterization. For arbitrary triangle 
 
 meshes, vertex normals are typically approximated via a technique called normal averaging. If the matrix A is used to transform points and vectors (non-normal vectors), then $( \mathbf { A } ^ { - 1 } ) ^ { T }$ should be used to transform surface normals. 
 
@@ -1179,19 +1181,19 @@ meshes, vertex normals are typically approximated via a technique called normal 
 
 4. A second kind of reflection happens due to the Fresnel effect, which is a physical phenomenon. When light reaches the interface between two media with different indices of refraction some of the light is reflected and the remaining light is refracted into the medium. How much light is reflected depends on the medium (some materials will be more reflective than others) and also on the angle $\theta _ { i }$ between the normal vector n and light vector L. Due to their complexity, the full Fresnel equations are not typically used in real-time rendering; instead, the Schlick approximation is used. 
 
-5. Reflective objects in the real-world tend not to be perfect mirrors. Even if an object’s surface appears flat, at the microscopic level we can think of it as having roughness. We can think of a perfect mirror as having no roughness and its micro-normals all aim in the same direction as the macro-normal. As the roughness increases, the direction of the micro-normals diverge from the macro-normal causing the reflected light to spread out into a specular lobe. 
+5. Reflective objects in the real-world tend not to be perfect mirrors. Even if an object鈥檚 surface appears flat, at the microscopic level we can think of it as having roughness. We can think of a perfect mirror as having no roughness and its micro-normals all aim in the same direction as the macro-normal. As the roughness increases, the direction of the micro-normals diverge from the macro-normal causing the reflected light to spread out into a specular lobe. 
 
 6. Ambient light models indirect light that has scattered and bounced around the scene so many times that it strikes the object equally in every direction, thereby uniformly brightening it up. Diffuse light models light that enters the interior of a medium and scatters around under the surface where some of the light is absorbed and the remaining light scatters back out of the surface. Because it is difficult to model this subsurface scattering, we assume the reemitted light scatters out equally in all directions above the surface about the point the light entered. Specular light models the light that is reflected off the surface due to the Fresnel effect and surface roughness. 
 
 # 8.16 EXERCISES
 
-1. Modify ImGUI UI of the “LitWaves” demo to include sliders to modify the light strength colors (see ImGui::SliderFloat3). Add a second slider to modify 
+1. Modify ImGUI UI of the 鈥淟itWaves鈥?demo to include sliders to modify the light strength colors (see ImGui::SliderFloat3). Add a second slider to modify 
 
 the gAmbientLight color. Finally, add additional sliders to dynamically update the roughness of the scene materials. 
 
-2. Modify the “LitWaves” demo by removing the three directional lights and adding a spotlight that is always positioned with the camera and always aimed in the direction the camera is looking. In effect, this is modeling a flashlight the player is holding. Add an ImGUI checkbox to turn the flashlight on and off. Add ImGUI sliders to adjust the light strength and spotlight cone. 
+2. Modify the 鈥淟itWaves鈥?demo by removing the three directional lights and adding a spotlight that is always positioned with the camera and always aimed in the direction the camera is looking. In effect, this is modeling a flashlight the player is holding. Add an ImGUI checkbox to turn the flashlight on and off. Add ImGUI sliders to adjust the light strength and spotlight cone. 
 
-3. Modify the “Shapes” demo from the previous chapter by adding materials and a three-point lighting system. 
+3. Modify the 鈥淪hapes鈥?demo from the previous chapter by adding materials and a three-point lighting system. 
 
 ![](images/76b9556e6c6ed3b9a72128d7500b63438ba233d8a7b2b82e180ee1916df8f881.jpg)
 
@@ -1221,3 +1223,4 @@ Modify the lighting demo of this chapter to use this sort of toon shading. (Note
 
 
 Figure 8.30. Screenshot of cartoon lighting
+

@@ -1,3 +1,5 @@
+﻿# Chapter 14 The Tessellation Stages
+
 # Chapter
 
 # 14 The Tessell ation Stages
@@ -29,7 +31,7 @@ Figure 14.1 shows that the tessellation stages sit between the vertex shader and
 
 4. To become familiar with different strategies for determining when to tessellate and to become familiar with performance considerations regarding hardware tessellation. 
 
-5. To learn the mathematics of Bézier curves and surfaces and how to implement them in the tessellation stages. 
+5. To learn the mathematics of B茅zier curves and surfaces and how to implement them in the tessellation stages. 
 
 # 14.1 TESSELLATION PRIMITIVE TYPES
 
@@ -55,11 +57,11 @@ When passing control point primitive types to ID3D12GraphicsCommandList::I ASetP
 opaquePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPEPatch; 
 ```
 
-So what about the patches with a higher number of control points? The idea of control points comes from the construction of certain kinds of mathematical curves and surfaces. If you have ever worked with Bézier curves in a drawing program like Adobe Illustrator, then you know that you mold the shape of the curve via control points. The mathematics of Bézier curves can be generalized to Bézier surfaces. For example, you can create a Bézier quad patch that uses nine control points to shape it or sixteen control points; increasing the number of control points gives you more degrees of freedom in shaping the patch. So the motivation for all these control type primitives is to provide support for these kinds of curved surfaces. We give an explanation and demo of Bézier quad patches in this chapter. 
+So what about the patches with a higher number of control points? The idea of control points comes from the construction of certain kinds of mathematical curves and surfaces. If you have ever worked with B茅zier curves in a drawing program like Adobe Illustrator, then you know that you mold the shape of the curve via control points. The mathematics of B茅zier curves can be generalized to B茅zier surfaces. For example, you can create a B茅zier quad patch that uses nine control points to shape it or sixteen control points; increasing the number of control points gives you more degrees of freedom in shaping the patch. So the motivation for all these control type primitives is to provide support for these kinds of curved surfaces. We give an explanation and demo of B茅zier quad patches in this chapter. 
 
 # 14.1.1 Tessellation and the Vertex Shader
 
-Because we submit patch control points to the rendering pipeline, the control points are what get pumped through the vertex shader. Thus, when tessellation is enabled, the vertex shader is really a “vertex shader for control points,” and we can do any control point work we need before tessellation starts. Typically, animation or physics calculations are done in the vertex shader at the lower frequency before the geometry is tessellated. 
+Because we submit patch control points to the rendering pipeline, the control points are what get pumped through the vertex shader. Thus, when tessellation is enabled, the vertex shader is really a 鈥渧ertex shader for control points,鈥?and we can do any control point work we need before tessellation starts. Typically, animation or physics calculations are done in the vertex shader at the lower frequency before the geometry is tessellated. 
 
 # 14.2 THE HULL SHADER
 
@@ -145,7 +147,7 @@ A natural question to ask is how much should you tessellate. So remember that th
 
 # 14.2.2 Control Point Hull Shader
 
-The control point hull shader inputs a number of control points and outputs a number of control points. The control point hull shader is invoked once per control point output. One application of the hull shader is to change surface representations, say from an ordinary triangle (submitted to the pipeline with three control points) to a cubic Bézier triangle patch (a patch with ten control points). For example, suppose your mesh is modeled as usual by triangles (three control points); you can use the hull shader to augment the triangle to a higher order cubic Bézier triangle patch with 10 control points, then detail can be added with the additional control points and the triangle patch tessellated to the desired amount. This strategy is the so-called N-patches scheme or PN triangles scheme [Vlachos01]; it is convenient because it uses tessellation to improve existing triangle meshes with no modification to the art pipeline. For our first demo, it will be a simple pass-through shader, where we just pass the control point through unmodified. 
+The control point hull shader inputs a number of control points and outputs a number of control points. The control point hull shader is invoked once per control point output. One application of the hull shader is to change surface representations, say from an ordinary triangle (submitted to the pipeline with three control points) to a cubic B茅zier triangle patch (a patch with ten control points). For example, suppose your mesh is modeled as usual by triangles (three control points); you can use the hull shader to augment the triangle to a higher order cubic B茅zier triangle patch with 10 control points, then detail can be added with the additional control points and the triangle patch tessellated to the desired amount. This strategy is the so-called N-patches scheme or PN triangles scheme [Vlachos01]; it is convenient because it uses tessellation to improve existing triangle meshes with no modification to the art pipeline. For our first demo, it will be a simple pass-through shader, where we just pass the control point through unmodified. 
 
 Drivers can detect and optimize pass-through shaders [Bilodeau10b]. 
 
@@ -172,9 +174,9 @@ The control point hull shader introduces a number of attributes:
 
 2. partitioning: Specifies the subdivision mode of the tessellation. 
 
-a. integer: New vertices are added/removed only at integer tessellation factor values. The fractional part of a tessellation factor is ignored. This creates a noticeable “popping” when a mesh changes is tessellation level. 
+a. integer: New vertices are added/removed only at integer tessellation factor values. The fractional part of a tessellation factor is ignored. This creates a noticeable 鈥減opping鈥?when a mesh changes is tessellation level. 
 
-b. Fractional tessellation (fractional_even/fractional_odd): New vertices are added/removed at integer tessellation factor values, but “slide” in gradually based on the fractional part of the tessellation factor. This is useful when you want to smoothly transition from a coarser version of the mesh to a finer version through tessellation, rather than abruptly at integer steps. The difference between integer and fractional tessellation is best understood by an animation, so the exercises at the end of this chapter will have you experiment to see the difference first hand. 
+b. Fractional tessellation (fractional_even/fractional_odd): New vertices are added/removed at integer tessellation factor values, but 鈥渟lide鈥?in gradually based on the fractional part of the tessellation factor. This is useful when you want to smoothly transition from a coarser version of the mesh to a finer version through tessellation, rather than abruptly at integer steps. The difference between integer and fractional tessellation is best understood by an animation, so the exercises at the end of this chapter will have you experiment to see the difference first hand. 
 
 3. outputtopology: The winding order of the triangles created via subdivision. 
 
@@ -246,7 +248,7 @@ Note:
 
 As shown in Figure 14.4, the ordering of the quad patch control points is rowby-row. 
 
-The domain shader for a triangle patch is similar, except that instead of the parametric $( u , \nu )$ values being input, the float3 barycentric $( u , \nu , w )$ coordinates of the vertex are input (see $\ S { \bf C } . 3 $ ) for an explanation of barycentric coordinates. The reason for outputting barycentric coordinates for triangle patches is probably due to the fact that Bézier triangle patches are defined in terms of barycentric coordinates. 
+The domain shader for a triangle patch is similar, except that instead of the parametric $( u , \nu )$ values being input, the float3 barycentric $( u , \nu , w )$ coordinates of the vertex are input (see $\ S { \bf C } . 3 $ ) for an explanation of barycentric coordinates. The reason for outputting barycentric coordinates for triangle patches is probably due to the fact that B茅zier triangle patches are defined in terms of barycentric coordinates. 
 
 # 14.5 TESSELLATING A QUAD
 
@@ -259,7 +261,7 @@ For our one of the demos in this chapter, we submit a quad patch to the renderin
 Figure 14.4. The tessellation of a quad patch with 4 control points generating 16 vertices in the normalized uv-space, with coordinates in [0,1]2 .
 
 
-generated vertices by a mathematic function that is similar to the one we have been using for this “hills” in our past demos. 
+generated vertices by a mathematic function that is similar to the one we have been using for this 鈥渉ills鈥?in our past demos. 
 
 Our vertex buffer storing the four control points is created like so: 
 
@@ -356,7 +358,7 @@ struct HullOut { float3 PosL:POSITION;
 [domain("quad")] [partitioning("integer")] [outputtopology("triangle_cw")] [outputcontrolpoints(4)] [patchconstantfunc("ConstantHS")] [maxtessfactor(64.0f)] HullOut HS(InputPatch<VertexOut,4> p, uint i:SV_OutputControlPointID, uint patchId:SV_PrimitiveID)   
 { HullOut hout; hout(PosL $=$ p[i].PosL; return hout; 
 
-Simply tessellating is not enough to add detail, as the new triangles just lie on the patch that was subdivided. We must offset those extra vertices in some way to better approximate the shape of the object we are modeling. This is done in the domain shader. In this demo, we offset the y-coordinates by the “hills” function we introduced in $\ S 6 . 1 1$ . 
+Simply tessellating is not enough to add detail, as the new triangles just lie on the patch that was subdivided. We must offset those extra vertices in some way to better approximate the shape of the object we are modeling. This is done in the domain shader. In this demo, we offset the y-coordinates by the 鈥渉ills鈥?function we introduced in $\ S 6 . 1 1$ . 
 
 ```cpp
 struct DomainOut
@@ -373,13 +375,13 @@ struct DomainOut
 float4 PS(DomainOut pin): SV_Target   
 { return float4(1.0f, 1.0f, 1.0f, 1.0f); 
 
-# 14.6 CUBIC BÉZIER QUAD PATCHES
+# 14.6 CUBIC B脡ZIER QUAD PATCHES
 
-In this section, we describe cubic Bézier quad patches to show how surfaces are constructed via a higher number of control points. Before we get to surfaces, however, it helps to first start with Bézier curves. 
+In this section, we describe cubic B茅zier quad patches to show how surfaces are constructed via a higher number of control points. Before we get to surfaces, however, it helps to first start with B茅zier curves. 
 
-# 14.6.1 Bézier Curves
+# 14.6.1 B茅zier Curves
 
-Consider three noncollinear points $\mathbf { p } _ { 0 } , \mathbf { p } _ { 1 } ,$ and ${ \bf p } _ { 2 }$ which we will call the control points. These three control points define a Bézier curve in the following way. A point $\mathbf { p } ( t )$ on the curve is first found by linearly interpolating between $\mathbf { p } _ { 0 }$ and $\mathbf { p } _ { 1 }$ by $t _ { : }$ , and $\mathbf { p } _ { 1 }$ and ${ \bf p } _ { 2 }$ by $t$ to get the intermediate points: 
+Consider three noncollinear points $\mathbf { p } _ { 0 } , \mathbf { p } _ { 1 } ,$ and ${ \bf p } _ { 2 }$ which we will call the control points. These three control points define a B茅zier curve in the following way. A point $\mathbf { p } ( t )$ on the curve is first found by linearly interpolating between $\mathbf { p } _ { 0 }$ and $\mathbf { p } _ { 1 }$ by $t _ { : }$ , and $\mathbf { p } _ { 1 }$ and ${ \bf p } _ { 2 }$ by $t$ to get the intermediate points: 
 
 $$
 \mathbf {p} _ {0} ^ {1} = (1 - t) \mathbf {p} _ {0} + t \mathbf {p} _ {1}
@@ -408,16 +410,16 @@ $$
 
 
 
-Figure 14.6. Repeated linear interpolation defined points on the cubic Bézier curve. The figure uses $t = 0 . 5$ . (a) The four control points and the curve they define. (b) Linearly interpolate between the control points to calculate the first generation of intermediate points. (c) Linearly interpolate between the first generation intermediate points to get the second generation intermediate points. (d) Linearly interpolate between the second generation intermediate points to get the point on the curve.
+Figure 14.6. Repeated linear interpolation defined points on the cubic B茅zier curve. The figure uses $t = 0 . 5$ . (a) The four control points and the curve they define. (b) Linearly interpolate between the control points to calculate the first generation of intermediate points. (c) Linearly interpolate between the first generation intermediate points to get the second generation intermediate points. (d) Linearly interpolate between the second generation intermediate points to get the point on the curve.
 
 
-In other words, this construction by repeated interpolation leads to the parametric formula for a quadratic (degree 2) Bézier curve: 
+In other words, this construction by repeated interpolation leads to the parametric formula for a quadratic (degree 2) B茅zier curve: 
 
 $$
 \mathbf {p} (t) = (1 - t) ^ {2} \mathbf {p} _ {0} + 2 (1 - t) t \mathbf {p} _ {1} + t ^ {2} \mathbf {p} _ {2}
 $$
 
-In a similar manner, four control points $\mathbf { p } _ { 0 } , \mathbf { p } _ { 1 } , \mathbf { p } _ { 2 }$ and $\mathbf { p } _ { 3 }$ define a cubic (degree 3) Bézier curve, and a point $\mathbf { p } ( t )$ on the curve is found again by repeated interpolation. Figure 14.6 shows the situation. First linearly interpolate along each line segment the four given control points define to get three first generation intermediate points: 
+In a similar manner, four control points $\mathbf { p } _ { 0 } , \mathbf { p } _ { 1 } , \mathbf { p } _ { 2 }$ and $\mathbf { p } _ { 3 }$ define a cubic (degree 3) B茅zier curve, and a point $\mathbf { p } ( t )$ on the curve is found again by repeated interpolation. Figure 14.6 shows the situation. First linearly interpolate along each line segment the four given control points define to get three first generation intermediate points: 
 
 $$
 \mathbf {p} _ {0} ^ {1} = (1 - t) \mathbf {p} _ {0} + t \mathbf {p} _ {1}
@@ -447,7 +449,7 @@ $$
 \begin{array}{l} \mathbf {p} (t) = (1 - t) \mathbf {p} _ {0} ^ {2} + t \mathbf {p} _ {1} ^ {2} \\ = (1 - t) ((1 - t) ^ {2} \mathbf {p} _ {0} + 2 (1 - t) t \mathbf {p} _ {1} + t ^ {2} \mathbf {p} _ {2}) + t ((1 - t) ^ {2} \mathbf {p} _ {1} + 2 (1 - t) t \mathbf {p} _ {2} + t ^ {2} \mathbf {p} _ {3}) \\ \end{array}
 $$
 
-which simplifies to the parametric formula for a cubic (degree 3) Bézier curve: 
+which simplifies to the parametric formula for a cubic (degree 3) B茅zier curve: 
 
 $$
 \mathbf {p} (t) = (1 - t) ^ {3} \mathbf {p} _ {0} + 3 t (1 - t) ^ {2} \mathbf {p} _ {1} + 3 t ^ {2} (1 - t) \mathbf {p} _ {2} + t ^ {3} \mathbf {p} _ {3} \tag {eq.14.1}
@@ -455,7 +457,7 @@ $$
 
 Generally, people stop at cubic curves, as they give enough smoothness and degrees of freedom for controlling the curve, but you can keep going to higherorder curves with the same recursive pattern of repeated interpolation. 
 
-It turns out, that the formula for Bézier curves of degree n can be written in terms of the Bernstein basis functions, which are defined by: 
+It turns out, that the formula for B茅zier curves of degree n can be written in terms of the Bernstein basis functions, which are defined by: 
 
 $$
 B _ {i} ^ {n} (t) = \frac {n !}{i ! (n - i) !} t ^ {i} (1 - t) ^ {n - i}
@@ -467,7 +469,7 @@ $$
 \begin{array}{l} B _ {0} ^ {3} (t) = \frac {3 !}{0 ! (3 - 0) !} t ^ {0} (1 - t) ^ {3 - 0} = (1 - t) ^ {3} \\ B _ {1} ^ {3} (t) = \frac {3 !}{1 ! (3 - 1) !} t ^ {1} (1 - t) ^ {3 - 1} = 3 t (1 - t) ^ {2} \\ B _ {2} ^ {3} (t) = \frac {3 !}{2 ! (3 - 2) !} t ^ {2} (1 - t) ^ {3 - 2} = 3 t ^ {2} (1 - t) \\ B _ {3} ^ {3} (t) = \frac {3 !}{3 ! (3 - 3) !} t ^ {3} (1 - t) ^ {3 - 3} = t ^ {3} \\ \end{array}
 $$
 
-Compare these values to the factors in Equation 14.1. Therefore, we can write a cubic Bézier curve as: 
+Compare these values to the factors in Equation 14.1. Therefore, we can write a cubic B茅zier curve as: 
 
 $$
 \mathbf {p} (t) = \sum_ {j = 0} ^ {3} B _ {j} ^ {3} (t) \mathbf {p} _ {j} = B _ {0} ^ {3} (t) \mathbf {p} _ {0} + B _ {1} ^ {3} (t) \mathbf {p} _ {1} + B _ {2} ^ {3} (t) \mathbf {p} _ {2} + B _ {3} ^ {3} (t) \mathbf {p} _ {3}
@@ -479,7 +481,7 @@ $$
 \begin{array}{l} B _ {0} ^ {3 ^ {\prime}} (t) = - 3 (1 - t) ^ {2} \\ B _ {1} ^ {3 ^ {\prime}} (t) = 3 (1 - t) ^ {2} - 6 t (1 - t) \\ B _ {2} ^ {3 ^ {\prime}} (t) = 6 t (1 - t) - 3 t ^ {2} \\ B _ {3} ^ {3 ^ {\prime}} (t) = 3 t ^ {2} \\ \end{array}
 $$
 
-And the derivative of the cubic Bézier curve is: 
+And the derivative of the cubic B茅zier curve is: 
 
 $$
 \mathbf {p} ^ {\prime} (t) = \sum_ {j = 0} ^ {3} B _ {j} ^ {3 ^ {\prime}} (t) \mathbf {p} _ {j} = B _ {0} ^ {3 ^ {\prime}} (t) \mathbf {p} _ {0} + B _ {1} ^ {3 ^ {\prime}} (t) \mathbf {p} _ {1} + B _ {2} ^ {3 ^ {\prime}} (t) \mathbf {p} _ {2} + B _ {3} ^ {3 ^ {\prime}} (t) \mathbf {p} _ {3}
@@ -487,34 +489,34 @@ $$
 
 Derivatives are useful for computing the tangent vector along the curve. 
 
-# 14.6.2 Cubic Bézier Surfaces
+# 14.6.2 Cubic B茅zier Surfaces
 
 ![](images/df9cab698089cd32efdc9800ba6286b0d7f16359e9f8abe49cb45b0189e74da4.jpg)
 
 
 
-Figure 14.7. Constructing a Bézier surface. Some simplifications were made to make the figure easier to understand—the control points do not all lie in the plane, all the $\pmb { \mathsf { q } } _ { \mathrm { i } } ( u )$ need not be the same as the figure suggests (they would only be the same if the control points were the same for each row to give the same curves), and ${ \mathsf p } ( v )$ generally would not be a straight line but a cubic Bézier curve.
+Figure 14.7. Constructing a B茅zier surface. Some simplifications were made to make the figure easier to understand鈥攖he control points do not all lie in the plane, all the $\pmb { \mathsf { q } } _ { \mathrm { i } } ( u )$ need not be the same as the figure suggests (they would only be the same if the control points were the same for each row to give the same curves), and ${ \mathsf p } ( v )$ generally would not be a straight line but a cubic B茅zier curve.
 
 
-Refer to Figure 14.7 throughout this section. Consider a patch of $4 \times 4$ control points. Each row, therefore, contains 4 control points that can be used to define cubic Bézier curve; the Bézier curve of the ith row is given by: 
+Refer to Figure 14.7 throughout this section. Consider a patch of $4 \times 4$ control points. Each row, therefore, contains 4 control points that can be used to define cubic B茅zier curve; the B茅zier curve of the ith row is given by: 
 
 $$
 \mathbf {q} _ {i} (u) = \sum_ {j = 0} ^ {3} B _ {j} ^ {3} (u) \mathbf {p} _ {i, j}
 $$
 
-If we evaluate each of these Bézier curves at say $u _ { 0 } ,$ then we get a “column” of 4 points, one along each curve. We can use these 4 points to define another Bézier curve that lies on the Bézier surface at $u _ { 0 }$ : 
+If we evaluate each of these B茅zier curves at say $u _ { 0 } ,$ then we get a 鈥渃olumn鈥?of 4 points, one along each curve. We can use these 4 points to define another B茅zier curve that lies on the B茅zier surface at $u _ { 0 }$ : 
 
 $$
 \mathbf {p} (v) = \sum_ {i = 0} ^ {3} B _ {i} ^ {3} (v) \mathbf {q} _ {i} \left(u _ {0}\right)
 $$
 
-Now, if we let u vary as well, we sweep out a family of cubic Bézier curves that form the cubic Bézier surface: 
+Now, if we let u vary as well, we sweep out a family of cubic B茅zier curves that form the cubic B茅zier surface: 
 
 $$
 \begin{array}{l} \mathbf {p} (u, v) = \sum_ {i = 0} ^ {3} B _ {i} ^ {3} (v) \mathbf {q} _ {i} (u) \\ = \sum_ {i = 0} ^ {3} B _ {i} ^ {3} (\nu) \sum_ {j = 0} ^ {3} B _ {j} ^ {3} (u) \mathbf {p} _ {i, j} \\ \end{array}
 $$
 
-The partial derivatives of a Bézier surface are useful for computing tangent and normal vectors: 
+The partial derivatives of a B茅zier surface are useful for computing tangent and normal vectors: 
 
 $$
 \frac {\partial \mathbf {p}}{\partial u} (u, v) = \sum_ {i = 0} ^ {3} B _ {i} ^ {3} (v) \sum_ {j = 0} ^ {3} \frac {\partial B _ {j} ^ {3}}{\partial u} (u) \mathbf {p} _ {i, j}
@@ -524,9 +526,9 @@ $$
 \frac {\partial \mathbf {p}}{\partial v} (u, v) = \sum_ {i = 0} ^ {3} \frac {\partial B _ {i} ^ {3}}{\partial v} (v) \sum_ {j = 0} ^ {3} B _ {j} ^ {3} (u) \mathbf {p} _ {i, j}
 $$
 
-# 14.6.3 Cubic Bézier Surface Evaluation Code
+# 14.6.3 Cubic B茅zier Surface Evaluation Code
 
-In this section, we give code to evaluate a cubic Bézier surface. To help understand the code that follows, we expand out the summation notation: 
+In this section, we give code to evaluate a cubic B茅zier surface. To help understand the code that follows, we expand out the summation notation: 
 
 $$
 \mathbf {q} _ {0} (u) = B _ {0} ^ {3} (u) \mathbf {p} _ {0, 0} + B _ {1} ^ {3} (u) \mathbf {p} _ {0, 1} + B _ {2} ^ {3} (u) \mathbf {p} _ {0, 2} + B _ {3} ^ {3} (u) \mathbf {p} _ {0, 3}
@@ -586,7 +588,7 @@ Observe that we pass the evaluated basis function values to CubicBezierSum. This
 
 
 
-Figure 14.8. Screenshot of the Bézier surface demo.
+Figure 14.8. Screenshot of the B茅zier surface demo.
 
 
 # Our vertex buffer storing the sixteen control points is created like so:
@@ -666,37 +668,37 @@ mPatchRItem $=$ mAllRItems.back().get();
 
 3. New primitive types are used only with tessellation to submit control points to the rendering pipeline. Direct3D 12 supports between one and thirty-two control points, which are represented by the enumerated types D3D_PRIMITIVE_1_CONTROL_POINT_PATCH... D3D_PRIMITIVE_32_CONTROL_ POINT_PATCH. 
 
-4. With tessellation, the vertex shader inputs control points and generally animates or performs physics computations per control point. The hull shader consists of the constant hull shader and the control point hull shader. The constant hull shader operates per patch and outputs the tessellation factors of the patch, which instruct the tessellator how much to tessellate the patch, as well as any other optional per patch data. The control point hull shader inputs a number of control points and outputs a number of control points. The control point hull shader is invoked once per control point output. Typically, the control point hull shader changes the surface representation of the input patch. For example, this stage might input a triangle with three control points, and output a Bézier triangle surface patch with ten control points. 
+4. With tessellation, the vertex shader inputs control points and generally animates or performs physics computations per control point. The hull shader consists of the constant hull shader and the control point hull shader. The constant hull shader operates per patch and outputs the tessellation factors of the patch, which instruct the tessellator how much to tessellate the patch, as well as any other optional per patch data. The control point hull shader inputs a number of control points and outputs a number of control points. The control point hull shader is invoked once per control point output. Typically, the control point hull shader changes the surface representation of the input patch. For example, this stage might input a triangle with three control points, and output a B茅zier triangle surface patch with ten control points. 
 
 5. The domain shader is invoked for each vertex created by the tessellation stage. Whereas the vertex shader acts as a vertex shader for each control point, with tessellation enabled the hull shader is essentially the vertex shader for the tessellated patch vertices. In particular, it is here that we project the vertices of the tessellated patch to homogeneous clip space and do other per vertex work. 
 
 6. If you are not going to tessellate an object (e.g., tessellation factors are close to 1), then do not render the object with the tessellation stages enabled, as there is overhead. Avoid tessellating so much that triangles are smaller than eight pixels. Draw all your tessellated objects together to avoid turning tessellation on and off during a frame. Use back face culling and frustum culling in the hull shader to discard patches that are not seen from being tessellated. 
 
-7. Bézier curves and surfaces, specified by parametric equations, can be used to describe smooth curves and surfaces. They are “shaped” via control points. In 
+7. B茅zier curves and surfaces, specified by parametric equations, can be used to describe smooth curves and surfaces. They are 鈥渟haped鈥?via control points. In 
 
-addition to allowing us to draw smooth surfaces directly, Bézier surfaces are used in many popular hardware tessellation algorithms such as PN Triangles and Catmull-Clark approximations. 
+addition to allowing us to draw smooth surfaces directly, B茅zier surfaces are used in many popular hardware tessellation algorithms such as PN Triangles and Catmull-Clark approximations. 
 
 # 14.8 EXERCISES
 
-1. Redo the “Basic Tessellation” demo, but tessellate a triangle patch instead of a quad patch. 
+1. Redo the 鈥淏asic Tessellation鈥?demo, but tessellate a triangle patch instead of a quad patch. 
 
 2. Tessellate an iscoahedron into a sphere based on distance. 
 
-3. Modify the “Basic Tessellation” demo so that it does fixed tessellation of a flat quad. Experiment with different edge/interior tessellation factors until you are comfortable with how the tessellation factors work. 
+3. Modify the 鈥淏asic Tessellation鈥?demo so that it does fixed tessellation of a flat quad. Experiment with different edge/interior tessellation factors until you are comfortable with how the tessellation factors work. 
 
-4. Explore fractional tessellation. That is, try the “Basic Tessellation” demo with: 
+4. Explore fractional tessellation. That is, try the 鈥淏asic Tessellation鈥?demo with: 
 
 ```cpp
 [partitioning("fractional_even")]  
 [partitioning("fractional_odd")] 
 ```
 
-5. Compute the Bernstein basis functions $B _ { 0 } ^ { 2 } ( t ) , B _ { 1 } ^ { 2 } ( t ) , B _ { 2 } ^ { 2 } ( t )$ for a quadratic Bézier curve, and compute the derivatives $B _ { 0 } ^ { 2 \prime } ( t ) , B _ { 1 } ^ { 2 \prime } ( t ) , B _ { 2 } ^ { 2 \prime } ( t )$ . Derive the parametric equation for a quadratic Bézier surface. 
+5. Compute the Bernstein basis functions $B _ { 0 } ^ { 2 } ( t ) , B _ { 1 } ^ { 2 } ( t ) , B _ { 2 } ^ { 2 } ( t )$ for a quadratic B茅zier curve, and compute the derivatives $B _ { 0 } ^ { 2 \prime } ( t ) , B _ { 1 } ^ { 2 \prime } ( t ) , B _ { 2 } ^ { 2 \prime } ( t )$ . Derive the parametric equation for a quadratic B茅zier surface. 
 
-6. Experiment with the “Bézier Patch” demo by changing the control points to change the Bézier surface. 
+6. Experiment with the 鈥淏茅zier Patch鈥?demo by changing the control points to change the B茅zier surface. 
 
-7. Redo the “Bézier Patch” demo to use a quadratic Bézier surface with nine control points. 
+7. Redo the 鈥淏茅zier Patch鈥?demo to use a quadratic B茅zier surface with nine control points. 
 
-8. Modify the “Bézier Patch” demo to light and shade the Bézier surface. You will need to compute vertex normals in the domain shader. A normal at a vertex position can be found by taking the cross product of the partial derivatives at the position. 
+8. Modify the 鈥淏茅zier Patch鈥?demo to light and shade the B茅zier surface. You will need to compute vertex normals in the domain shader. A normal at a vertex position can be found by taking the cross product of the partial derivatives at the position. 
 
-9. Research and implement Bézier triangle patches. 
+9. Research and implement B茅zier triangle patches. 

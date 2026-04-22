@@ -1,8 +1,10 @@
+﻿# Chapter 17 Picking
+
 # Chapter
 
 # 17 Picking
 
-In this chapter, we have the problem of determining the 3D object (or primitive) the user picked with the mouse cursor (see Figure 17.1). In other words, given the 2D screen coordinates of the mouse cursor, can we determine the 3D object that was projected onto that point? To solve this problem, in some sense, we must work backwards; that is to say, we typically transform from 3D space to screen space, but here we transform from screen space back to 3D space. Of course, we already have a slight problem: a 2D screen point does not correspond to a unique 3D point (i.e., more than one 3D point could be projected onto the same 2D projection window point—see Figure 17.2). Thus, there is some ambiguity in determining which object is really picked. However, this is not such a big problem, as the closest object to the camera is usually the one we want. 
+In this chapter, we have the problem of determining the 3D object (or primitive) the user picked with the mouse cursor (see Figure 17.1). In other words, given the 2D screen coordinates of the mouse cursor, can we determine the 3D object that was projected onto that point? To solve this problem, in some sense, we must work backwards; that is to say, we typically transform from 3D space to screen space, but here we transform from screen space back to 3D space. Of course, we already have a slight problem: a 2D screen point does not correspond to a unique 3D point (i.e., more than one 3D point could be projected onto the same 2D projection window point鈥攕ee Figure 17.2). Thus, there is some ambiguity in determining which object is really picked. However, this is not such a big problem, as the closest object to the camera is usually the one we want. 
 
 ![](images/fb58465e73d38df9d211032605278d664439c6402605e6c0129c537631f0c5c3.jpg)
 
@@ -25,7 +27,7 @@ Figure 17.2. A side view of the frustum. Observe that several points in 3D space
 Figure 17.3. A ray shooting through p will intersect the object whose projection surrounds p. Note that the projected point p on the projection window corresponds to the clicked screen point s.
 
 
-Consider Figure 17.3, which shows the viewing frustum. Here p is the point on the projection window that corresponds to the clicked screen point s. Now, we see that if we shoot a picking ray, originating at the eye position, through p, we will intersect the object whose projection surrounds p, namely the cylinder in this example. Therefore, our strategy is as follows: Once we compute the picking ray, we can iterate through each object in the scene and test if the ray intersects it. The object that the ray intersects is the object that was picked by the user. As mentioned, the ray may intersect several scene objects (or none—nothing was picked), if the objects are along the ray’s path but with different depth values, for example. In this case, we can just take the intersected object nearest to the camera as the picked object. 
+Consider Figure 17.3, which shows the viewing frustum. Here p is the point on the projection window that corresponds to the clicked screen point s. Now, we see that if we shoot a picking ray, originating at the eye position, through p, we will intersect the object whose projection surrounds p, namely the cylinder in this example. Therefore, our strategy is as follows: Once we compute the picking ray, we can iterate through each object in the scene and test if the ray intersects it. The object that the ray intersects is the object that was picked by the user. As mentioned, the ray may intersect several scene objects (or none鈥攏othing was picked), if the objects are along the ray鈥檚 path but with different depth values, for example. In this case, we can just take the intersected object nearest to the camera as the picked object. 
 
 # Chapter Objectives:
 
@@ -39,7 +41,7 @@ Consider Figure 17.3, which shows the viewing frustum. Here p is the point on th
 
 (d) Determine the object the picking ray intersects. The nearest (from the camera) intersected object corresponds to the picked screen object. 
 
-# 17.1 SCREEN TO PROJECTION WINDOW TRANSFORM
+# 17.1 SCREEN TO PROJECTION WINDOW聽TRANSFORM
 
 The first task is to transform the clicked screen point to normalized device coordinates (see $\ S 5 . 4 . 3 . 3 )$ . Recall that the viewport matrix transforms vertices from normalized device coordinates to screen space; it is given below: 
 
@@ -123,7 +125,7 @@ Figure 17.4. By similar triangles, $\begin{array} { r } { \frac { y _ { * } } { 
 ![](images/1416df9a852aa93dde15dd57cdf40bb42bc190f406d2d9824d981e0087f12725.jpg)
 
 
-The projected y-coordinate in view space is the same in NDC space. This is because we chose the height of the projection window in view space to cover the interval [–1, 1]. 
+The projected y-coordinate in view space is the same in NDC space. This is because we chose the height of the projection window in view space to cover the interval [鈥?, 1]. 
 
 Now recall from $\ S 5 . 6 . 3 . 1$ that the projection window lies at a distance $d = \cot \left( { \frac { \alpha } { 2 } } \right)$ from the origin, where $\alpha$ is the vertical field of view angle. So we could shoot the picking ray through the point $( x _ { \nu } , y _ { \nu } , d )$ on the projection window. However, this requires that we compute $\scriptstyle d = \cot \left( { \frac { \alpha } { 2 } } \right)$ .  A simpler way is to observe from Figure 17.4 that: 
 
@@ -167,7 +169,7 @@ $$
 
 Note that the ray origin q is transformed as a point (i.e., 4th coordinate is 1) and the ray direction u is transformed as a vector (i.e., 4th coordinate is 0). 
 
-A world space picking ray can be useful in some situations where you have some objects defined in world space. However, most of the time, the geometry of an object is defined relative to the object’s own local space. Therefore, to perform the ray/object intersection test, we must transform the ray into the local space of the object. If W is the world matrix of an object, the matrix $\mathbf { W } ^ { - 1 }$ transforms geometry from world space to the local space of the object. Thus the local space picking ray is: 
+A world space picking ray can be useful in some situations where you have some objects defined in world space. However, most of the time, the geometry of an object is defined relative to the object鈥檚 own local space. Therefore, to perform the ray/object intersection test, we must transform the ray into the local space of the object. If W is the world matrix of an object, the matrix $\mathbf { W } ^ { - 1 }$ transforms geometry from world space to the local space of the object. Thus the local space picking ray is: 
 
 $$
 \begin{array}{l} \mathbf {r} _ {L} (t) = \mathbf {q} _ {w} \mathbf {W} ^ {- 1} + t \mathbf {u} _ {w} \mathbf {W} ^ {- 1} \\ = \mathbf {q} _ {L} + t \mathbf {u} _ {L} \\ \end{array}
@@ -269,7 +271,7 @@ mPickedRItem->StartIndexLocation = ri->StartIndexLocation + 3 * pickedTriangle;
 } 
 ```
 
-Observe that for picking, we use the system memory copy of the mesh geometry stored in the MeshGeometry class. This is because we cannot access a vertex/index buffer for reading that is going to be drawn by the GPU. It is common to store system memory copies of geometry for things like picking and collision detection. Often, a simplified “collision” version of the mesh is stored for these purposes to save memory and computation. 
+Observe that for picking, we use the system memory copy of the mesh geometry stored in the MeshGeometry class. This is because we cannot access a vertex/index buffer for reading that is going to be drawn by the GPU. It is common to store system memory copies of geometry for things like picking and collision detection. Often, a simplified 鈥渃ollision鈥?version of the mesh is stored for these purposes to save memory and computation. 
 
 # 17.3.1 Ray/AABB Intersection
 
@@ -351,7 +353,7 @@ $$
 c = \mathbf {m} \cdot \mathbf {m} - r ^ {2}
 $$
 
-If the ray direction is unit length, then $a = \mathbf { u } \cdot \mathbf { u } = 1$ . If the solution has imaginary components, the ray misses the sphere. If the two real solutions are the same, the ray intersects a point tangent to the sphere. If the two real solutions are distinct, the ray pierces two points of the sphere. A negative solution indicates an intersection point “behind” the ray. The smallest positive solution gives the nearest intersection parameter. 
+If the ray direction is unit length, then $a = \mathbf { u } \cdot \mathbf { u } = 1$ . If the solution has imaginary components, the ray misses the sphere. If the two real solutions are the same, the ray intersects a point tangent to the sphere. If the two real solutions are distinct, the ray pierces two points of the sphere. A negative solution indicates an intersection point 鈥渂ehind鈥?the ray. The smallest positive solution gives the nearest intersection parameter. 
 
 # 17.3.3 Ray/Triangle Intersection
 
@@ -399,7 +401,7 @@ $$
 \left[ \begin{array}{c c c} \uparrow & \uparrow & \uparrow \\ - \mathbf {u} & \mathbf {e} _ {1} & \mathbf {e} _ {2} \\ \downarrow & \downarrow & \downarrow \end{array} \right] \left[ \begin{array}{l} t \\ u \\ v \end{array} \right] = \left[ \begin{array}{l} \uparrow \\ \mathbf {m} \\ \downarrow \end{array} \right]
 $$
 
-Consider the matrix equation $\mathbf { A x } = \mathbf { b } $ , where A is invertible. Then Cramer’s Rule tells us that xi = det ${ \mathbf A _ { i } } /$ det A, where $\mathbf { A } _ { i }$ is found by swapping the ith column vector in A with b. Therefore, 
+Consider the matrix equation $\mathbf { A x } = \mathbf { b } $ , where A is invertible. Then Cramer鈥檚 Rule tells us that xi = det ${ \mathbf A _ { i } } /$ det A, where $\mathbf { A } _ { i }$ is found by swapping the ith column vector in A with b. Therefore, 
 
 $$
 t = \det  \left[ \begin{array}{c c c} \uparrow & \uparrow & \uparrow \\ \mathbf {m} & \mathbf {e} _ {1} & \mathbf {e} _ {2} \\ \downarrow & \downarrow & \downarrow \end{array} \right] / \det  \left[ \begin{array}{c c c} \uparrow & \uparrow & \uparrow \\ - \mathbf {u} & \mathbf {e} _ {1} & \mathbf {e} _ {2} \\ \downarrow & \downarrow & \downarrow \end{array} \right]
@@ -413,7 +415,7 @@ $$
 \nu = \det  \left[ \begin{array}{c c c} \uparrow & \uparrow & \uparrow \\ - \mathbf {u} & \mathbf {e} _ {1} & \mathbf {m} \\ \downarrow & \downarrow & \downarrow \end{array} \right] / \det  \left[ \begin{array}{c c c} \uparrow & \uparrow & \uparrow \\ - \mathbf {u} & \mathbf {e} _ {1} & \mathbf {e} _ {2} \\ \downarrow & \downarrow & \downarrow \end{array} \right]
 $$
 
-↑ ↑ ↑  Using the fact that det ( ) a b c a = ⋅ b c × we can reformulate this as: ↓ ↓ ↓  
+鈫?鈫?鈫戯． 铮?Using the fact that det ( )铮?铮篴 b c a = 鈰?b c 脳 we can reformulate this as: 鈫?鈫?鈫擄０铮?铮伙： 
 
 $$
 t = - \mathbf {m} \cdot \left(\mathbf {e} _ {1} \times \mathbf {e} _ {2}\right) / \mathbf {u} \cdot \left(\mathbf {e} _ {1} \times \mathbf {e} _ {2}\right)
@@ -445,7 +447,7 @@ And note the common cross products that can be reused in the calculations: $\mat
 
 # 17.4 DEMO APPLICATION
 
-The demo for this chapter renders a scene and allows the user to pick a triangle by pressing the right mouse button, and the selected triangle is rendered using a “highlight” material (see Figure 17.6). To render the triangle with a highlight, we need a render-item for it. Unlike the previous render-items in this book where we defined them at initialization time, this render-item can only be partially filled out at initialization time. This is because we do not yet know which triangle will be picked, and so we do not know the starting index location and world matrix. In addition, a triangle does not need to always be picked. Therefore, we have added a Visible property to the render-item structure. An invisible render-item will not be drawn. The following code, which is part of the PickingApp::Pick method, shows how we fill out the remaining render-item properties based on the selected triangle: 
+The demo for this chapter renders a scene and allows the user to pick a triangle by pressing the right mouse button, and the selected triangle is rendered using a 鈥渉ighlight鈥?material (see Figure 17.6). To render the triangle with a highlight, we need a render-item for it. Unlike the previous render-items in this book where we defined them at initialization time, this render-item can only be partially filled out at initialization time. This is because we do not yet know which triangle will be picked, and so we do not know the starting index location and world matrix. In addition, a triangle does not need to always be picked. Therefore, we have added a Visible property to the render-item structure. An invisible render-item will not be drawn. The following code, which is part of the PickingApp::Pick method, shows how we fill out the remaining render-item properties based on the selected triangle: 
 
 ```cpp
 // Cache a pointer to the render-item of the picked
@@ -482,7 +484,7 @@ Figure 17.6 shows some new 3D models in our typical scene. From now on, this sce
 Figure 17.6. The picked triangle is highlighted yellow.
 
 
-The new models have been designed to be relatively simple: a list of vertices, indices, and one set of textures per model. The models are in the Book\bin\ Models directory and have a .m3d extension. This is a simple format designed for the demos of this book. If you open up one of the . $\mathrm { . m } 3 \mathrm { d }$ files in a text editor, you will see that there is a brief header, a material list (that we ignore—we assign the material in the code), a subset table that specifies the vertex and face range corresponding to a given subset (these models only have 1—a model would have more if it was more complicated and different subsets needed to be drawn with different materials), a list of vertices, and a list of indices. 
+The new models have been designed to be relatively simple: a list of vertices, indices, and one set of textures per model. The models are in the Book\bin\ Models directory and have a .m3d extension. This is a simple format designed for the demos of this book. If you open up one of the . $\mathrm { . m } 3 \mathrm { d }$ files in a text editor, you will see that there is a brief header, a material list (that we ignore鈥攚e assign the material in the code), a subset table that specifies the vertex and face range corresponding to a given subset (these models only have 1鈥攁 model would have more if it was more complicated and different subsets needed to be drawn with different materials), a list of vertices, and a list of indices. 
 
 ```cpp
 **********m3d-File-Header**********  
@@ -536,7 +538,7 @@ There is a subset corresponding to each material and the ith subset corresponds 
 SubsetID:1 VertexStart:1600 VertexCount:658 FaceStart:800 FaceCount:874 
 ```
 
-In the above example, the first 800 triangles of the mesh (which reference vertices 0-1599) should be rendered with material 0, and the next 874 triangles of the mesh (which reference vertices 1600-2257) should be rendered with material 1. 
+In the above example, the first 800 triangles of the mesh (which reference vertices 0-1599) should be rendered with material 0, and the next 874 triangles of the mesh (which reference vertices 1600-2257) should be rendered with material聽1. 
 
 ```cpp
 struct Subset {
@@ -627,7 +629,7 @@ test. Assuming that the ray will miss most bounding volumes in the scene, this s
 
 # 17.6 EXERCISES
 
-1. Modify the “Picking” demo to use a bounding sphere for the mesh instead of an AABB. 
+1. Modify the 鈥淧icking鈥?demo to use a bounding sphere for the mesh instead of an AABB. 
 
 2. Research the algorithm for doing a ray/AABB intersection test. 
 

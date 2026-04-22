@@ -1,3 +1,5 @@
+﻿# Chapter 23 Character Animation
+
 # Chapter
 
 # 23 Character Anim ation
@@ -6,7 +8,7 @@
 
 Portions of this chapter appeared in the book by Frank D. Luna, Introduction to 3D Game Programming with DirectX 9.0c: A Shader Approach, 2006: Jones and Bartlett Learning, Burlington, MA. www.jblearning.com. Reprinted with permission. 
 
-In this chapter, we learn how to animate complex characters like a human or animal. Characters are complex because they have many moving parts that all move at the same time. Consider a human running—every bone is moving in some way. Creating such complicated animations is not practical to manually generate, and motion capture technology is used along with special modeling and animation tools. Assuming we already have a character and its corresponding animation data created, in this chapter we will learn how to animate and render it using Direct3D. 
+In this chapter, we learn how to animate complex characters like a human or animal. Characters are complex because they have many moving parts that all move at the same time. Consider a human running鈥攅very bone is moving in some way. Creating such complicated animations is not practical to manually generate, and motion capture technology is used along with special modeling and animation tools. Assuming we already have a character and its corresponding animation data created, in this chapter we will learn how to animate and render it using Direct3D. 
 
 # Chapter Objectives:
 
@@ -22,7 +24,7 @@ In this chapter, we learn how to animate complex characters like a human or anim
 
 # 23.1 FRAME HIERARCHIES
 
-Many objects are composed of parts, with a parent-child relationship, where one or more child objects can move independently on their own (with possible physical motion constraints—e.g., human joints have a particular range of motion), but are also forced to move when their parent moves. For example, consider an arm divided into the parts: upper arm, forearm, and hand. The hand can rotate in isolation about its wrist joint; however, if the forearm rotates about its elbow joint, then the hand must rotate with it. Similarly, if the upper arm rotates about the shoulder joint, the forearm rotates with it, and if the forearm rotates, then the hand rotates with it (see Figure 23.1). Thus we see a definite object hierarchy: The hand is a child of the forearm; the forearm is a child of the upper arm, and if we extended our situation, the upper arm would be a child of the torso, and so on and so forth, until we have completed the skeleton (Figure 23.2 shows a more complex hierarchy example). 
+Many objects are composed of parts, with a parent-child relationship, where one or more child objects can move independently on their own (with possible physical motion constraints鈥攅.g., human joints have a particular range of motion), but are also forced to move when their parent moves. For example, consider an arm divided into the parts: upper arm, forearm, and hand. The hand can rotate in isolation about its wrist joint; however, if the forearm rotates about its elbow joint, then the hand must rotate with it. Similarly, if the upper arm rotates about the shoulder joint, the forearm rotates with it, and if the forearm rotates, then the hand rotates with it (see Figure 23.1). Thus we see a definite object hierarchy: The hand is a child of the forearm; the forearm is a child of the upper arm, and if we extended our situation, the upper arm would be a child of the torso, and so on and so forth, until we have completed the skeleton (Figure 23.2 shows a more complex hierarchy example). 
 
 ![](images/63350ef8f6ff8e1a8f77bdc9773ae00e0dadfaa0762523294108008d155868b1.jpg)
 
@@ -35,7 +37,7 @@ Figure 23.1. Hierarchy transforms; observe that the parent transformation of a b
 
 
 
-Figure 23.2. A more complex tree hierarchy to model a bipedal humanoid character. Down arrows represent “first child” relationships, and right arrows represent “sibling” relationships. For example, “Left Thigh,” “Right Thigh,” and “Lower Spine” are all children of the “Pelvis” bone.
+Figure 23.2. A more complex tree hierarchy to model a bipedal humanoid character. Down arrows represent 鈥渇irst child鈥?relationships, and right arrows represent 鈥渟ibling鈥?relationships. For example, 鈥淟eft Thigh,鈥?鈥淩ight Thigh,鈥?and 鈥淟ower Spine鈥?are all children of the 鈥淧elvis鈥?bone.
 
 
 The aim of this section is to show how to place an object in the scene based on its position, and also the position of its ancestors (i.e., its parent, grandparent, greatgrandparent, etc.). 
@@ -66,7 +68,7 @@ Figure 23.3. A simple hierarchy.
 Figure 23.4. The geometry of each bone is described relative to its own local coordinate system. Furthermore, because all the coordinate systems exist in the same universe, we can relate them to one another.
 
 
-Because all the coordinate systems exist in the same universe, we can relate them; in particular, for an arbitrary instant in time (we fix time and study a snapshot because, in general, these mesh hierarchies are animated and so these relationships change as a function of time), we describe each coordinate system relative to its parent coordinate system. (The parent coordinate system of the root frame $F _ { 0 }$ is the world space coordinate system W; that is, the coordinate system $F _ { 0 }$ is described relative to the world coordinate system.) Now that we have related the child and parent coordinate systems, we can transform from a child’s space to its parent’s space with a transformation matrix. (This is the same idea as the localto-world transformation. However, instead of transforming from local space to world space, we transform from the local space to the space of the parent.) Let $\mathbf { A } _ { 2 }$ be a matrix that transforms geometry from frame $F _ { 2 }$ into $F _ { 1 { \mathrm { : } } }$ , let $\mathbf { A } _ { 1 }$ be a matrix that transform geometry from frame $F _ { 1 }$ into $F _ { 0 } ,$ and let $\mathbf { A } _ { 0 }$ be a matrix that transform geometry from frame $F _ { 0 }$ into W. (We call $\mathbf { A } _ { i }$ a to-parent matrix since it transforms geometry from a child’s coordinate system into its parent’s coordinate system.) Then, we can transform the ith object in the arm hierarchy into world space by the matrix $\mathbf { M } _ { i }$ defined as follows: 
+Because all the coordinate systems exist in the same universe, we can relate them; in particular, for an arbitrary instant in time (we fix time and study a snapshot because, in general, these mesh hierarchies are animated and so these relationships change as a function of time), we describe each coordinate system relative to its parent coordinate system. (The parent coordinate system of the root frame $F _ { 0 }$ is the world space coordinate system W; that is, the coordinate system $F _ { 0 }$ is described relative to the world coordinate system.) Now that we have related the child and parent coordinate systems, we can transform from a child鈥檚 space to its parent鈥檚 space with a transformation matrix. (This is the same idea as the localto-world transformation. However, instead of transforming from local space to world space, we transform from the local space to the space of the parent.) Let $\mathbf { A } _ { 2 }$ be a matrix that transforms geometry from frame $F _ { 2 }$ into $F _ { 1 { \mathrm { : } } }$ , let $\mathbf { A } _ { 1 }$ be a matrix that transform geometry from frame $F _ { 1 }$ into $F _ { 0 } ,$ and let $\mathbf { A } _ { 0 }$ be a matrix that transform geometry from frame $F _ { 0 }$ into W. (We call $\mathbf { A } _ { i }$ a to-parent matrix since it transforms geometry from a child鈥檚 coordinate system into its parent鈥檚 coordinate system.) Then, we can transform the ith object in the arm hierarchy into world space by the matrix $\mathbf { M } _ { i }$ defined as follows: 
 
 $$
 \mathbf {M} _ {i} = \mathbf {A} _ {i} \mathbf {A} _ {i - 1} \dots \mathbf {A} _ {1} \mathbf {A} _ {0} \tag {eq.23.1}
@@ -82,10 +84,10 @@ The example we have been working with is a simple linear hierarchy. But the same
 
 
 
-Figure 23.5. Because the coordinate systems exist in the same universe we can relate them, and therefore, transform from one to the other. In particular, we relate them by describing each bone’s coordinate system relative to its parent’s coordinate system. From that, we can construct a to-parent transformation matrix that transforms the geometry of a bone from its local coordinate system to its parent’s coordinate system. Once in the parent’s coordinate system, we can then transform by the parent’s to-parent matrix to transform to the grandparent’s coordinate system, and so on and so forth, until we have visited each ancestor’s coordinate system and finally reached the world space.
+Figure 23.5. Because the coordinate systems exist in the same universe we can relate them, and therefore, transform from one to the other. In particular, we relate them by describing each bone鈥檚 coordinate system relative to its parent鈥檚 coordinate system. From that, we can construct a to-parent transformation matrix that transforms the geometry of a bone from its local coordinate system to its parent鈥檚 coordinate system. Once in the parent鈥檚 coordinate system, we can then transform by the parent鈥檚 to-parent matrix to transform to the grandparent鈥檚 coordinate system, and so on and so forth, until we have visited each ancestor鈥檚 coordinate system and finally reached the world space.
 
 
-As an example, consider the left clavicle in Figure 23.2. It is a sibling of the neck bone, and therefore a child of the upper spine. The upper spine is a child of the lower spine, and the lower spine is a child of the pelvis. Therefore, the world transform of the left clavicle it formed by concatenating the left clavicle’s to-parent transform, followed by the upper spine’s to-parent transform, followed by the lower spine’s to-parent transform, followed by the pelvis’ to-parent transform. 
+As an example, consider the left clavicle in Figure 23.2. It is a sibling of the neck bone, and therefore a child of the upper spine. The upper spine is a child of the lower spine, and the lower spine is a child of the pelvis. Therefore, the world transform of the left clavicle it formed by concatenating the left clavicle鈥檚 to-parent transform, followed by the upper spine鈥檚 to-parent transform, followed by the lower spine鈥檚 to-parent transform, followed by the pelvis鈥?to-parent transform. 
 
 # 23.2 SKINNED MESHES
 
@@ -97,14 +99,14 @@ Figure 23.6 shows a character mesh. The highlighted chain of bones in the figure
 
 
 
-Figure 23.6. A character mesh. The highlighted bone chain represents the character’s skeleton. The dark colored polygons represent the character’s skin. The skin vertices are relative to the bind space, which is the coordinate system the mesh was modeled in.
+Figure 23.6. A character mesh. The highlighted bone chain represents the character鈥檚 skeleton. The dark colored polygons represent the character鈥檚 skin. The skin vertices are relative to the bind space, which is the coordinate system the mesh was modeled in.
 
 
 # 23.2.2 Reformulating the Bones To-Root Transform
 
-One difference from $\ S 2 3 . 1$ is that here we will transform from the root coordinate system to the world coordinate system in a separate step. So rather than finding the to-world matrix for each bone, we find the to-root (i.e., the transformation that transforms from the bone’s local coordinate system to the root bone’s coordinate system) matrix for each bone. 
+One difference from $\ S 2 3 . 1$ is that here we will transform from the root coordinate system to the world coordinate system in a separate step. So rather than finding the to-world matrix for each bone, we find the to-root (i.e., the transformation that transforms from the bone鈥檚 local coordinate system to the root bone鈥檚 coordinate system) matrix for each bone. 
 
-A second difference is that in $\ S 2 3 . 1$ , we traversed the ancestry of a node in a bottom-up fashion, where we started at a bone and moved up its ancestry. However, it is actually more efficient to take a top-down approach (see Equation 23.2), where we start at the root and move down the tree. Labeling the $n$ bones with an integer number $0 , 1 , . . . , n { - 1 } ,$ , we have the following formula for expressing the ith bone’s to-root transformation: 
+A second difference is that in $\ S 2 3 . 1$ , we traversed the ancestry of a node in a bottom-up fashion, where we started at a bone and moved up its ancestry. However, it is actually more efficient to take a top-down approach (see Equation 23.2), where we start at the root and move down the tree. Labeling the $n$ bones with an integer number $0 , 1 , . . . , n { - 1 } ,$ , we have the following formula for expressing the ith bone鈥檚 to-root transformation: 
 
 $$
 t o R o o t _ {i} = t o P a r e n t _ {i} \cdot t o R o o t _ {p} \tag {eq.23.2}
@@ -114,17 +116,17 @@ Here, $\boldsymbol { p }$ is the bone label of the parent of bone i. Does this m
 
 The only issue is that for this to work, when we go to process the ith bone, we must have already computed the to-root transformation of its parent. However, if 
 
-we traverse the tree top-down, then a parent’s to-root transformation will always be computed before its children’s to-root transformation. 
+we traverse the tree top-down, then a parent鈥檚 to-root transformation will always be computed before its children鈥檚 to-root transformation. 
 
-We can also see why this is more efficient. With the top-down approach, for any bone i, we already have the to-root transformation matrix of its parent; thus, we are only one step away from the to-root transformation for bone i. With a bottoms-up technique, we’d traverse the entire ancestry for each bone, and many matrix multiplications would be duplicated when bones share common ancestors. 
+We can also see why this is more efficient. With the top-down approach, for any bone i, we already have the to-root transformation matrix of its parent; thus, we are only one step away from the to-root transformation for bone i. With a bottoms-up technique, we鈥檇 traverse the entire ancestry for each bone, and many matrix multiplications would be duplicated when bones share common ancestors. 
 
 # 23.2.3 The Offset Transform
 
 There is a small subtlety that comes from the fact that the vertices influenced by a bone are not relative to the coordinate system of the bone (they are relative to the bind space, which is the coordinate system the mesh was modeled in). So before we apply Equation 15.2, we first need to transform the vertices from bind space to the space of the bone that influences the vertices. A so-called offset transformation does this; see Figure 23.7. 
 
-Thus, by transforming the vertices by the offset matrix of some arbitrary bone B, we move the vertices from the bind space to the bone space of B. Then, once we have the vertices in bone space of B, we can use B’s to-root transform to position it back in character space in its current animated pose. 
+Thus, by transforming the vertices by the offset matrix of some arbitrary bone B, we move the vertices from the bind space to the bone space of B. Then, once we have the vertices in bone space of B, we can use B鈥檚 to-root transform to position it back in character space in its current animated pose. 
 
-We now introduce a new transform, call it the final transform, which combines a bone’s offset transform with its to-root transform. Mathematically, the final transformation matrix of the ith bone $\mathbf { F } _ { i }$ is given by: 
+We now introduce a new transform, call it the final transform, which combines a bone鈥檚 offset transform with its to-root transform. Mathematically, the final transformation matrix of the ith bone $\mathbf { F } _ { i }$ is given by: 
 
 $$
 \mathbf {F} _ {i} = \text {o f f s e t} _ {i} \cdot \text {t o R o o t} _ {i} \tag {eq.23.3}
@@ -138,14 +140,14 @@ In the demo of the last chapter, we showed how to animate a single object. We de
 
 
 
-Figure 23.7. We first transform the vertices influenced by a bone from bind space to the space of the influencing bone via the offset transform. Then, once in the space of the bone, we apply the bone’s to-root transformation to transform the vertices from the space of the bone to the space of the root bone. The final transformation is the combination of the offset transform, followed by the to-root transform.
+Figure 23.7. We first transform the vertices influenced by a bone from bind space to the space of the influencing bone via the offset transform. Then, once in the space of the bone, we apply the bone鈥檚 to-root transformation to transform the vertices from the space of the bone to the space of the root bone. The final transformation is the combination of the offset transform, followed by the to-root transform.
 
 
-at an instance in time, and that an animation is a list of key frames sorted by time, which roughly define the look of the overall animation. We then showed how to interpolate between key frames to calculate the placement of the object at times between key frames. We now extend our animation system to animating skeletons. These animation classes are defined in SkinnedData.h/.cpp in the “Skinned Mesh” demo of this chapter. 
+at an instance in time, and that an animation is a list of key frames sorted by time, which roughly define the look of the overall animation. We then showed how to interpolate between key frames to calculate the placement of the object at times between key frames. We now extend our animation system to animating skeletons. These animation classes are defined in SkinnedData.h/.cpp in the 鈥淪kinned Mesh鈥?demo of this chapter. 
 
 Animating a skeleton is not much harder than animating a single object. Whereas we can think of a single object as a single bone, a skeleton is just a collection of connected bones. We will assume that each bone can move independently. Therefore, to animate a skeleton, we just animate each bone locally. Then after each bone has done its local animation, we take into consideration the movement of its ancestors, and transform it to the root space. 
 
-We define an animation clip to be a list of animations (one for each bone in the skeleton) that work together to form a specific animation of the skeleton. For example, “walking,” “running,” “fighting,” “ducking,” and “jumping” are examples of animation clips. 
+We define an animation clip to be a list of animations (one for each bone in the skeleton) that work together to form a specific animation of the skeleton. For example, 鈥渨alking,鈥?鈥渞unning,鈥?鈥渇ighting,鈥?鈥渄ucking,鈥?and 鈥渏umping鈥?are examples of animation clips. 
 
 ```cpp
 ///<summary>   
@@ -155,7 +157,7 @@ We define an animation clip to be a list of animations (one for each bone in the
 ///</summary>   
 struct AnimationClip   
 { // Smallest end time over all bones in this clip. float GetClipStartTime()const; // Largest end time over all bones in this clip. float GetClipEndTime()const; // Loops over each BoneAnimation in the clip and interpolates // the animation. void Interpolate(float t, std::vector<XMFLOAT4X4>& boneTransforms) const; // Animation for each bone. std::vector<BoneAnimation> BoneAnimations;   
-}； 
+}锛?
 ```
 
 A character will generally have several animation clips for all the animations the character needs to perform in the application. All the animation clips work on the same skeleton, however, so they use the same number of bones (although some bones may be stationary for a particular animation). We can use an unordered_map data structure to store all the animation clips and to refer to an animation clip by a readable name: 
@@ -164,7 +166,7 @@ A character will generally have several animation clips for all the animations t
 std::unordered_map<std::string, AnimationClip> mAnimations; AnimationClip& clip = mAnimations["attack"]; 
 ```
 
-Finally, as already mentioned, each bone needs an offset transform to transform the vertices from bind space to the space of the bone; and additionally, we need a way to represent the skeleton hierarchy (we use an array—see the next section for details). 
+Finally, as already mentioned, each bone needs an offset transform to transform the vertices from bind space to the space of the bone; and additionally, we need a way to represent the skeleton hierarchy (we use an array鈥攕ee the next section for details). 
 
 This gives us our final data structure for storing our skeleton animation data: 
 
@@ -198,14 +200,14 @@ We can therefore compute the final transform for each bone like so:
 void SkinnedData::GetFinalTransforms(const std::string& clipName, float timePos, std::vector<XMFLOAT4X4>& finalTransforms) const { UINT numBones = mBoneOffsets.size(); std::vector<XMFLOAT4X4> toParentTransforms(numBones); // Interpolate all the bones of this clip at the given time instance. auto clip = mAnimations.find(clipName); clip->second.Interpolate(timePos, toParentTransforms); // // Traverse the hierarchy and transform all the bones to // the root space. std::vector<XMFLOAT4X4> toRootTransforms(numBones); // The root bone has index 0. The root bone has no parent, so // its toRootTransform is just its local bone transform. toRootTransforms[0] = toParentTransforms[0]; // Now find the toRootTransform of the children. for(UINT i = 1; i < numBones; ++i) { XMMatrix toParent = XmlLoadFloat4x4(&toParentTransforms[i]); int parentIndex = mBoneHierarchy[i]; XMMatrix parentToRoot = XmlLoadFloat4x4(&toRootTransforms[parentsEx]); XMMatrix toRoot = XMMatrixMultiply(toParent, parentToRoot); XStoreFloat4x4(&toRootTransforms[i], toRoot); } // Premultiply by the bone offset transform to get the // final transform. for(UINT i = 0; i < numBones; ++i) { XMMatrix offset = XmlLoadFloat4x4(&mBoneOffsets[i]); XMMatrix toRoot = XmlLoadFloat4x4(&toRootTransforms[i]); XStoreFloat4x4(&finalTransforms[i], XMMatrixMultiply(offset, toRoot)); } 
 ```
 
-There is one requirement needed to make this work. When we traverse the bones in the loop, we look up the to-root transform of the bone’s parent: 
+There is one requirement needed to make this work. When we traverse the bones in the loop, we look up the to-root transform of the bone鈥檚 parent: 
 
 ```cpp
 int parentIndex = mBoneHierarchy[i];  
 XMMatrix parentToRoot = XmlFloat4x4(&toRootTransforms[parentIndex]); 
 ```
 
-This only works if we are guaranteed that the parent bone’s to-root transform has already been processed earlier in the loop. We can, in fact, make this guarantee if we ensure that the bones are always ordered in the arrays such that a parent bone always comes before a child bone. Our sample 3D data has been generated such that this is the case. Here is some sample data of the first ten bones in the hierarchy array of some character model: 
+This only works if we are guaranteed that the parent bone鈥檚 to-root transform has already been processed earlier in the loop. We can, in fact, make this guarantee if we ensure that the bones are always ordered in the arrays such that a parent bone always comes before a child bone. Our sample 3D data has been generated such that this is the case. Here is some sample data of the first ten bones in the hierarchy array of some character model: 
 
 ```cpp
 ParentIndexedBone0: -1  
@@ -226,9 +228,9 @@ So take Bone9. Its parent is Bone8, the parent of Bone8 is Bone5, the parent of 
 
 We have showed how to animate the skeleton. In this section we will focus on animating the skin of vertices that cover the skeleton. The algorithm for doing this is called vertex blending. 
 
-The strategy of vertex blending is as follows. We have an underlying bone hierarchy, but the skin itself is one continuous mesh (i.e., we do not break the mesh up into parts to correspond with each bone and animate them individually). Moreover, one or more bones can influence a vertex of the skin; the net result being determined by a weighted average of the influencing bones’ final transforms (the weights are specified by an artist when the model is being made and saved to file). With this setup, a smooth transitional blend can be achieved at joints (which are typically the troubled areas), thereby making the skin feel elastic; see Figure 23.8. 
+The strategy of vertex blending is as follows. We have an underlying bone hierarchy, but the skin itself is one continuous mesh (i.e., we do not break the mesh up into parts to correspond with each bone and animate them individually). Moreover, one or more bones can influence a vertex of the skin; the net result being determined by a weighted average of the influencing bones鈥?final transforms (the weights are specified by an artist when the model is being made and saved to file). With this setup, a smooth transitional blend can be achieved at joints (which are typically the troubled areas), thereby making the skin feel elastic; see Figure 23.8. 
 
-In practice, [Möller08] notes that we usually do not need more than four bone influences per vertex. Therefore, in our design we will consider a maximum of four influential bones per vertex. So to implement vertex blending, we model the character mesh’s skin as one continuous mesh. Each vertex contains up to four indices that index into a bone matrix palette, which 
+In practice, [M枚ller08] notes that we usually do not need more than four bone influences per vertex. Therefore, in our design we will consider a maximum of four influential bones per vertex. So to implement vertex blending, we model the character mesh鈥檚 skin as one continuous mesh. Each vertex contains up to four indices that index into a bone matrix palette, which 
 
 ![](images/0dfb603ce2d30b3c40a6d6b3433888e2be581d3f75f34612e9d926a0e83120ca.jpg)
 
@@ -237,7 +239,7 @@ In practice, [Möller08] notes that we usually do not need more than four bone i
 
 
 
-Figure 23.8. The skin is one continuous mesh that covers both bones. Observe that the vertices near the joint are influenced by both bone A and bone $B$ to create a smooth transitional blend to simulate a flexible skin
+Figure 23.8. The skin is one continuous mesh that covers both bones. Observe that the vertices near the joint are influenced by both bone A and bone $B$ to create a smooth transitional blend to simulate a flexible聽skin
 
 
 ![](images/f567a1af985d9844fdd9b11fd09a2c06fabd50453ac348dc2497ab30b17f9ddb.jpg)
@@ -274,11 +276,11 @@ Here we assume that the transformation matrices $\mathbf { F } _ { i }$ do not c
 The following vertex shader fragment shows the key code that does vertex blending with a maximum of four bone influences per vertex: 
 
 ```c
-DEFINE_CBUFFER(SkinnedCB，b2)   
+DEFINE_CBUFFER(SkinnedCB锛宐2)   
 { float4x4 gBoneTransforms[96];   
-}；   
-struct VertexIn { float3PosL：POSITION; float3NormalL：NORMAL; float2TexC：TEXCOORD; float3TangentU：TANGENT; #if SKINNED float3BoneWeights：WEIGHTS; uint4 BoneIndices：BONEINDICES; #endif }；   
-struct VertexOut { float4PosH：SV_POSITION; float4ShadowPosH：POSITIONO; float4SsaoPosH：POSITION1; float3PosW：POSITION2; float3NormalW：NORMAL; float3TangentW：TANGENT; float2TexC：TEXCOORD; 
+}锛?  
+struct VertexIn { float3PosL锛歅OSITION; float3NormalL锛歂ORMAL; float2TexC锛歍EXCOORD; float3TangentU锛歍ANGENT; #if SKINNED float3BoneWeights锛歐EIGHTS; uint4 BoneIndices锛欱ONEINDICES; #endif }锛?  
+struct VertexOut { float4PosH锛歋V_POSITION; float4ShadowPosH锛歅OSITIONO; float4SsaoPosH锛歅OSITION1; float3PosW锛歅OSITION2; float3NormalW锛歂ORMAL; float3TangentW锛歍ANGENT; float2TexC锛歍EXCOORD; 
 ```
 
 ```c
@@ -293,18 +295,18 @@ void ApplySkinningShadows( float3 boneWeights, uint4 boneIndices, inout float3 p
 
 // that we do not have to use the inverse-transpose. skinnedPosL += weights[i] * mul(float4(posL, 1.0f), gBoneTransforms[boneIndices[i]).xyz; } posL = skinnedPosL;   
 }   
-VertexOut VS(VertexIn vin #if DRAW_INSTANCED , uint instanceof : SV_InstanceID #endif ） { VertexOut vout $=$ (VertexOut)0.0f; #if DRAW_INSTANCED // Fetch the instance data. InstanceData instData $=$ gInstanceData[instanceID]; float4x4 world $=$ instData.World; float4x4 texTransform $=$ instData.TexTransform; uint matIndex $=$ instData.MaterialIndex; vout.MatIndex $=$ matIndex; MaterialData matData $=$ gMaterialData[matIndex]; #else MaterialData matData $=$ gMaterialData[gMaterialIndex]; float4x4 world $=$ gWorld; float4x4 texTransform $=$ gTexTransform; #endif   
+VertexOut VS(VertexIn vin #if DRAW_INSTANCED , uint instanceof : SV_InstanceID #endif 锛?{ VertexOut vout $=$ (VertexOut)0.0f; #if DRAW_INSTANCED // Fetch the instance data. InstanceData instData $=$ gInstanceData[instanceID]; float4x4 world $=$ instData.World; float4x4 texTransform $=$ instData.TexTransform; uint matIndex $=$ instData.MaterialIndex; vout.MatIndex $=$ matIndex; MaterialData matData $=$ gMaterialData[matIndex]; #else MaterialData matData $=$ gMaterialData[gMaterialIndex]; float4x4 world $=$ gWorld; float4x4 texTransform $=$ gTexTransform; #endif   
 #if SKINNED ApplySkinning( vin.BoneWeights, vin.BoneIndices, vin_PosL, vin.NormalL, vin.TangentU.xyz); #endif // Transform to world space. float4 posW $=$ mul(float4(vin(PosL, 1.0f), world); vout-posW $=$ posW.xyz; // Assumes nonuniform scaling; otherwise, need to use inverse- transpose of world matrix. vout.NormalW $=$ mul(vin.NormalL,(float3x3)world); vout.TangentW $=$ mul(vin.TangentU,(float3x3)world); // Transform to homogeneous clip space. vout-posH $=$ mul(posW,gViewProj); if( gSsaoEnabled ) { // Generate projective tex-coords to project SSAO map onto scene. 
 
 vout.SsaoPosH $=$ mul(posW,gViewProjTex);   
 }   
-// Output vertex attributes for interpolation across triangle. float4 texC $=$ mul(float4(vin.TexC,0.0f,1.0f)，texTransform); vout.TexC $=$ mul(texC，matData.MatTransform).xy; if( gShadowsEnabled ) { // Generate projective tex-coords to project shadow map onto scene. vout.ShadowPosH $=$ mul(posW,gShadowTransform); } return vout; 
+// Output vertex attributes for interpolation across triangle. float4 texC $=$ mul(float4(vin.TexC,0.0f,1.0f)锛宼exTransform); vout.TexC $=$ mul(texC锛宮atData.MatTransform).xy; if( gShadowsEnabled ) { // Generate projective tex-coords to project shadow map onto scene. vout.ShadowPosH $=$ mul(posW,gShadowTransform); } return vout; 
 
 If the above vertex shader does vertex blending with a maximum of four bone influences per vertex, then why do we only input three weights per vertex instead of four? Well, recall that the total weight must sum to one; thus, for four weights we have: $w _ { 0 } + w _ { 1 } + w _ { 2 } + w _ { 3 } = 1 \Longleftrightarrow w _ { 3 } = 1 - w _ { 0 } - w _ { 1 } - w _ { 2 }$ . 
 
 # 23.4 LOADING ANIMATION DATA FROM FILE
 
-We use a text file to store a 3D skinned mesh with animation data. We call this an . $\mathrm { . m } 3 \mathrm { d }$ file for “model 3D.” The format has been designed for simplicity in loading and readability—not for performance—and the format is just used for this book. 
+We use a text file to store a 3D skinned mesh with animation data. We call this an . $\mathrm { . m } 3 \mathrm { d }$ file for 鈥渕odel 3D.鈥?The format has been designed for simplicity in loading and readability鈥攏ot for performance鈥攁nd the format is just used for this book. 
 
 # 23.4.1 Header
 
@@ -331,7 +333,7 @@ At the beginning, the .m3d format defines a header which specifies the number of
 
 # 23.4.2 Materials
 
-The next “chunk” in the . $\mathrm { \ m } 3 \mathrm { d }$ format is a list of materials. Below is an example of the first two materials in the soldier.m3d file: 
+The next 鈥渃hunk鈥?in the . $\mathrm { \ m } 3 \mathrm { d }$ format is a list of materials. Below is an example of the first two materials in the soldier.m3d file: 
 
 ```yaml
 **********Materials**********  
@@ -353,7 +355,7 @@ DiffuseMap: jacket_diff.dds
 NormalMap: jacket_norm.dds 
 ```
 
-The file contains the material data we are familiar with (diffuse, roughness, etc.), but also contains additional information such as the textures to apply, whether alpha clipping needs to be applied, and the material type name. The material type name is used to indicate which shader programs are needed for the given material. In the example above, the “Skinned” type indicates that the material will need to be rendered with shader programs that support skinning. 
+The file contains the material data we are familiar with (diffuse, roughness, etc.), but also contains additional information such as the textures to apply, whether alpha clipping needs to be applied, and the material type name. The material type name is used to indicate which shader programs are needed for the given material. In the example above, the 鈥淪kinned鈥?type indicates that the material will need to be rendered with shader programs that support skinning. 
 
 # 23.4.3 Subsets
 
@@ -430,7 +432,7 @@ BoneOffset1 1 4.884964E-07 3.025227E-07 0
 
 # 23.4.6 Hierarchy
 
-The hierarchy chunk stores the hierarchy array—an array of integers such that the ith array entry gives the parent index of the ith bone. To reiterate, these are ordered such that a parent bone always comes before a child bone. In this way, we can compute the final transforms top-down, as shown in $\ S 2 3 . 2 . 5$ . 
+The hierarchy chunk stores the hierarchy array鈥攁n array of integers such that the ith array entry gives the parent index of the ith bone. To reiterate, these are ordered such that a parent bone always comes before a child bone. In this way, we can compute the final transforms top-down, as shown in $\ S 2 3 . 2 . 5$ . 
 
 ```cpp
 **********BoneHierarchy**********  
@@ -638,7 +640,7 @@ The helper functions ReadMaterials, and etc., are straightforward text file pars
 As we saw in the skinned mesh shader code, the final bone transforms are stored in a constant buffer where they are accessed in the vertex shader to do the animation transformations. 
 
 ```javascript
-DEFINE_CBUFFER(SkinnedCB，b2) float4x4 gBoneTransforms[96];   
+DEFINE_CBUFFER(SkinnedCB锛宐2) float4x4 gBoneTransforms[96];   
 }; 
 ```
 
@@ -665,7 +667,7 @@ To represent an animated character instance at an instance in time, we define th
 
 struct SkinnedModelInstance   
 { SkinnedData\* SkinnedInfo $\equiv$ nullptr; // Storage for final transforms at the given time position std::vector< DirectX::XMFLOAT4X4>FinalTransforms; // Current animation clip. std::string ClipName; // Animation time position. float TimePos $= 0.0f$ . // Handle to SkinnedCB memory in linear allocator.DirectX::GraphicsResource MemHandleToSkinnedCB; // Call every frame to increment the animation. void UpdateSkinnedAnimation(float dt) { TimePos $+ =$ dt; // Loop animation if(TimePos $>$ SkinnedInfo->GetClipEndTime(clipName)) TimePos $= 0.0f$ . // Called every frame and increments the time position, // interpolates the animations for each bone based on // the current animation clip, and generates the final // transforms which are ultimately set to the effect // for processing in the vertex Shader. SkinnedInfo->GetFinalTransforms(clipName,TimePos, FinalTransforms); }   
-}； 
+}锛?
 
 Then we add the following data member to our render-item structure: 
 
@@ -703,16 +705,16 @@ Figure 23.11 shows a screenshot of our demo. The original animated model and tex
 
 
 
-Figure 23.11. Screenshot of the “Skinned Mesh” demo
+Figure 23.11. Screenshot of the 鈥淪kinned Mesh鈥?demo
 
 
 # 23.6 SUMMARY
 
-1. Many real world objects we wish to model graphically in a computer program consist of parts with a parent-children relationship, where a child object can move independently on its own, but is also forced to move when its parent moves. For example, a tank turret can rotate independently of the tank, but it is still fixed to the tank and moves with the tank. Another classic example is skeletons, in which bones are attached to other bones and must move when they move. Consider game characters on a train. The characters can move independently inside the train, but they also move as the train moves. This example illustrates how, in a game, the hierarchy can change dynamically and must be updated. That is, before a character enters a train, the train is not part of the character’s hierarchy, but once the player does enter a train, the train does become part of the character’s hierarchy (the character inherits the train transformation). 
+1. Many real world objects we wish to model graphically in a computer program consist of parts with a parent-children relationship, where a child object can move independently on its own, but is also forced to move when its parent moves. For example, a tank turret can rotate independently of the tank, but it is still fixed to the tank and moves with the tank. Another classic example is skeletons, in which bones are attached to other bones and must move when they move. Consider game characters on a train. The characters can move independently inside the train, but they also move as the train moves. This example illustrates how, in a game, the hierarchy can change dynamically and must be updated. That is, before a character enters a train, the train is not part of the character鈥檚 hierarchy, but once the player does enter a train, the train does become part of the character鈥檚 hierarchy (the character inherits the train transformation). 
 
-2. Each object in a mesh hierarchy is modeled about its own local coordinate system with its pivot joint at the origin to facilitate rotation. Because the coordinate systems exist in the same universe we can relate them, and therefore, transform from one to the other. In particular, we relate them by describing each object’s coordinate system relative to its parent’s coordinate system. From that, we can construct a to-parent transformation matrix that transforms the geometry of an object from its local coordinate system to its parent’s coordinate system. Once in the parent’s coordinate system, 
+2. Each object in a mesh hierarchy is modeled about its own local coordinate system with its pivot joint at the origin to facilitate rotation. Because the coordinate systems exist in the same universe we can relate them, and therefore, transform from one to the other. In particular, we relate them by describing each object鈥檚 coordinate system relative to its parent鈥檚 coordinate system. From that, we can construct a to-parent transformation matrix that transforms the geometry of an object from its local coordinate system to its parent鈥檚 coordinate system. Once in the parent鈥檚 coordinate system, 
 
-we can then transform by the parent’s to-parent matrix to transform to the grandparent’s coordinate system, and so on and so forth, until we have visited each ancestor’s coordinate system and finally reach the world space. Stated in other words, to transform an object in a mesh hierarchy from its local space to world space, we apply the to-parent transform of the object and all of its ancestors (in ascending order) to percolate up the coordinate system hierarchy until the object arrives in the world space. In this way, the object inherits the transformations of its parents and moves when they move. 
+we can then transform by the parent鈥檚 to-parent matrix to transform to the grandparent鈥檚 coordinate system, and so on and so forth, until we have visited each ancestor鈥檚 coordinate system and finally reach the world space. Stated in other words, to transform an object in a mesh hierarchy from its local space to world space, we apply the to-parent transform of the object and all of its ancestors (in ascending order) to percolate up the coordinate system hierarchy until the object arrives in the world space. In this way, the object inherits the transformations of its parents and moves when they move. 
 
 3. We can express the to-root transformation of the ith bone with the recurrence relation: $t o R o o t _ { i } = t o P a r e n t _ { i } \cdot t o R o o t _ { p }$ , where $\boldsymbol { p }$ refers to the parent bone of the ith bone. 
 
@@ -720,7 +722,7 @@ we can then transform by the parent’s to-parent matrix to transform to the gra
 
 5. In vertex blending, we have an underlying bone hierarchy, but the skin itself is one continuous mesh, and one or more bones can influence a vertex. The magnitude in which a bone influences a vertex is determined by a bone weight. For four bones, the transformed vertex v', relative to the root of the skeleton, is given by the weighted averaging formula $\mathbf { v } ^ { \prime } = w _ { 0 } \mathbf { v } \mathbf { F } _ { 0 } + w _ { 1 } \mathbf { v } \mathbf { F } _ { 1 } + w _ { 2 } \mathbf { v } \mathbf { F } _ { 2 } + w _ { 3 } \mathbf { v } \mathbf { F } _ { 3 }$ , where $w _ { 0 } + w _ { 1 } + w _ { 2 } + w _ { 3 } = 1$ . By using a continuous mesh, and several weighted bone influences per vertex, a more natural elastic skin effect is achieved. 
 
-6. To implement vertex blending, we store an array of final transformation matrices for each bone (the array is called a matrix palette). (The ith bone’s final transformation is defined as $\mathbf { F } _ { i } = o f f s e t _ { i } \cdot t o R o o t _ { i }$ —that is, the bone’s offset transformation followed by its to-root transformation.) Then, for each vertex, we store a list of vertex weights and matrix palette indices. The matrix palette indices of a vertex identify the final transformations of the bones that influence the vertex. 
+6. To implement vertex blending, we store an array of final transformation matrices for each bone (the array is called a matrix palette). (The ith bone鈥檚 final transformation is defined as $\mathbf { F } _ { i } = o f f s e t _ { i } \cdot t o R o o t _ { i }$ 鈥攖hat is, the bone鈥檚 offset transformation followed by its to-root transformation.) Then, for each vertex, we store a list of vertex weights and matrix palette indices. The matrix palette indices of a vertex identify the final transformations of the bones that influence the vertex. 
 
 # 23.7 EXERCISES
 
@@ -738,6 +740,6 @@ we can then transform by the parent’s to-parent matrix to transform to the gra
 Figure 23.12. Simple mesh hierarchy.
 
 
-3. If you have access to an animation package (Blender http://www.blender.org/ is free), try learning how to model a simple animated character using bones and blend weights. Export your data to the .x file format which supports vertex blending, and try to convert the file data to the . $. \mathrm { m } 3 \mathrm { d }$ format for rendering in the “Skinned Mesh” demo. This is not a short project. 
+3. If you have access to an animation package (Blender http://www.blender.org/ is free), try learning how to model a simple animated character using bones and blend weights. Export your data to the .x file format which supports vertex blending, and try to convert the file data to the . $. \mathrm { m } 3 \mathrm { d }$ format for rendering in the 鈥淪kinned Mesh鈥?demo. This is not a short project. 
 
-4. In this Chapter’s demo, we performed the bone animation on the CPU, and then the GPU accessed the final bone transformations from a constant buffer in an upload heap. For this exercise, move the animation and final bone transformation calculations to the GPU using compute shaders. In this way, the shader that does the vertex skinning does not need to read across the PCI-Express Bus. 
+4. In this Chapter鈥檚 demo, we performed the bone animation on the CPU, and then the GPU accessed the final bone transformations from a constant buffer in an upload heap. For this exercise, move the animation and final bone transformation calculations to the GPU using compute shaders. In this way, the shader that does the vertex skinning does not need to read across the PCI-Express Bus. 
