@@ -18,21 +18,23 @@ const nolebaseVite = presetVite()
 export default defineConfig({
   plugins: [
     {
-      name: 'pdf-to-md-desensitizer',
+      name: 'pdf-to-md-static-shield',
       transform(code, id) {
+        // Target specifically the 'refer' directory which contains messy PDF artifacts
         if (id.endsWith('.md') && id.replace(/\\/g, '/').includes('repo/refer')) {
-          // Automatic fix for PDF-to-MD artifacts:
-          // 1. Escape backslashes to shield LaTeX from Vue compiler
-          // 2. Escape angle brackets to shield C++ templates from Vue compiler
-          // 3. Wrap everything in v-pre to ensure static rendering
-          const desensitized = code
+          // 1. Extreme escaping: convert all sensitive chars to entities to shield from Vue compiler
+          // This preserves the exact look for readers but makes it "invisible" to Vue's parser.
+          const escaped = code
             .replace(/\\/g, '&#92;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;')
             .replace(/\$/g, '&#36;')
+            .replace(/\{/g, '&#123;')
+            .replace(/\}/g, '&#125;')
           
+          // 2. Wrap in v-pre for good measure
           return {
-            code: `\n\n<div v-pre>\n\n${desensitized}\n\n</div>\n`,
+            code: `\n\n<div v-pre>\n\n${escaped}\n\n</div>\n`,
             map: null
           }
         }
