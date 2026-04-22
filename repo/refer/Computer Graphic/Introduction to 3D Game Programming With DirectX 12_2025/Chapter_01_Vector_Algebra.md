@@ -1,3 +1,5 @@
+﻿# Chapter 01 Vector Algebra
+
 
 # Mathematical Prerequisites
 
@@ -26,15 +28,15 @@ Vectors play a crucial role in computer graphics, collision detection, and physi
 
 # 1.1 VECTORS
 
-A vector refers to a quantity that possesses both magnitude and direction. Quantities that possess both magnitude and direction are called vector-valued quantities. Examples of vector-valued quantities are forces (a force is applied in a particular direction with a certain strength—magnitude), displacements (the net direction and distance a particle moved), and velocities (speed and direction). Thus, vectors are used to represent forces, displacements, and velocities. In addition, we also use vectors to specify pure directions, such as the direction the player is looking in a 3D game, the direction a polygon is facing, the direction in which a ray of light travels, or the direction in which a ray of light reflects off a surface. 
+A vector refers to a quantity that possesses both magnitude and direction. Quantities that possess both magnitude and direction are called vector-valued quantities. Examples of vector-valued quantities are forces (a force is applied in a particular direction with a certain strength鈥攎agnitude), displacements (the net direction and distance a particle moved), and velocities (speed and direction). Thus, vectors are used to represent forces, displacements, and velocities. In addition, we also use vectors to specify pure directions, such as the direction the player is looking in a 3D game, the direction a polygon is facing, the direction in which a ray of light travels, or the direction in which a ray of light reflects off a surface. 
 
-A first step in characterizing a vector mathematically is geometrically: We graphically specify a vector by a directed line segment (see Figure 1.1), where the length denotes the magnitude of the vector and the aim denotes the direction of the vector. We note that the location in which we draw a vector is immaterial because changing the location does not change the magnitude or direction (the two properties a vector possesses). Therefore, we say two vectors are equal if and only if they have the same length and they point in the same direction. Thus, the vectors u and v drawn in Figure $1 . 1 a$ are actually equal because they have the same length and point in the same direction. In fact, because location is unimportant for vectors, we can always translate a vector without changing its meaning (since a translation changes neither length nor direction). Observe that we could translate u such that it completely overlaps with v (and conversely), thereby making them indistinguishable—hence their equality. As a physical example, the vectors u and v in Figure $1 . 1 b$ both tell the ants at two different points $A$ and B to move north ten 
+A first step in characterizing a vector mathematically is geometrically: We graphically specify a vector by a directed line segment (see Figure 1.1), where the length denotes the magnitude of the vector and the aim denotes the direction of the vector. We note that the location in which we draw a vector is immaterial because changing the location does not change the magnitude or direction (the two properties a vector possesses). Therefore, we say two vectors are equal if and only if they have the same length and they point in the same direction. Thus, the vectors u and v drawn in Figure $1 . 1 a$ are actually equal because they have the same length and point in the same direction. In fact, because location is unimportant for vectors, we can always translate a vector without changing its meaning (since a translation changes neither length nor direction). Observe that we could translate u such that it completely overlaps with v (and conversely), thereby making them indistinguishable鈥攈ence their equality. As a physical example, the vectors u and v in Figure $1 . 1 b$ both tell the ants at two different points $A$ and B to move north ten 
 
 ![](images/d2e889087725358ecfa514f1482a9e10fab8faf4f621fcc1b1e247f82a956df8.jpg)
 
 
 
-（a)
+锛坅)
 
 
 ![](images/f5284994e5494cc0bcfac8599edd9078faefa40920ece799d4cda4e5615acabd.jpg)
@@ -65,7 +67,7 @@ Consider Figure 1.4, which shows a vector v and two frames in space. (Note that 
 
 
 
-Figure 1.2. We translate v so that its tail coincides with the origin of the coordinate system. When a vector’s tail coincides with the origin, we say that it is in standard position.
+Figure 1.2. We translate v so that its tail coincides with the origin of the coordinate system. When a vector鈥檚 tail coincides with the origin, we say that it is in standard position.
 
 
 ![](images/a55fa3e6611137786247f08360bea12c4d43c1909dcab0e3fc52f502943cfeaf.jpg)
@@ -82,7 +84,7 @@ Figure 1.3. A vector specified by coordinates relative to a coordinate system.
 Figure 1.4. The same vector v has different coordinates when described relative to different frames.
 
 
-The idea is analogous to, say, temperature. Water boils at $1 0 0 ^ { \circ }$ Celsius or $2 1 2 ^ { \circ }$ Fahrenheit. The physical temperature of boiling water is the same no matter the scale (i.e., we can’t lower the boiling point by picking a different scale), but we assign a different scalar number to the temperature based on the scale we use. Similarly, for a vector, its direction and magnitude, which are embedded in the directed line segment, does not change; only the coordinates of it change based on the frame of reference we use to describe it. This is important because it means whenever we identify a vector by coordinates, those coordinates are relative to some frame of reference. Often in 3D computer graphics, we will utilize more than one frame of reference and, therefore, we will need to keep track of which frame a vector’s coordinates are relative to; additionally, we will need to know how to convert vector coordinates from one frame to another. 
+The idea is analogous to, say, temperature. Water boils at $1 0 0 ^ { \circ }$ Celsius or $2 1 2 ^ { \circ }$ Fahrenheit. The physical temperature of boiling water is the same no matter the scale (i.e., we can鈥檛 lower the boiling point by picking a different scale), but we assign a different scalar number to the temperature based on the scale we use. Similarly, for a vector, its direction and magnitude, which are embedded in the directed line segment, does not change; only the coordinates of it change based on the frame of reference we use to describe it. This is important because it means whenever we identify a vector by coordinates, those coordinates are relative to some frame of reference. Often in 3D computer graphics, we will utilize more than one frame of reference and, therefore, we will need to keep track of which frame a vector鈥檚 coordinates are relative to; additionally, we will need to know how to convert vector coordinates from one frame to another. 
 
 ![](images/e2f002d6ae875123fd46963ae942947ca6288d30417908f69213da3cd5ec08fd.jpg)
 
@@ -141,11 +143,11 @@ The difference in the third bullet illustrates a special vector, called the zero
 
 We will illustrate this example with 2D vectors to make the drawings simpler. The ideas are the same as in 3D; we just work with one less component in 2D. 
 
-1. Let $\mathbf { v } = ( 2 , 1 )$ . How do $\mathbf { v }$ and $- { \frac { 1 } { 2 } } \mathbf { v }$ compare geometrically? We note that $- { \frac { 1 } { 2 } } \mathbf { v } = \left( - 1 , - { \frac { 1 } { 2 } } \right)$ . Graphing both $\mathbf { v }$ and $- { \frac { 1 } { 2 } } \mathbf { v }$ (Figure 1.6a), we notice that $- { \frac { 1 } { 2 } } \mathbf { v }$ is in the direction directly opposite of v and its length is 1/2 that of v. Thus, geometrically, negating a vector can be thought of as “flipping” its direction, and scalar multiplication can be thought of as scaling the length of a vector. 
+1. Let $\mathbf { v } = ( 2 , 1 )$ . How do $\mathbf { v }$ and $- { \frac { 1 } { 2 } } \mathbf { v }$ compare geometrically? We note that $- { \frac { 1 } { 2 } } \mathbf { v } = \left( - 1 , - { \frac { 1 } { 2 } } \right)$ . Graphing both $\mathbf { v }$ and $- { \frac { 1 } { 2 } } \mathbf { v }$ (Figure 1.6a), we notice that $- { \frac { 1 } { 2 } } \mathbf { v }$ is in the direction directly opposite of v and its length is 1/2 that of v. Thus, geometrically, negating a vector can be thought of as 鈥渇lipping鈥?its direction, and scalar multiplication can be thought of as scaling the length of a vector. 
 
 2. Let $\mathbf { u } = \left( 2 , \textstyle { \frac { 1 } { 2 } } \right)$ and $\mathbf { v } = ( 1 , 2 )$ . Then $\mathbf { u } + \mathbf { v } = \left( 3 , \frac { 5 } { 2 } \right)$ . Figure $1 . 6 b$ shows what vector addition means geometrically: We parallel translate u so that its tail coincided with the head of v. Then, the sum is the vector originating at the tail of v and ending at the head of the translated u. (We get the same result if we keep u fixed and translate v so that its tail coincided with the head of u. In this case, $\mathbf { u } + \mathbf { v }$ would be the vector originating at the tail of u and ending at the head of the translated v.) Observe also that our rules of vector addition agree with what we would intuitively expect to happen physically when we add forces together to produce a net force: If we add two forces (vectors) in the same direction, we get another stronger net force (longer vector) in that direction. If we add two forces (vectors) in opposition to each other, then we get a weaker net force (shorter vector). Figure 1.7 illustrates these ideas. 
 
-3. Let $\mathbf { u } = \left( 2 , \textstyle { \frac { 1 } { 2 } } \right)$ and $\mathbf { v } = ( 1 , 2 )$ . Then $\mathbf { v } - \mathbf { u } = \left( - 1 , \frac { 3 } { 2 } \right)$ . Figure $1 . 6 c$ shows what vector subtraction means geometrically. Essentially, the difference v – u gives us a vector aimed from the head of u to the head of v. If we instead interpret u and v as points, then v – u gives us a vector aimed from the point u to the point v; this interpretation is important as we will often want the vector aimed 
+3. Let $\mathbf { u } = \left( 2 , \textstyle { \frac { 1 } { 2 } } \right)$ and $\mathbf { v } = ( 1 , 2 )$ . Then $\mathbf { v } - \mathbf { u } = \left( - 1 , \frac { 3 } { 2 } \right)$ . Figure $1 . 6 c$ shows what vector subtraction means geometrically. Essentially, the difference v 鈥?u gives us a vector aimed from the head of u to the head of v. If we instead interpret u and v as points, then v 鈥?u gives us a vector aimed from the point u to the point v; this interpretation is important as we will often want the vector aimed 
 
 ![](images/68a61781ad618d1fd2c001bc884c071ffa8cd66576a8f33b434b6560d0e2fd8d.jpg)
 
@@ -167,7 +169,7 @@ Figure 1.6. (a) The geometric interpretation of scalar multiplication. (b) The g
 Figure 1.7. Forces applied to a ball. The forces are combined using vector addition to get a net force.
 
 
-from one point to another. Observe also that the length of v – u is the distance from u to v, when thinking of u and v as points. 
+from one point to another. Observe also that the length of v 鈥?u is the distance from u to v, when thinking of u and v as points. 
 
 # 1.2 LENGTH AND UNIT VECTORS
 
@@ -194,7 +196,7 @@ $$
 \hat {\mathbf {u}} = \frac {\mathbf {u}}{\| \mathbf {u} \|} = \left(\frac {x}{\| \mathbf {u} \|}, \frac {y}{\| \mathbf {u} \|}, \frac {z}{\| \mathbf {u} \|}\right) \tag {eq.1.2}
 $$
 
-To verify that this formula is correct, we can compute the length of uˆ: 
+To verify that this formula is correct, we can compute the length of u藛: 
 
 $$
 \left\| \hat {\mathbf {u}} \right\| = \sqrt {\left(\frac {x}{\left\| \mathbf {u} \right\|}\right) ^ {2} + \left(\frac {y}{\left\| \mathbf {u} \right\|}\right) ^ {2} + \left(\frac {z}{\left\| \mathbf {u} \right\|}\right) ^ {2}} = \frac {\sqrt {x ^ {2} + y ^ {2} + z ^ {2}}}{\sqrt {\left\| \mathbf {u} \right\| ^ {2}}} = \frac {\left\| \mathbf {u} \right\|}{\left\| \mathbf {u} \right\|} = 1
@@ -239,21 +241,21 @@ $$
 
 
 
-（a）
+锛坅锛?
 
 
 ![](images/73b969b8df343da804eac4a0e912505ac00887b09a90cb5b17fb6086761b512f.jpg)
 
 
 
-(b）
+(b锛?
 
 
 
 Figure 1.9. In the left figure, the angle $\theta$ between u and $\pmb { v }$ is an acute angle. In the right figure, the angle $\theta$ between u and $\pmb { v }$ is an obtuse angle. When we refer to the angle between two vectors, we always mean the smallest angle, that is, the angle $\theta$ such that $0 \le \theta \le \pi$ .
 
 
-where $\theta$ is the angle between the vectors u and v such that $0 \leq \theta \leq \pi$ ; see Figure 1.9. So, Equation 1.4 says that the dot product between two vectors is the cosine of the angle between them scaled by the vectors’ magnitudes. In particular, if both u and v are unit vectors, then u ⋅ v is the cosine of the angle between them (i.e., $\mathbf { u } \cdot \mathbf { v } { } = { \cos \theta } { } ,$ ). 
+where $\theta$ is the angle between the vectors u and v such that $0 \leq \theta \leq \pi$ ; see Figure聽1.9. So, Equation 1.4 says that the dot product between two vectors is the cosine of the angle between them scaled by the vectors鈥?magnitudes. In particular, if both u and v are unit vectors, then u 鈰?v is the cosine of the angle between them (i.e., $\mathbf { u } \cdot \mathbf { v } { } = { \cos \theta } { } ,$ ). 
 
 Equation 1.4 provides us with some useful geometric properties of the dot product: 
 
@@ -265,7 +267,7 @@ Equation 1.4 provides us with some useful geometric properties of the dot produc
 
 Note: 
 
-The word “orthogonal” can be used as a synonym for “perpendicular.” 
+The word 鈥渙rthogonal鈥?can be used as a synonym for 鈥減erpendicular.鈥?
 
 ![](images/c5507d1de17661f04b9c1da738042153513adba3eb639504342301da5c4e6af4.jpg)
 
@@ -337,7 +339,7 @@ Figure 1.10. The orthogonal projection of v on n.
 
 A set of vectors $\left\{ \mathbf { v } _ { 0 } , . . . , \mathbf { v } _ { n - 1 } \right\}$ is called orthonormal if the vectors are mutually orthogonal (every vector in the set is orthogonal to every other vector in the set) and unit length. Sometimes we have a set of vectors that are almost orthonormal, but not quite. A common task is to orthogonalize the set and make it orthonormal. In 3D computer graphics we might start off with an orthonormal set, but due to numerical precision issues, the set gradually becomes un-orthonormal. We are mainly concerned with the 2D and 3D cases of this problem (that is, sets that contain two and three vectors, respectively). 
 
-We examine the simpler 2D case first. Suppose we have the set of vectors $\left\{ \mathbf { v } _ { 0 } , \mathbf { v } _ { 1 } \right\}$ that we want to orthogonalize into an orthonormal set $\left\{ \mathbf { w } _ { 0 } , \mathbf { w } _ { 1 } \right\}$ as shown in Figure 1.11. We start with $\mathbf { w } _ { 0 } { = } \mathbf { v } _ { 0 }$ and modify $\mathbf { v } _ { 1 }$ to make it orthogonal to $\mathbf { w } _ { 0 }$ ; this is done by subtracting out the portion of $\mathbf { v } _ { 1 }$ that acts in the ${ \bf w } _ { 0 }$ direction: 
+We examine the simpler 2D case first. Suppose we have the set of vectors $\left\{ \mathbf { v } _ { 0 } , \mathbf { v } _ { 1 } \right\}$ that we want to orthogonalize into an orthonormal set $\left\{ \mathbf { w } _ { 0 } , \mathbf { w } _ { 1 } \right\}$ as shown in Figure聽1.11. We start with $\mathbf { w } _ { 0 } { = } \mathbf { v } _ { 0 }$ and modify $\mathbf { v } _ { 1 }$ to make it orthogonal to $\mathbf { w } _ { 0 }$ ; this is done by subtracting out the portion of $\mathbf { v } _ { 1 }$ that acts in the ${ \bf w } _ { 0 }$ direction: 
 
 $$
 \mathbf {w} _ {1} = \mathbf {v} _ {1} - \operatorname {p r o j} _ {\mathbf {w} _ {0}} (\mathbf {v} _ {1})
@@ -391,7 +393,7 @@ $$
 \mathbf {w} = \mathbf {u} \times \mathbf {v} = \left(u _ {y} v _ {z} - u _ {z} v _ {y}, u _ {z} v _ {x} - u _ {x} v _ {z}, u _ {x} v _ {y} - u _ {y} v _ {x}\right) \tag {eq.1.5}
 $$
 
-# ☞	Example 1.6
+# 鈽?Example 1.6
 
 Let $\mathbf { u } = \left( 2 , 1 , 3 \right)$ and $\mathbf { v } = \left( 2 , 0 , 0 \right)$ . Compute $\mathbf { w } = \mathbf { u } \times \mathbf { v }$ and $\mathbf { z } = \mathbf { v } \times \mathbf { u }$ , and then verify that w is orthogonal to $\mathbf { u }$ and that w is orthogonal to v. Applying Equation 1.5 we have, 
 
@@ -456,7 +458,7 @@ In $\ S 1 . 3 . 1$ , we looked at a way to orthogonalize a set of vectors using 
 
 1. Set w 0 0= v||v || . $\mathbf { w } _ { 0 } = \frac { \mathbf { v } _ { 0 } } { \lVert \mathbf { v } _ { 0 } \rVert }$ 
 
-2. Set w2 = $\mathbf { w } _ { 2 } = \frac { \mathbf { w } _ { 0 } \times \mathbf { v } _ { 1 } } { \| \mathbf { w } _ { 0 } \times \mathbf { v } _ { 1 } \| }$ 0 1×w v 
+2. Set w2 = $\mathbf { w } _ { 2 } = \frac { \mathbf { w } _ { 0 } \times \mathbf { v } _ { 1 } } { \| \mathbf { w } _ { 0 } \times \mathbf { v } _ { 1 } \| }$ 0 1脳w v 
 
 3. Set $\mathbf { w } _ { 1 } = \mathbf { w } _ { 2 } \times \mathbf { w } _ { 0 }$ By Exercise 14, $\left| \left| \mathbf { w } _ { 2 } \times \mathbf { w } _ { 0 } \right| \right| = 1$ because $\mathbf { w } _ { 2 } \perp \mathbf { w } _ { 0 }$ and $| | \mathbf { w } _ { 2 } | | =$ $\left. \left. \mathbf { w } _ { 0 } \right. \right. = 1$ , so we do not need to do any normalization in this last step. 
 
@@ -476,7 +478,7 @@ In the above example, we started with w0 00= v||v || $\mathbf { w } _ { 0 } = \f
 
 # 1.5 POINTS
 
-So far we have been discussing vectors, which do not describe positions. However, we will also need to specify positions in our 3D programs, for example, the position of 3D geometry and the position of the 3D virtual camera. Relative to a coordinate system, we can use a vector in standard position (Figure 1.16) to represent a 3D position in space; we call this a position vector. In this case, the location of the tip of the vector is the characteristic of interest, not the direction or magnitude. We will use the terms “position vector” and “point” interchangeably since a position vector is enough to identify a point. 
+So far we have been discussing vectors, which do not describe positions. However, we will also need to specify positions in our 3D programs, for example, the position of 3D geometry and the position of the 3D virtual camera. Relative to a coordinate system, we can use a vector in standard position (Figure 1.16) to represent a 3D position in space; we call this a position vector. In this case, the location of the tip of the vector is the characteristic of interest, not the direction or magnitude. We will use the terms 鈥減osition vector鈥?and 鈥減oint鈥?interchangeably since a position vector is enough to identify a point. 
 
 One side effect of using vectors to represent points, especially in code, is that we can do vector operations that do not make sense for points; for instance, geometrically, what should the sum of two points mean? On the other hand, some operations can be extended to points. For example, we define the difference of two points $\mathbf { q } - \mathbf { p }$ to be the vector from p to q. Also, we define a point p plus a 
 
@@ -491,7 +493,7 @@ Figure 1.16. The position vector, which extends from the origin to the point, fu
 
 
 
-(a）
+(a锛?
 
 
 ![](images/ff5c6857c09beb5cf507758e7f0068a803f5f19da7ec8d2ff8d57ab206d79c72.jpg)
@@ -606,11 +608,11 @@ We use the following methods to store data from XMVECTOR into XMFLOATn:
 
 ```c
 //LoadsXMVECTORintoXMFLOAT2   
-voidXM_CALLCONVXMStoreFloat2(XMFLOAT2\*pDestination，FXMVECTORV);   
+voidXM_CALLCONVXMStoreFloat2(XMFLOAT2\*pDestination锛孎XMVECTORV);   
 //LoadsXMVECTOR into XMFLOAT3   
-voidXM_CALLCONVXMStoreFloat3(XMFLOAT3\*pDestination，FXMVECTORV);   
+voidXM_CALLCONVXMStoreFloat3(XMFLOAT3\*pDestination锛孎XMVECTORV);   
 //LoadsXMVECTOR into XMFLOAT4   
-voidXM(CallCONVXMStoreFloat4(XMFLOAT4\*pDestination，FXMVECTORV); 
+voidXM(CallCONVXMStoreFloat4(XMFLOAT4\*pDestination锛孎XMVECTORV); 
 ```
 
 Sometimes we just want to get or set one component of an XMVECTOR; the following getter and setter functions facilitate this: 
@@ -659,7 +661,7 @@ typedef const XMVECTOR HXMVECTOR;
 typedef const XMVECTOR& CXMVECTOR; 
 ```
 
-For the details on how these types are defined for the other platforms, see “Calling Conventions” under “Library Internals” in the DirectX Math documentation [DirectXMath]. The exception to these rules is with constructor methods. [DirectXMath] recommends using FXMVECTOR for the first three XMVECTOR parameters and CXMVECTOR for the rest when writing a constructor that takes XMVECTOR parameters. Furthermore, do not use the annotation XM_CALLCONV for constructors 
+For the details on how these types are defined for the other platforms, see 鈥淐alling Conventions鈥?under 鈥淟ibrary Internals鈥?in the DirectX Math documentation [DirectXMath]. The exception to these rules is with constructor methods. [DirectXMath] recommends using FXMVECTOR for the first three XMVECTOR parameters and CXMVECTOR for the rest when writing a constructor that takes XMVECTOR parameters. Furthermore, do not use the annotation XM_CALLCONV for constructors 
 
 Here is an example from the DirectXMath library: 
 
@@ -675,7 +677,7 @@ You can have non-XMVECTOR parameters between XMVECTOR parameters. The same rules
 inline XMMatrix XM_CALLCONV XMMatrixTransformation2D(FXMVECTOR ScalingOrigin, float ScalingOrientation, FXMVECTOR Scaling, FXMVECTOR RotationOrigin, float Rotation, GXMVECTOR Translation); 
 ```
 
-The rules for passing XMVECTOR parameters apply to “input” parameters. “Output” XMVECTOR parameters (XMVECTOR& or XMVECTOR*) will not use the SSE/SSE2 registers and so will be treated like non-XMVECTOR parameters. 
+The rules for passing XMVECTOR parameters apply to 鈥渋nput鈥?parameters. 鈥淥utput鈥?XMVECTOR parameters (XMVECTOR& or XMVECTOR*) will not use the SSE/SSE2 registers and so will be treated like non-XMVECTOR parameters. 
 
 # 1.6.4 Constant Vectors
 
@@ -734,7 +736,7 @@ XMVECTOR XM_CALLCONV operator/ (FXMVECTOR V, float S);
 
 # 1.6.6 Miscellaneous
 
-The DirectX Math library defined the following constants useful for approximating different expressions involving π: 
+The DirectX Math library defined the following constants useful for approximating different expressions involving 蟺: 
 
 ```cpp
 const float XM.PI = 3.141592654f;  
@@ -914,7 +916,7 @@ XMVECTOR XM_CALLCONV XMVector3NormalizeEst( // Returns estimated v/||v|| FXMVECT
 
 # 1.6.9 Floating-Point Error
 
-While on the subject of working with vectors on a computer, we should be aware of the following. When comparing floating-point numbers, care must be taken due to floating-point imprecision. Two floating-point numbers that we expect to be equal may differ slightly. For example, mathematically, we’d expect a normalized vector to have a length of 1, but in a computer program, the length will only be approximately 1. Moreover, mathematically, $1 ^ { p } = 1$ for any real number $\boldsymbol { p }$ , but when we only have a numerical approximation for 1, we see that the approximation raised to the pth power increases the error; thus, numerical error also accumulates. The following short program illustrates these ideas: 
+While on the subject of working with vectors on a computer, we should be aware of the following. When comparing floating-point numbers, care must be taken due to floating-point imprecision. Two floating-point numbers that we expect to be equal may differ slightly. For example, mathematically, we鈥檇 expect a normalized vector to have a length of 1, but in a computer program, the length will only be approximately 1. Moreover, mathematically, $1 ^ { p } = 1$ for any real number $\boldsymbol { p }$ , but when we only have a numerical approximation for 1, we see that the approximation raised to the pth power increases the error; thus, numerical error also accumulates. The following short program illustrates these ideas: 
 
 ```cpp
 include <windows.h> // for XMVerifyCPUSupport   
@@ -944,7 +946,7 @@ cout << "LU^(10^6) = " << powLU << endl;
 Figure 1.20. Output for the above program.
 
 
-To compensate for floating-point imprecision, we test if two floating-point numbers are approximately equal. We do this by defining an Epsilon constant, which is a very small value we use as a “buffer.” We say two values are approximately equal if their distance is less than Epsilon. In other words, Epsilon gives us some tolerance for floating-point imprecision. The following function illustrates how Epsilon can be used to test if two floating-point values are equal: 
+To compensate for floating-point imprecision, we test if two floating-point numbers are approximately equal. We do this by defining an Epsilon constant, which is a very small value we use as a 鈥渂uffer.鈥?We say two values are approximately equal if their distance is less than Epsilon. In other words, Epsilon gives us some tolerance for floating-point imprecision. The following function illustrates how Epsilon can be used to test if two floating-point values are equal: 
 
 ```cpp
 const float Epsilon = 0.001f;   
@@ -1019,7 +1021,7 @@ XMVECTOR XM_CALLCONV XMVector3Normalize(FXMVECTOR V);
 
 (c) 3 2 u v + 
 
-(d) − + 2u v 
+(d) 鈭?+ 2u v 
 
 3. This exercise shows that vector algebra shares many of the nice properties of real numbers (this is not an exhaustive list). Assume $\mathbf { u } = \left( u _ { x } ^ { ^ { \ast } } , u _ { y } ^ { ^ { \ast } } , u _ { z } \right)$ , $\mathbf { \underline { { v } } } = \left( \nu _ { _ { x } } , \nu _ { _ { y } } , \nu _ { _ { z } } \right)$ , and $\mathbf { w } = \left( w _ { x } , w _ { y } , w _ { z } \right)$ . Also assume that $c$ and $\dot { k }$ are scalars. Prove the following vector properties. 
 
@@ -1052,9 +1054,9 @@ $$
 
 (a) $\mathbf { u } = { \left( { 1 , 1 , 1 } \right) } , \ \mathbf { v } = { \left( { 2 , 3 , 4 } \right) }$ 
 
-(b) u = ( ) 1 1, , 0 , v = −( ) 2 2 0 , , 
+(b) u = ( ) 1 1, , 0 , v = 鈭? ) 2 2 0 , , 
 
-(c) u = −( ) 1 1 1 , , − − , v = ( ) 3 1, , 0 
+(c) u = 鈭? ) 1 1 1 , , 鈭?鈭?, v = ( ) 3 1, , 0 
 
 8. Let $\mathbf { u } = \left( - 1 , 3 , 2 \right)$ and $\mathbf { v } = \left( 3 , - 4 , 1 \right)$ . Find the angle $\theta$ between u and v. 
 
@@ -1099,7 +1101,7 @@ Consider Figure 1.9 and set $c ^ { 2 } = \lvert | \mathbf { u } - \mathbf { v } 
 ![](images/9ddb3aceb7c72166fa763053722dd4e5d2729e1f88971f2abf166f71e67208cd.jpg)
 
 
-Find two vectors on two of the triangle’s edges and use the cross product. 
+Find two vectors on two of the triangle鈥檚 edges and use the cross product. 
 
 14. Prove that $\left\| \mathbf { u \times v } \right\| = \left\| \mathbf { u } \right\| \left\| \mathbf { v } \right\| \sin \theta$ . 
 
@@ -1164,3 +1166,4 @@ XMVECTOR p = XMVectorSet(2.0f, 2.0f, 1.0f, 0.0f); XMVECTOR q = XMVectorSet(2.0f,
 
 
 Figure 1.22. Output for the above program.
+

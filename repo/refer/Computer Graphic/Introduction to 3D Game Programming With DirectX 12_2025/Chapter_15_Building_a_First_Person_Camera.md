@@ -1,3 +1,5 @@
+﻿# Chapter 15 Building a First Person Camera
+
 
 # III Topics
 
@@ -5,9 +7,9 @@ n this part, we focus on applying Direct3D to implement various rendering effect
 
 Chapter 15, Building a First Person Camera: In this chapter, we show how to design a camera system that behaves more as you would expect in a firstperson game. We show how to control the camera via keyboard and mouse input. 
 
-Chapter 16, Instancing and Frustum Culling: Instancing is a hardwaresupported technique that optimizes the drawing of the same geometry multiple times with different properties (such as at different positions in the scene and with different colors). Frustum culling is an optimization technique where we discard an entire object from being submitted to the rendering pipeline if it lies completely outside the virtual camera’s field of view. We also show how to compute the bounding box and sphere of a mesh. 
+Chapter 16, Instancing and Frustum Culling: Instancing is a hardwaresupported technique that optimizes the drawing of the same geometry multiple times with different properties (such as at different positions in the scene and with different colors). Frustum culling is an optimization technique where we discard an entire object from being submitted to the rendering pipeline if it lies completely outside the virtual camera鈥檚 field of view. We also show how to compute the bounding box and sphere of a mesh. 
 
-Chapter 17, Picking: This chapter shows how to determine the particular 3D object (or 3D primitive) that the user has selected with the mouse. Picking is often a necessity in 3D games and applications where the user interacts with the 3D world with the mouse. 
+Chapter 17, Picking: This chapter shows how to determine the particular 3D object (or 3D primitive) that the user has selected with the mouse.聽Picking is often a necessity in 3D games and applications where the user interacts with the 3D world with the mouse. 
 
 Chapter 18, Cube Mapping: In this chapter, we show how to reflect environments onto arbitrary meshes with environment mapping; in addition, we use an environment map to texture a sky-sphere. 
 
@@ -23,7 +25,7 @@ Chapter 23, Character Animation: This chapter covers the theory of character ani
 
 Chapter 24, Terrain Rendering: This chapter shows how to create, texture, light, and render 3D terrains using heightmaps, tessellation, and a multi-texturing technique. 
 
-Chapter 25, Particle Systems: In this chapter, we learn how to model systems that consist of many small particles that all behave in a similar manner.  For example, particle systems can be used to model snow and rain, fire and smoke, rocket trails, sprinklers, and fountains. 
+Chapter 25, Particle Systems: In this chapter, we learn how to model systems that consist of many small particles that all behave in a similar manner.聽 For example, particle systems can be used to model snow and rain, fire and smoke, rocket trails, sprinklers, and fountains. 
 
 Chapter 26, Mesh Shaders: Mesh and Amplification shaders effectively replace the geometry pipeline (input assembler, vertex shader, tessellation shaders, and geometry shader) with compute-based shaders that more accurately model the underlying hardware. This both simplifies the pipeline and provides more flexibility. 
 
@@ -106,7 +108,7 @@ Many of the camera class methods are trivial get/set methods that we will omit h
 
 # 15.3.1 XMVECTOR Return Variations
 
-First, we want to remark that we provide XMVECTOR return variations for many of the “get” methods; this is just for convenience so that the client code does not need to convert if they need an XMVECTOR: 
+First, we want to remark that we provide XMVECTOR return variations for many of the 鈥済et鈥?methods; this is just for convenience so that the client code does not need to convert if they need an XMVECTOR: 
 
 ```cpp
 XMVECTOR Camera::GetPosition()const { return XmlLoadFloat3(&mPosition);   
@@ -145,9 +147,9 @@ For a first person camera, ignoring collision detection, we want to be able to:
 
 2. Move the camera along its right vector to strafe right and left. This can be implemented by translating the camera position along its right vector. 
 
-3. Rotate the camera around its right vector to look up and down. This can be implemented by rotating the camera’s look and up vectors around its right vector using the XMMatrixRotationAxis function. 
+3. Rotate the camera around its right vector to look up and down. This can be implemented by rotating the camera鈥檚 look and up vectors around its right vector using the XMMatrixRotationAxis function. 
 
-4. Rotate the camera around the world’s y-axis (assuming the y-axis corresponds to the world’s “up” direction) vector to look right and left. This can be implemented by rotating all the basis vectors around the world’s $y$ -axis using the XMMatrixRotationY function. 
+4. Rotate the camera around the world鈥檚 y-axis (assuming the y-axis corresponds to the world鈥檚 鈥渦p鈥?direction) vector to look right and left. This can be implemented by rotating all the basis vectors around the world鈥檚 $y$ -axis using the XMMatrixRotationY function. 
 
 void Camera::Walk(float d)   
 { //mPosition $+ =$ d*mLook XMVECTOR s $=$ XMVectorReplicate(d); XMVECTOR l $=$ XMLoadFloat3(&mLook); XMVECTOR p $=$ XMLoadFloat3(&mPosition); XMStoreFloat3(&mPosition, XMVectorMultiplyAdd(s, l, p));   
@@ -163,7 +165,7 @@ void Camera::RotateY(float angle)
 
 # 15.3.5 Building the View Matrix
 
-The first part of the UpdateViewMatrix method reorthonormalizes the camera’s right, up, and look vectors. That is to say, it makes sure they are mutually orthogonal to each other and unit length. This is necessary because after several rotations, numerical errors can accumulate and cause these vectors to become non-orthonormal. When this happens, the vectors no longer represent a rectangular coordinate system, but a skewed coordinate system, which is not what we want. The second part of this method just plugs the camera vectors into Equation 15.1 to compute the view transformation matrix. 
+The first part of the UpdateViewMatrix method reorthonormalizes the camera鈥檚 right, up, and look vectors. That is to say, it makes sure they are mutually orthogonal to each other and unit length. This is necessary because after several rotations, numerical errors can accumulate and cause these vectors to become non-orthonormal. When this happens, the vectors no longer represent a rectangular coordinate system, but a skewed coordinate system, which is not what we want. The second part of this method just plugs the camera vectors into Equation 15.1 to compute the view transformation matrix. 
 
 ```cpp
 void Camera::UpdateViewMatrix()
@@ -211,7 +213,7 @@ mViewDirty = false;
 
 # 15.4 DEMO COMMENTS
 
-We do not have a single “Camera” demo application, but all demos from now on will use the Camera class described in the previous sections, instead of the orbiting camera model. This section outlines the changes needed to use the new camera style. First, we can remove all the old variables from our application class that were related to the orbital camera system such as mPhi, mTheta, mRadius, mView, and mProj. We will add a member variable: 
+We do not have a single 鈥淐amera鈥?demo application, but all demos from now on will use the Camera class described in the previous sections, instead of the orbiting camera model. This section outlines the changes needed to use the new camera style. First, we can remove all the old variables from our application class that were related to the orbital camera system such as mPhi, mTheta, mRadius, mView, and mProj. We will add a member variable: 
 
 Camera mCamera; 
 
@@ -225,7 +227,7 @@ void TestApp::OnResize()
 } 
 ```
 
-In the OnKeyboardInput method, we handle keyboard input to move the camera. In typical first-person shooter fashion, we use the “W,” “S,” “A,” and “D” keys to move forward, backward, strafe left, and strafe right, respectively. 
+In the OnKeyboardInput method, we handle keyboard input to move the camera. In typical first-person shooter fashion, we use the 鈥淲,鈥?鈥淪,鈥?鈥淎,鈥?and 鈥淒鈥?keys to move forward, backward, strafe left, and strafe right, respectively. 
 
 ```cpp
 void TestApp::OnKeyboardInput(const GameTimer& gt)  
@@ -243,7 +245,7 @@ void TestApp::OnKeyboardInput(const GameTimer& gt)
 } 
 ```
 
-In the OnMouseMove method, when the left mouse button is down, we rotate the camera’s look direction: 
+In the OnMouseMove method, when the left mouse button is down, we rotate the camera鈥檚 look direction: 
 
 ```cpp
 void TestApp::OnMouseMove(WPARAM btwState, int x, int y)  
@@ -295,9 +297,9 @@ mCommandList->SetPipelineState(psoLib["opaque"]);
 
 1. We define the camera coordinate system by specifying its position and orientation. The position is specified by a position vector relative to the world coordinate system, and the orientation is specified by three orthonormal vectors relative to the world coordinate system: a right, up, and look vector. Moving the camera amounts to moving the camera coordinate system relative to the world coordinate system. 
 
-2. We included projection related quantities in the camera class, as the perspective projection matrix can be thought of as the “lens” of the camera by controlling the field of view, and near and far planes. 
+2. We included projection related quantities in the camera class, as the perspective projection matrix can be thought of as the 鈥渓ens鈥?of the camera by controlling the field of view, and near and far planes. 
 
-3. Moving forward and backwards can be implemented simply by translating the camera position along its look vector. Strafing right and left can be implemented simply by translating the camera position along its right vector. Looking up and down can be achieved by rotating the camera’s look and up vectors around its right vector. Looking left and right can be implemented by rotating all the basis vectors around the world’s y-axis. 
+3. Moving forward and backwards can be implemented simply by translating the camera position along its look vector. Strafing right and left can be implemented simply by translating the camera position along its right vector. Looking up and down can be achieved by rotating the camera鈥檚 look and up vectors around its right vector. Looking left and right can be implemented by rotating all the basis vectors around the world鈥檚 y-axis. 
 
 # 15.7 EXERCISES
 
@@ -309,4 +311,4 @@ $$
 
 using the dot product. (Remember, to find the change of coordinate matrix from world space to view space, you just need to describe the world space axes and origin with coordinates relative to view space. Then these coordinates become the rows of the view matrix.) 
 
-2. Modify the camera demo to support “roll.” This is where the camera rotates around its look vector. This could be useful for an aircraft game. 
+2. Modify the camera demo to support 鈥渞oll.鈥?This is where the camera rotates around its look vector. This could be useful for an aircraft game. 

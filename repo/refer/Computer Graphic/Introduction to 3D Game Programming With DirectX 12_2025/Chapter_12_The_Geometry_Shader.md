@@ -1,3 +1,5 @@
+﻿# Chapter 12 The Geometry Shader
+
 Chapter 
 
 # 12 The Geometry Shader
@@ -48,7 +50,7 @@ where N is the maximum number of vertices the geometry shader will output for a 
 
 implementation may have other drawbacks, which can still make the geometry shader implementation a better choice. Furthermore, the recommendations in [NVIDIA08] are from 2008 (first generation geometry shaders), so things should have improved. 
 
-The geometry shader takes two parameters: an input parameter and an output parameter. (Actually, it can take more, but that is a special topic; see $\ S 1 2 . 2 . 4 .$ ) The input parameter is always an array of vertices that define the primitive—one vertex for a point, two for a line, three for a triangle, four for a line with adjacency, and six for a triangle with adjacency. The vertex type of the input vertices is the vertex type returned by the vertex shader (e.g., VertexOut). The input parameter must be prefixed by a primitive type, describing the type of primitives being input into the geometry shader. This can be anyone of the following: 
+The geometry shader takes two parameters: an input parameter and an output parameter. (Actually, it can take more, but that is a special topic; see $\ S 1 2 . 2 . 4 .$ ) The input parameter is always an array of vertices that define the primitive鈥攐ne vertex for a point, two for a line, three for a triangle, four for a line with adjacency, and six for a triangle with adjacency. The vertex type of the input vertices is the vertex type returned by the vertex shader (e.g., VertexOut). The input parameter must be prefixed by a primitive type, describing the type of primitives being input into the geometry shader. This can be anyone of the following: 
 
 1. point: The input primitives are points. 
 
@@ -167,12 +169,12 @@ Like vertex and pixel shaders, a given geometry shader is bound to the rendering
 D3D12graphicspipeline_STATE_DESC treeSpritePsoDesc $=$ basePsoDesc;   
 ...   
 treeSpritePsoDesc.GS $=$ { reinterpret_cast<BYTE\*>(mShaders["treeSpriteGS"]-> GetBufferPointer(), mShaders["treeSpriteGS"]->GetBufferSize()   
-}； 
+}锛?
 
 ![](images/4c0f0194c9d644846b8c25f1ff5fe94fde802fcbfd82c12bc31283c5ba2253eb.jpg)
 
 
-Given an input primitive, the geometry shader can choose not to output it based on some condition. In this way, geometry is “destroyed” by the geometry shader, which can be useful for some algorithms. 
+Given an input primitive, the geometry shader can choose not to output it based on some condition. In this way, geometry is 鈥渄estroyed鈥?by the geometry shader, which can be useful for some algorithms. 
 
 ![](images/aea8d70ce7276f5144073a968c56b8565b36029c229f03aae9b39b98f57a3138.jpg)
 
@@ -201,7 +203,7 @@ Figure 12.2. A tree billboard texture with alpha channel.
 Figure 12.3. Billboards facing the camera.
 
 
-the $_ { x z }$ -plane. Figure 12.3 shows the local coordinate systems of several billboards from a bird’s eye view—notice that the billboards are “looking” at the camera. 
+the $_ { x z }$ -plane. Figure 12.3 shows the local coordinate systems of several billboards from a bird鈥檚 eye view鈥攏otice that the billboards are 鈥渓ooking鈥?at the camera. 
 
 So given the center position $\mathbf { C } = ( C _ { x } , C _ { y } , C _ { z } )$ of a billboard in world space and the position of the camera $\mathbf { E } = ( E _ { x } , E _ { y } , E _ { z } )$ in world space, we have enough information to describe the local coordinate system of the billboard relative to the world space: 
 
@@ -247,7 +249,7 @@ the world matrix of the billboard in the geometry shader. Figure 12.5 shows a sc
 Figure 12.5. Screenshot of the tree billboard demo.
 
 
-As Figure 12.5 shows, this sample builds off the “Blend” demo from Chapter 10. 
+As Figure 12.5 shows, this sample builds off the 鈥淏lend鈥?demo from Chapter 10. 
 
 ![](images/f33e7a8abf94c62bec3540d48448a53032b8d800e86d5379bb92541ce56748a5.jpg)
 
@@ -269,9 +271,9 @@ struct TreeSpriteVertex
 mTreeSpriteInputLayout = 
 {
     "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,
-    D3D12_INPUT_CLASSIFICATION_PER鼓舞_DATA, 0},
+    D3D12_INPUT_CLASSIFICATION_PER榧撹垶_DATA, 0},
     "SIZE", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12,
-    D3D12_INPUT_CLASSIFICATION_PER鼓舞_DATA, 0},
+    D3D12_INPUT_CLASSIFICATION_PER榧撹垶_DATA, 0},
 }; 
 ```
 
@@ -284,11 +286,11 @@ The vertex stores a point which represents the center position of the billboard 
 Figure 12.6. Expanding a point into a quad.
 
 
-Excepting texture arrays (§12.3), the other $\mathrm { C } { + + }$ code in the “Tree Billboard” demo should be routine Direct3D code by now (creating vertex buffers, effects, invoking draw methods, etc.). Thus we will now turn our attention to the TreeSprite.hlsl file. 
+Excepting texture arrays (搂12.3), the other $\mathrm { C } { + + }$ code in the 鈥淭ree Billboard鈥?demo should be routine Direct3D code by now (creating vertex buffers, effects, invoking draw methods, etc.). Thus we will now turn our attention to the TreeSprite.hlsl file. 
 
 # 12.2.3 The HLSL File
 
-Since this is our first demo with a geometry shader, we will show the entire HLSL file here so that you can see how it fits together with the vertex and pixel shaders. This effect also introduces some new objects that we have not discussed yet (SV_ PrimitiveID and Texture2DArray); these items will be discussed next. For now, mainly focus on the geometry shader program GS; this shader expands a point into a quad aligned with the world’s y-axis that faces the camera, as described in $\$ 12.2.1$ . 
+Since this is our first demo with a geometry shader, we will show the entire HLSL file here so that you can see how it fits together with the vertex and pixel shaders. This effect also introduces some new objects that we have not discussed yet (SV_ PrimitiveID and Texture2DArray); these items will be discussed next. For now, mainly focus on the geometry shader program GS; this shader expands a point into a quad aligned with the world鈥檚 y-axis that faces the camera, as described in $\$ 12.2.1$ . 
 
 ```cpp
 // Include common HLSL code. #include "Shaders/Common.hls1"   
@@ -346,7 +348,7 @@ VertexOut VS (VertexIn vin, uint vertID : SV_VertexID) {
 //vertexshaderbody... 
 ```
 
-For a Draw call, the vertices in the draw call will be labeled with IDs from 0, 1, …, n-1, where n is the number of vertices in the draw call. For a DrawIndexed call, the vertex IDs correspond to the vertex index values. 
+For a Draw call, the vertices in the draw call will be labeled with IDs from 0, 1, 鈥? n-1, where n is the number of vertices in the draw call. For a DrawIndexed call, the vertex IDs correspond to the vertex index values. 
 
 # 12.3 TEXTURE ARRAYS
 
@@ -404,7 +406,7 @@ Alternatively, you can use the NVIDIA texture tools exporter application (https:
 
 # 12.3.4 Texture Subresources
 
-Now that we have discussed texture arrays, we can talk about subresources. Figure  12.8 shows an example of a texture array with several textures. In turn, each texture has its own mipmap chain. The Direct3D API uses the term array slice to refer to an element in a texture along with its complete mipmap chain. The Direct3D API uses the term mip slice to refer to all the mipmaps at a particular level in the texture array. A subresource refers to a single mipmap level in a texture array element. 
+Now that we have discussed texture arrays, we can talk about subresources. Figure聽 12.8 shows an example of a texture array with several textures. In turn, each texture has its own mipmap chain. The Direct3D API uses the term array slice to refer to an element in a texture along with its complete mipmap chain. The Direct3D API uses the term mip slice to refer to all the mipmaps at a particular level in the texture array. A subresource refers to a single mipmap level in a texture array element. 
 
 ![](images/067ce0d90e0055c0eb5a762b7945312c19bb2e6c56ef8615fbbbd6d653139685.jpg)
 
@@ -448,7 +450,7 @@ When this semantic is specified, it tells the input assembler stage to automatic
 
 4. The input assembler stage can generate a vertex ID. To do this, add an additional parameter of type uint to the vertex shader signature with 
 
-semantic SV_VertexID. For a Draw call, the vertices in the draw call will be labeled with IDs from 0, 1, …, n-1, where n is the number of vertices in the draw call. For a DrawIndexed call, the vertex IDs correspond to the vertex index values. 
+semantic SV_VertexID. For a Draw call, the vertices in the draw call will be labeled with IDs from 0, 1, 鈥? n-1, where n is the number of vertices in the draw call. For a DrawIndexed call, the vertex IDs correspond to the vertex index values. 
 
 5. A texture array stores an array of textures. In $\mathrm { C } { + + }$ code, a texture array is represented by the ID3D12Resource interface just like all resources are (textures and buffers). When creating an ID3D12Resource object, there is a property called DepthOrArraySize that can be set to specify the number of texture elements the texture stores (or the depth for a 3D texture). In HLSL, a texture array is represented by the Texture2DArray type. When using a texture array, three texture coordinates are required. The first two texture coordinates are the usual 2D texture coordinates; the third texture coordinate is an index into the texture array. For example, 0 is the index to the first texture in the array, 1 is the index to the second texture in the array, 2 is the index to the third texture in the array, and so on. One of the advantages with texture arrays is that we were able to draw a collection of primitives, with different textures, in one draw call. Each primitive will have an index into the texture array which indicates which texture to apply to the primitive. 
 
@@ -473,6 +475,6 @@ $$
 
 The face normal n need not be unit length, and can be scaled accordingly to control the speed of the explosion. One could even make the scale depend on the primitive ID, so that each primitive travels at a different speed. Use an icosahedron (not subdivided) as a sample mesh for implementing this effect. 
 
-4. It can be useful for debugging to visualize the vertex normals of a mesh. Write an effect that renders the vertex normals of a mesh as short line segments. To do this, implement a geometry shader that inputs the point primitives of the mesh (i.e., its vertices with topology D3D_PRIMITIVE_TOPOLOGY_POINTLIST), so that each vertex gets pumped through the geometry shader. Now the geometry shader can expand each point into a line segment of some length L. If the vertex has position p and normal n, then the two endpoints of the line segment representing the vertex normal are p and $\mathbf { p } + L \mathbf { n }$ . After this is implemented, draw the mesh as normal, and then draw the scene again with the normal vector visualization technique so that the normals are rendered on top of the scene. Use the “Blend” demo as a test scene. 
+4. It can be useful for debugging to visualize the vertex normals of a mesh. Write an effect that renders the vertex normals of a mesh as short line segments. To do this, implement a geometry shader that inputs the point primitives of the mesh (i.e., its vertices with topology D3D_PRIMITIVE_TOPOLOGY_POINTLIST), so that each vertex gets pumped through the geometry shader. Now the geometry shader can expand each point into a line segment of some length L. If the vertex has position p and normal n, then the two endpoints of the line segment representing the vertex normal are p and $\mathbf { p } + L \mathbf { n }$ . After this is implemented, draw the mesh as normal, and then draw the scene again with the normal vector visualization technique so that the normals are rendered on top of the scene. Use the 鈥淏lend鈥?demo as a test scene. 
 
 5. Similar to the previous exercise, write an effect that renders the face normals of a mesh as short line segments. For this effect, the geometry shader will input a triangle, calculate its normal, and output a line segment. 

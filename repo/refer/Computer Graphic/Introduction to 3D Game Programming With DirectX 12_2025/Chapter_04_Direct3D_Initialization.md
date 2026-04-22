@@ -1,9 +1,11 @@
+﻿# Chapter 04 Direct3D Initialization
+
 
 # Direct3D Foundations
 
 n this part, we study fundamental Direct3D concepts and techniques that are used throughout the rest of this book. With these fundamentals mastered, we can move on to writing more interesting applications. A brief description of the chapters in this part follows. 
 
-Chapter 4, Direct3D Initialization: In this chapter, we learn what Direct3D is about and how to initialize it in preparation for 3D drawing. Basic Direct3D topics are also introduced, such as surfaces, pixel formats, page flipping, depth buffering, and multisampling. We also learn how to measure time with the performance counter, which we use to compute the frames rendered per second. In addition, we give some tips on debugging Direct3D applications. We develop and use our own application framework. 
+Chapter 4, Direct3D Initialization: In this chapter, we learn what Direct3D is about and how to initialize it in preparation for 3D drawing.聽Basic Direct3D topics are also introduced, such as surfaces, pixel formats, page flipping, depth buffering, and multisampling.聽We also learn how to measure time with the performance counter, which we use to compute the frames rendered per second.聽In addition, we give some tips on debugging Direct3D applications.聽We develop and use our own application framework. 
 
 Chapter 5, The Rendering Pipeline: In this long chapter, we provide a thorough introduction to the rendering pipeline, which is the sequence of steps necessary to generate a 2D image of the world based on what the virtual camera sees. We learn how to define 3D worlds, control the virtual camera, and project 3D geometry onto a 2D image plane. 
 
@@ -11,26 +13,26 @@ Chapter 6, Drawing in Direct3D: This chapter focuses on the Direct3D API interfa
 
 Chapter 7, Drawing in Direct3D Part II: This chapter introduces a number of drawing patterns that are used throughout the remainder of the book, from improving the workload balance between CPU and GPU to organizing how our renderer draws objects. The chapter concludes by showing how to draw more complicated objects like grids, spheres, cylinders, and an animated wave simulation. 
 
-Chapter 8, Lighting: This chapter shows how to create light sources and define the interaction between light and surfaces via materials.  In particular, we show how to implement directional lights, point lights, and spotlights with vertex and pixel shaders. 
+Chapter 8, Lighting: This chapter shows how to create light sources and define the interaction between light and surfaces via materials.聽 In particular, we show how to implement directional lights, point lights, and spotlights with vertex and pixel shaders. 
 
-Chapter 9, Texturing: This chapter describes texture mapping, which is a technique used to increase the realism of the scene by mapping 2D image data onto a 3D primitive. For example, using texture mapping, we can model a brick wall by applying a 2D brick wall image onto a 3D rectangle. Other important texturing topics covered include texture tiling and animated texture transformations. 
+Chapter 9, Texturing: This chapter describes texture mapping, which is a technique used to increase the realism of the scene by mapping 2D image data onto a 3D primitive.聽For example, using texture mapping, we can model a brick wall by applying a 2D brick wall image onto a 3D rectangle. Other important texturing topics covered include texture tiling and animated texture transformations. 
 
-Chapter 10, Blending: Blending allows us to implement a number of special effects, like transparency. In addition, we discuss the intrinsic clip function, which enables us to mask out certain parts of an image from showing up. For example, this can be used to implement fences and gates. We also show how to implement a fog effect. 
+Chapter 10, Blending: Blending allows us to implement a number of special effects, like transparency.聽In addition, we discuss the intrinsic clip function, which enables us to mask out certain parts of an image from showing up. For example, this can be used to implement fences and gates.聽We also show how to implement a fog effect. 
 
-Chapter 11, Stenciling: This chapter describes the stencil buffer, which, like a stencil, allows us to block pixels from being drawn. Masking out pixels is a useful tool for a variety of situations. To illustrate the ideas of this chapter, we include a thorough discussion on implementing planar reflections and planar shadows using the stencil buffer. 
+Chapter 11, Stenciling: This chapter describes the stencil buffer, which, like a stencil, allows us to block pixels from being drawn.聽Masking out pixels is a useful tool for a variety of situations. To illustrate the ideas of this chapter, we include a thorough discussion on implementing planar reflections and planar shadows using the stencil buffer. 
 
 Chapter 12, The Geometry Shader: This chapter shows how to program geometry shaders, which are special because they can create or destroy entire geometric primitives. Some applications include billboards, fur rendering, subdivisions, and particle systems. In addition, this chapter explains primitive IDs and texture arrays. 
 
 Chapter 13, The Compute Shader: The Compute Shader is a programmable shader Direct3D exposes that is not directly part of the rendering pipeline. It enables applications to use the graphics processing unit (GPU) for general purpose computation. For example, an imaging application can take advantage of the GPU to speed up image processing algorithms by implementing them with the compute shader. Because the Compute Shader is part of Direct3D, it reads from and writes to Direct3D resources, which enables us integrate results directly to the rendering pipeline. Therefore, in addition to general purpose computation, the compute shader is still applicable for 3D rendering. 
 
-Chapter 14, The Tessellation Stages: This chapter explores the tessellation stages of the rendering pipeline. Tessellation refers to subdividing geometry into smaller triangles and then offsetting the newly generated vertices in some way. The motivation to increase the triangle count is to add detail to the mesh. To illustrate the ideas of this chapter, we show how to tessellate a quad patch based on distance, and we show how to render cubic Bézier quad patch surfaces. 
+Chapter 14, The Tessellation Stages: This chapter explores the tessellation stages of the rendering pipeline. Tessellation refers to subdividing geometry into smaller triangles and then offsetting the newly generated vertices in some way. The motivation to increase the triangle count is to add detail to the mesh. To illustrate the ideas of this chapter, we show how to tessellate a quad patch based on distance, and we show how to render cubic B茅zier quad patch surfaces. 
 
 # Chapter 4 Direct3D Initialization
 The initialization process of Direct3D requires us to be familiar with some basic Direct3D types and basic graphics concepts; the first and second sections of this chapter address these requirements. We then detail the necessary steps to initialize Direct3D. Next, a small detour is taken to introduce accurate timing and the time measurements needed for real-time graphics applications. Finally, we explore the sample framework code, which is used to provide a consistent interface that all demo applications in this book follow. 
 
 # Objectives:
 
-1. To obtain a basic understanding of Direct3D’s role in programming 3D hardware. 
+1. To obtain a basic understanding of Direct3D鈥檚 role in programming 3D hardware. 
 
 2. To understand the role COM plays with Direct3D. 
 
@@ -48,15 +50,15 @@ The Direct3D initialization process requires us to be familiar with some basic g
 
 # 4.1.1 Direct3D 12 Overview
 
-Direct3D is a low-level graphics API (application programming interface) used to control and program the GPU (graphics processing unit) from our application, thereby allowing us to render virtual 3D worlds using hardware acceleration. For example, to submit a command to the GPU to clear a render target (e.g., the screen), we would call the Direct3D method ID3D12GraphicsCommandList::Cle arRenderTargetView. The Direct3D layer and hardware drivers will translate the Direct3D commands into native machine instructions understood by the system’s GPU; thus, we do not have to worry about the specifics of the GPU, so long as it supports the Direct3D version we are using. To make this work, GPU vendors like NVIDIA, Intel, and AMD must work with the Direct3D team and provide compliant Direct3D drivers. 
+Direct3D is a low-level graphics API (application programming interface) used to control and program the GPU (graphics processing unit) from our application, thereby allowing us to render virtual 3D worlds using hardware acceleration. For example, to submit a command to the GPU to clear a render target (e.g., the screen), we would call the Direct3D method ID3D12GraphicsCommandList::Cle arRenderTargetView. The Direct3D layer and hardware drivers will translate the Direct3D commands into native machine instructions understood by the system鈥檚 GPU; thus, we do not have to worry about the specifics of the GPU, so long as it supports the Direct3D version we are using. To make this work, GPU vendors like NVIDIA, Intel, and AMD must work with the Direct3D team and provide compliant Direct3D drivers. 
 
-Direct3D 12 adds some new rendering features, but the main improvement over the previous version is that it has been redesigned to significantly reduce CPU overhead and improve multi-threading support. In order to achieve these performance goals, Direct3D 12 has become a much lower level API than Direct3D 11; it has less abstraction, requires additional manual “bookkeeping” from the developer, and more closely mirrors modern GPU architectures. The improved performance is, of course, the reward for using this more difficult API. Furthermore, new advancements in DirectX are only coming to Direct3D 12. If you want to use ray tracing or mesh shaders in Direct3D, then you are forced to use Direct3D 12. 
+Direct3D 12 adds some new rendering features, but the main improvement over the previous version is that it has been redesigned to significantly reduce CPU overhead and improve multi-threading support. In order to achieve these performance goals, Direct3D 12 has become a much lower level API than Direct3D 11; it has less abstraction, requires additional manual 鈥渂ookkeeping鈥?from the developer, and more closely mirrors modern GPU architectures. The improved performance is, of course, the reward for using this more difficult API. Furthermore, new advancements in DirectX are only coming to Direct3D 12. If you want to use ray tracing or mesh shaders in Direct3D, then you are forced to use Direct3D 12. 
 
 # 4.1.2 COM
 
-Component Object Model (COM) is the technology that allows DirectX to be programming-language independent and have backwards compatibility. We usually refer to a COM object as an interface, which for our purposes can be thought of and used as a $\mathrm { C } { + + }$ class. Most of the details of COM are hidden to us when programming DirectX with $\mathrm { C } { + + }$ . The only thing that we must know is that we obtain pointers to COM interfaces through special functions or by the methods of another COM interface—we do not create a COM interface with the $\mathrm { C } { + + }$ new keyword. In addition, COM objects are reference counted; when we are done with an interface we call its Release method (all COM interfaces inherit 
+Component Object Model (COM) is the technology that allows DirectX to be programming-language independent and have backwards compatibility. We usually refer to a COM object as an interface, which for our purposes can be thought of and used as a $\mathrm { C } { + + }$ class. Most of the details of COM are hidden to us when programming DirectX with $\mathrm { C } { + + }$ . The only thing that we must know is that we obtain pointers to COM interfaces through special functions or by the methods of another COM interface鈥攚e do not create a COM interface with the $\mathrm { C } { + + }$ new keyword. In addition, COM objects are reference counted; when we are done with an interface we call its Release method (all COM interfaces inherit 
 
-functionality from the IUnknown COM interface, which provides the Release method) rather than delete it—COM objects will free their memory when their reference count goes to 0. 
+functionality from the IUnknown COM interface, which provides the Release method) rather than delete it鈥擟OM objects will free their memory when their reference count goes to 0. 
 
 To help manage the lifetime of COM objects, the Windows Runtime Library (WRL) provides the Microsoft::WRL::ComPtr class (#include <wrl.h>), which can be thought of as a smart pointer for COM objects. When a ComPtr instance goes out of scope, it will automatically call Release on the underlying COM object, thereby saving us from having to manually call Release. The three main ComPtr methods we use in this book are: 
 
@@ -113,7 +115,7 @@ We will see in Chapter 6 that the DXGI_FORMAT enumerated type is also used to de
 
 # 4.1.4 The Swap Chain and Page Flipping
 
-To avoid flickering in animation, it is best to draw an entire frame of animation into an off-screen texture called the back buffer. Once the entire scene has been drawn to the back buffer for the given frame of animation, it is presented to the screen as one complete frame; in this way, the viewer does not watch as the frame gets drawn—the viewer only sees complete frames. To implement this, two texture buffers are maintained by the hardware, one called the front buffer and a second called the back buffer. The front buffer stores the image data currently being displayed on the monitor, while the next frame of animation is being drawn to the back buffer. After the frame has been drawn to the back buffer, the roles of the back buffer and front buffer are reversed: the back buffer becomes the front buffer and the front buffer becomes the back buffer for the next frame of animation. Swapping the roles of the back and front buffers is called presenting. Presenting is an efficient operation, as the pointer to the current front buffer and the pointer to the current back buffer just need to be swapped. Figure 4.1 illustrates the process. 
+To avoid flickering in animation, it is best to draw an entire frame of animation into an off-screen texture called the back buffer. Once the entire scene has been drawn to the back buffer for the given frame of animation, it is presented to the screen as one complete frame; in this way, the viewer does not watch as the frame gets drawn鈥攖he viewer only sees complete frames. To implement this, two texture buffers are maintained by the hardware, one called the front buffer and a second called the back buffer. The front buffer stores the image data currently being displayed on the monitor, while the next frame of animation is being drawn to the back buffer. After the frame has been drawn to the back buffer, the roles of the back buffer and front buffer are reversed: the back buffer becomes the front buffer and the front buffer becomes the back buffer for the next frame of animation. Swapping the roles of the back and front buffers is called presenting. Presenting is an efficient operation, as the pointer to the current front buffer and the pointer to the current back buffer just need to be swapped. Figure 4.1 illustrates the process. 
 
 ![](images/976ab0e0196f95371fef76181af6aace7ea9938d2ca2481a1f61f163600fbb2d.jpg)
 
@@ -124,12 +126,12 @@ Figure 4.1. For frame n, Buffer A is currently being displayed and we render the
 
 The front and back buffer form a swap chain. In Direct3D, a swap chain is represented by the IDXGISwapChain interface. This interface stores the front and back buffer textures, as well as provides methods for resizing the buffers (IDXGISwapChain::ResizeBuffers) and presenting (IDXGISwapChain::Present). 
 
-Using two buffers (front and back) is called double buffering. More than two buffers can be employed; using three buffers is called triple buffering. Two buffers are usually sufficient, however. Note that presenting is usually synchronized to the monitor refresh interval; there are ways to override this, but may result in “screen tearing” where you see a portion of one frame and a portion of the next frame on the same screen. 
+Using two buffers (front and back) is called double buffering. More than two buffers can be employed; using three buffers is called triple buffering. Two buffers are usually sufficient, however. Note that presenting is usually synchronized to the monitor refresh interval; there are ways to override this, but may result in 鈥渟creen tearing鈥?where you see a portion of one frame and a portion of the next frame on the same screen. 
 
 ![](images/3c85c0d9dab426d511402cd0c1742f263c6bd495e1fa0a66ab16a07ce6d1fe70.jpg)
 
 
-Even though the back buffer is a texture (so an element should be called a texel), we often call an element a pixel since, in the case of the back buffer, it stores color information. Sometimes people will call an element of a texture a pixel, even if it doesn’t store color information (e.g., “the pixels of a normal map”). 
+Even though the back buffer is a texture (so an element should be called a texel), we often call an element a pixel since, in the case of the back buffer, it stores color information. Sometimes people will call an element of a texture a pixel, even if it doesn鈥檛 store color information (e.g., 鈥渢he pixels of a normal map鈥?. 
 
 # 4.1.5 Depth Buffering
 
@@ -147,11 +149,11 @@ Figure 4.2 shows a simple scene, where some objects partially obscure the object
 ![](images/85b64e31eec248f279dc0381da5806aa7832c40a6fcd06fe51f03797612fdac4.jpg)
 
 
-To handle the depth problem, one might suggest drawing the objects in the scene in the order of farthest to nearest. In this way, near objects will be painted over far objects, and the correct results should be rendered. This is how a painter would draw a scene. However, this method has its own problems—sorting a large data set in back-to-front order and intersecting geometry. Besides, the graphics hardware gives us depth buffering for free. 
+To handle the depth problem, one might suggest drawing the objects in the scene in the order of farthest to nearest. In this way, near objects will be painted over far objects, and the correct results should be rendered. This is how a painter would draw a scene. However, this method has its own problems鈥攕orting a large data set in back-to-front order and intersecting geometry. Besides, the graphics hardware gives us depth buffering for free. 
 
-To illustrate how depth buffering works, let us look at an example. Consider Figure 4.3, which shows the volume the viewer sees and a 2D side view of that volume. From the figure, we observe that three different pixels compete to be rendered onto the pixel $P$ on the view window. (Of course, we know the closest pixel should be rendered to $P$ since it obscures the ones behind it, but the computer does not.) First, before any rendering takes place, the back buffer is cleared to a default color, and the depth buffer is cleared to a default value—usually 1.0 (the farthest depth value a pixel can have). Now, suppose that the objects are rendered in the order of cylinder, sphere, and cone. The following table summarizes how the pixel $P$ and its corresponding depth value $d$ are updated as the objects are drawn; a similar process happens for the other pixels. 
+To illustrate how depth buffering works, let us look at an example. Consider Figure 4.3, which shows the volume the viewer sees and a 2D side view of that volume. From the figure, we observe that three different pixels compete to be rendered onto the pixel $P$ on the view window. (Of course, we know the closest pixel should be rendered to $P$ since it obscures the ones behind it, but the computer does not.) First, before any rendering takes place, the back buffer is cleared to a default color, and the depth buffer is cleared to a default value鈥攗sually 1.0 (the farthest depth value a pixel can have). Now, suppose that the objects are rendered in the order of cylinder, sphere, and cone. The following table summarizes how the pixel $P$ and its corresponding depth value $d$ are updated as the objects are drawn; a similar process happens for the other pixels. 
 
-<table><tr><td>Operation</td><td>P</td><td>d</td><td>Description</td></tr><tr><td colspan="4"></td></tr><tr><td>Clear Operation</td><td>Black</td><td>1.0</td><td>Pixel and corresponding depth entry initialized.</td></tr><tr><td>Draw Cylinder</td><td>P3</td><td>d3</td><td>Since d3 ≤ d = 1.0 the depth test passes and we update the buffers by setting P = P3 and d = d3.</td></tr><tr><td>Draw Sphere</td><td>P1</td><td>d1</td><td>Since d1 ≤ d = d3 the depth test passes and we update the buffers by setting P = P1 and d = d1.</td></tr><tr><td>Draw Cone</td><td>P1</td><td>d1</td><td>Since d2 &gt; d = d1 the depth test fails and we do not update the buffers.</td></tr></table>
+<table><tr><td>Operation</td><td>P</td><td>d</td><td>Description</td></tr><tr><td colspan="4"></td></tr><tr><td>Clear Operation</td><td>Black</td><td>1.0</td><td>Pixel and corresponding depth entry initialized.</td></tr><tr><td>Draw Cylinder</td><td>P3</td><td>d3</td><td>Since d3 鈮?d = 1.0 the depth test passes and we update the buffers by setting P = P3 and d = d3.</td></tr><tr><td>Draw Sphere</td><td>P1</td><td>d1</td><td>Since d1 鈮?d = d3 the depth test passes and we update the buffers by setting P = P1 and d = d1.</td></tr><tr><td>Draw Cone</td><td>P1</td><td>d1</td><td>Since d2 &gt; d = d1 the depth test fails and we do not update the buffers.</td></tr></table>
 
 As you can see, we only update the pixel and its corresponding depth value in the depth buffer when we find a pixel with a smaller depth value. In this way, after all is said and done, the pixel that is closest to the viewer will be the one rendered. (You can try switching the drawing order around and working through this example again if you are still not convinced.) 
 
@@ -189,14 +191,14 @@ During the rendering process, the GPU will write to resources (e.g., the back bu
 
 the bindings per draw call if necessary. However, GPU resources are not bound directly. Instead, a resource is referenced through a descriptor object, which can be thought of as lightweight structure that describes the resource to the GPU. Essentially, it is a level of indirection; given a resource descriptor, the GPU can get the actual resource data and know the necessary information about it. We bind resources to the rendering pipeline by specifying the descriptors that will be referenced in the draw call. 
 
-Why go to this extra level of indirection with descriptors? The reason is that GPU resources are essentially generic chunks of memory. Resources are kept generic so they can be used at different stages of the rendering pipeline; a common example is to use a texture as a render target (i.e., Direct3D draws into the texture) and later as a shader resource (i.e., the texture will be sampled and serve as input data for a shader). A resource by itself does not say if it is being used as a render target, depth/stencil buffer, or shader resource. Also, perhaps we only want to bind a subregion of the resource data to the rendering pipeline—how can we do that given the whole resource? Moreover, a resource can be created with a typeless format, so the GPU would not even know the format of the resource. 
+Why go to this extra level of indirection with descriptors? The reason is that GPU resources are essentially generic chunks of memory. Resources are kept generic so they can be used at different stages of the rendering pipeline; a common example is to use a texture as a render target (i.e., Direct3D draws into the texture) and later as a shader resource (i.e., the texture will be sampled and serve as input data for a shader). A resource by itself does not say if it is being used as a render target, depth/stencil buffer, or shader resource. Also, perhaps we only want to bind a subregion of the resource data to the rendering pipeline鈥攈ow can we do that given the whole resource? Moreover, a resource can be created with a typeless format, so the GPU would not even know the format of the resource. 
 
 This is where descriptors come in. In addition to identifying the resource data, descriptors describe the resource to the GPU: they tell Direct3D how the resource will be used (i.e., what stage of the pipeline you will bind it to), where applicable we can specify a subregion of the resource we want to bind in the descriptor, and if the resource format was specified as typeless at creation time, then we must now state the type when creating the descriptor. 
 
 ![](images/18cc25cb6b6ae8dde0827c3b30ec159e13e00373d09027ce9281ee75a5a0ce65.jpg)
 
 
-A view is a synonym for descriptor. The term “view” was used in previous versions of Direct3D, and it is still used in some parts of the Direct3D 12 API. We use both interchangeably in this book; for example, constant buffer view and constant buffer descriptor mean the same thing. 
+A view is a synonym for descriptor. The term 鈥渧iew鈥?was used in previous versions of Direct3D, and it is still used in some parts of the Direct3D 12 API. We use both interchangeably in this book; for example, constant buffer view and constant buffer descriptor mean the same thing. 
 
 Descriptors have a type, and the type implies how the resource will be used. The types of descriptors we use in this book are as follows: 
 
@@ -222,11 +224,11 @@ Descriptors should be created at initialization time. This is because there is s
 ![](images/aec3bb04cf6a9f9391601751293860171b5d0ffa72b20fb62627489ba8b0cbf1.jpg)
 
 
-The August 2009 SDK documentation says: “Creating a fully-typed resource restricts the resource to the format it was created with. This enables the runtime to optimize access […].” Therefore, you should only create a typeless resource if you really need the flexibility they provide (the ability to reinterpret the data in multiple ways with multiple views); otherwise, create a fully typed resource. 
+The August 2009 SDK documentation says: 鈥淐reating a fully-typed resource restricts the resource to the format it was created with. This enables the runtime to optimize access [鈥.鈥?Therefore, you should only create a typeless resource if you really need the flexibility they provide (the ability to reinterpret the data in multiple ways with multiple views); otherwise, create a fully typed resource. 
 
 # 4.1.7 Multisampling Theory
 
-Because the pixels on a monitor are not infinitely small, an arbitrary line cannot be represented perfectly on the computer monitor. Figure 4.4 illustrates a “stairstep” (aliasing) effect, which can occur when approximating a line by a matrix of pixels. Similar aliasing effects occur with the edges of triangles. 
+Because the pixels on a monitor are not infinitely small, an arbitrary line cannot be represented perfectly on the computer monitor. Figure 4.4 illustrates a 鈥渟tairstep鈥?(aliasing) effect, which can occur when approximating a line by a matrix of pixels. Similar aliasing effects occur with the edges of triangles. 
 
 Shrinking the pixel sizes by increasing the monitor resolution can alleviate the problem significantly to where the stair-step effect goes largely unnoticed. 
 
@@ -260,7 +262,7 @@ Observe the key difference between supersampling and multisampling. With supersa
 
 
 
-Figure 4.5. We consider one pixel that crosses the edge of a polygon. (a) The green color evaluated at the pixel center is stored in the three visible subpixels that are covered by the polygon. The subpixel in the fourth quadrant is not covered by the polygon and so does not get updated with the green color—it just keeps its previous color computed from previously drawn geometry or the Clear operation. (b) To compute the resolved pixel color, we average the four subpixels (three green pixels and one white pixel) to get a light green along the edge of the polygon. This results in a smoother looking image by diluting the stairstep effect along the edge of the polygon.
+Figure 4.5. We consider one pixel that crosses the edge of a polygon. (a) The green color evaluated at the pixel center is stored in the three visible subpixels that are covered by the polygon. The subpixel in the fourth quadrant is not covered by the polygon and so does not get updated with the green color鈥攊t just keeps its previous color computed from previously drawn geometry or the Clear operation. (b) To compute the resolved pixel color, we average the four subpixels (three green pixels and one white pixel) to get a light green along the edge of the polygon. This results in a smoother looking image by diluting the stairstep effect along the edge of the polygon.
 
 
 could potentially be a different color. With multisampling (Figure 4.5), the image color is computed once per pixel and that color is replicated into all visible subpixels that are covered by the polygon. Because computing the image color is one of the most expensive steps in the graphics pipeline, the savings from multisampling over supersampling is significant. On the other hand, supersampling is more accurate. 
@@ -284,7 +286,7 @@ typedef struct DXGI_SAMPLE_DESC
 } DXGI_SAMPLE_DESC; 
 ```
 
-The Count member specifies the number of samples to take per pixel, and the Quality member is used to specify the desired quality level (what “quality level” means can vary across hardware manufacturers). Higher sample counts or higher quality is more expensive to render, so a tradeoff between quality and speed must be made. The range of quality levels depends on the texture format and the number of samples to take per pixel. 
+The Count member specifies the number of samples to take per pixel, and the Quality member is used to specify the desired quality level (what 鈥渜uality level鈥?means can vary across hardware manufacturers). Higher sample counts or higher quality is more expensive to render, so a tradeoff between quality and speed must be made. The range of quality levels depends on the texture format and the number of samples to take per pixel. 
 
 We can query the number of quality levels for a given texture format and sample count using the ID3D12Device::CheckFeatureSupport method like so: 
 
@@ -307,7 +309,7 @@ ThrowIfFailed Md3dDevice->CheckFeatureSupport(
 } 
 ```
 
-Note that the second parameter is both an input and output parameter. For the input, we must specify the texture format, sample count, and flag we want to query multisampling support for. The function will then fill out the quality level as the output. Valid quality levels for a texture format and sample count combination range from zero to NumQualityLevels–1. 
+Note that the second parameter is both an input and output parameter. For the input, we must specify the texture format, sample count, and flag we want to query multisampling support for. The function will then fill out the quality level as the output. Valid quality levels for a texture format and sample count combination range from zero to NumQualityLevels鈥?. 
 
 The maximum number of samples that can be taken per pixel is defined by: 
 
@@ -346,13 +348,13 @@ enum D3D_FEATURE_LEVEL
 D3D_FEATURE_LEVEL_12_1 = 0xc100, D3D_FEATURE_LEVEL_12_2 = 0xc200 } D3D_FEATURE_LEVEL; 
 ```
 
-Feature levels define a strict set of functionality (see the SDK documentation for the specific capabilities each feature level supports). For example, a GPU that supports feature level 11 must support the entire Direct3D 11 capability set, with few exceptions (some things like the multisampling count still need to be queried, as they are allowed to vary between different Direct3D 11 hardware). Feature sets make development easier—once you know the supported feature set, you know the Direct3D functionality you have at your disposal. Before feature levels, Direct3D developers were supposed to query capabilities for almost every single feature, which was quite unwieldy. 
+Feature levels define a strict set of functionality (see the SDK documentation for the specific capabilities each feature level supports). For example, a GPU that supports feature level 11 must support the entire Direct3D 11 capability set, with few exceptions (some things like the multisampling count still need to be queried, as they are allowed to vary between different Direct3D 11 hardware). Feature sets make development easier鈥攐nce you know the supported feature set, you know the Direct3D functionality you have at your disposal. Before feature levels, Direct3D developers were supposed to query capabilities for almost every single feature, which was quite unwieldy. 
 
-If a user’s hardware does not support a certain feature level, the application can “fall back” to an older feature level that might be supported. For example, to support a wider audience, an application might support feature level D3D_FEATURE_ LEVEL_12_2 down to Direct3D 11 level hardware D3D_FEATURE_LEVEL_11_0. The application would check feature level support from newest to oldest. In this book, we require a GPU that supports D3D_FEATURE_LEVEL_12_2, which means it supports the latest features such as ray tracing and mesh shaders. However, real-world applications do need to worry about supporting older hardware to maximize their audience. 
+If a user鈥檚 hardware does not support a certain feature level, the application can 鈥渇all back鈥?to an older feature level that might be supported. For example, to support a wider audience, an application might support feature level D3D_FEATURE_ LEVEL_12_2 down to Direct3D 11 level hardware D3D_FEATURE_LEVEL_11_0. The application would check feature level support from newest to oldest. In this book, we require a GPU that supports D3D_FEATURE_LEVEL_12_2, which means it supports the latest features such as ray tracing and mesh shaders. However, real-world applications do need to worry about supporting older hardware to maximize their audience. 
 
 # 4.1.10 DirectX Graphics Infrastructure
 
-DirectX Graphics Infrastructure (DXGI) is an API used along with Direct3D. The basic idea of DXGI is that some graphics related tasks are common to multiple graphics APIs. For example, a 2D rendering API would need swap chains and page flipping for smooth animation just as much as a 3D rendering API; thus the swap chain interface IDXGISwapChain (§4.1.4) is actually part of the DXGI API. DXGI handles other common graphical functionality like full-screen mode transitions, enumerating graphical system information like display adapters, monitors, and supported display modes (resolution, refresh rate, and such); it also defines the various supported surface formats (DXGI_FORMAT). 
+DirectX Graphics Infrastructure (DXGI) is an API used along with Direct3D. The basic idea of DXGI is that some graphics related tasks are common to multiple graphics APIs. For example, a 2D rendering API would need swap chains and page flipping for smooth animation just as much as a 3D rendering API; thus the swap chain interface IDXGISwapChain (搂4.1.4) is actually part of the DXGI API. DXGI handles other common graphical functionality like full-screen mode transitions, enumerating graphical system information like display adapters, monitors, and supported display modes (resolution, refresh rate, and such); it also defines the various supported surface formats (DXGI_FORMAT). 
 
 We briefly describe some DXGI concepts and interfaces that will be used during our Direct3D initialization. One of the key DXGI interfaces is the IDXGIFactory interface, which is primarily used to create the IDXGISwapChain interface and enumerate display adapters. Display adapters implement graphical functionality. Usually, the display adapter is a physical piece of hardware (e.g., graphics card); however, a system can also have a software display adapter that emulates hardware graphics functionality. A system can have several adapters (e.g., if it has several 
 
@@ -390,7 +392,7 @@ An example of the output from this method is the following:
 ***Adapter: Microsoft Basic Render Driver 
 ```
 
-The “Microsoft Basic Render Driver” is a software adapter included with Windows 8 and above. 
+The 鈥淢icrosoft Basic Render Driver鈥?is a software adapter included with Windows 8 and above. 
 
 A system can have several monitors. A monitor is an example of a display output. An output is represented by the IDXGIOutput interface. Each adapter is associated with a list of outputs. For instance, consider a system with two graphics cards and three monitors, where two monitors are hooked up to one graphics card, and the third monitor is hooked up to the other graphics card. In this case, one adapter has two outputs associated with it, and the other adapter has one output associated with it. We can enumerate all the outputs associated with an adapter with the following code: 
 
@@ -405,7 +407,7 @@ void D3DApp::LogAdapterOutputs(IDXGIAdapter* adapter)
 while(adapter->EnumOutputs(i, &output) != DXGI_ERROR_NOT_found) { DXGI_OUTPUT_DESC desc; output->GetDesc(&desc); std::wstring text = L"***Output: "; text += desc.DeviceName; text += L"\n"; OutputDebugString(text.c_str()); LogOutputDisplayModes(output, DXGI_FORMAT_B8G8R8A8_UNORM); ReleaseCom(output); ++i; } 
 ```
 
-Note that, per the documentation, the “Microsoft Basic Render Driver” has no display outputs. 
+Note that, per the documentation, the 鈥淢icrosoft Basic Render Driver鈥?has no display outputs. 
 
 Each monitor has a set of display modes it supports. A display mode refers to the following data in DXGI_MODE_DESC: 
 
@@ -460,7 +462,7 @@ Width $=$ 1920 Height $=$ 1080 Refresh $=$ 59950/1000 Width $=$ 1920 Height $=$ 
 
 Enumerating display modes is particularly important when going into full-screen mode. In order to get optimal full-screen performance, the specified display mode (including refresh rate), must match exactly a display mode the monitor supports. Specifying an enumerated display mode guarantees this. 
 
-For more reference material on DXGI, we recommend reading the online articles “DXGI Overview” and “DirectX Graphics Infrastructure: Best Practices” available online at: 
+For more reference material on DXGI, we recommend reading the online articles 鈥淒XGI Overview鈥?and 鈥淒irectX Graphics Infrastructure: Best Practices鈥?available online at: 
 
 http://msdn.microsoft.com/en-us/library/windows/desktop/bb205075( $\scriptstyle \nu = \nu s . 8 5 ,$ ). aspx 
 
@@ -503,7 +505,7 @@ Committed resources are the simplest and most common way of creating a resource,
 
 # Placed Resources
 
-The idea of placed resources is that we create a large heap, and then “place” resources into the heap. In other words, it separates allocating the memory and creating the resource in that memory. It is analogous to a custom memory pool on the CPU where we allocate a fixed block of bytes and then allocate variables inside the memory pool. Because heap allocation and resource creation/destruction are separated, placed resources are much faster to create/destroy than committed resources, and would be the preferred method for on-the-fly resource creating/ destruction. 
+The idea of placed resources is that we create a large heap, and then 鈥減lace鈥?resources into the heap. In other words, it separates allocating the memory and creating the resource in that memory. It is analogous to a custom memory pool on the CPU where we allocate a fixed block of bytes and then allocate variables inside the memory pool. Because heap allocation and resource creation/destruction are separated, placed resources are much faster to create/destroy than committed resources, and would be the preferred method for on-the-fly resource creating/ destruction. 
 
 Another motivation for placed resources is to alias memory. This basically means we overlap resources in memory provided they are not used at the same time. Typically, a frame uses several intermediate resources that are only needed for some step in the frame. For example, a blur effect might use a couple intermediate texture resources, but once the blur effect is done, those intermediate textures are no longer needed until the next frame. (Note that we would not want to delete and recreate these intermediate textures every frame as committed resource because creating committed resources is expensive.) A second special effect performed in the same frame after blurring might also need intermediate textures (possibly of different sizes or format). We could have a second set of intermediate textures for this effect. However, because we are done with the intermediate textures from the blur effect, it would be nice to reuse that memory. Placed resources allow this; see Figure 4.6. 
 
@@ -528,7 +530,7 @@ A heap is created with the ID3D12Device::CreateHeap method and a placed resource
 
 # Reserved Resources
 
-This is another advanced resource type that we will briefly describe, but do not use in this book. Reserved resources facilitate a virtual memory type system for GPU resources. It allows you to create very large resources that when created do not occupy any physical memory. The large resource is divided up into “tiles” and Direct3D provides APIs to move tiles in and out of physical memory as needed by the application. The idea here is that although the resource is very large, the application does not need the entire resource in physical memory for a given frame. For example, if you had a giant satellite image of the United States, but were 
+This is another advanced resource type that we will briefly describe, but do not use in this book. Reserved resources facilitate a virtual memory type system for GPU resources. It allows you to create very large resources that when created do not occupy any physical memory. The large resource is divided up into 鈥渢iles鈥?and Direct3D provides APIs to move tiles in and out of physical memory as needed by the application. The idea here is that although the resource is very large, the application does not need the entire resource in physical memory for a given frame. For example, if you had a giant satellite image of the United States, but were 
 
 zoomed in on the city of Los Angeles, then most of the image does not need to be in physical memory. As you panned the map you would move tiles in and out of physical memory. [Sandy14] and [Cebenoyan14] both give video presentations (available online) on reserved resources (which were called tiled resources in Direct3D 11). Although these presentations were made for Direct3D 11, the ideas are the same as reserved resources. 
 
@@ -665,7 +667,7 @@ You can use the ID3D12Device::GetNodeCount method to query the number of GPU ada
 
 You can create multiple command lists associated with the same allocator, but you cannot record at the same time. That is, all command lists must be closed except the one whose commands we are going to record. Thus, all commands from a given command list will be added to the allocator contiguously. Note that when a 
 
-command list is created or reset, it is in an “open” state. So if we tried to create two command lists in a row with the same allocator, we would get an error: 
+command list is created or reset, it is in an 鈥渙pen鈥?state. So if we tried to create two command lists in a row with the same allocator, we would get an error: 
 
 D3D12 ERROR: ID3D12CommandList::{Create,Reset}CommandList: The command allocator is currently in-use by another command list. 
 
@@ -689,7 +691,7 @@ The idea of this is analogous to calling std::vector::clear, which resizes a vec
 
 Due to having two processors running in parallel, a number of synchronization issues appear. 
 
-Suppose we have some resource $R$ that stores the position of some geometry we wish to draw. Furthermore, suppose the CPU updates the data of R to store position $\scriptstyle { p _ { 1 } }$ and then adds a drawing command $C$ that references $R$ to the command queue with the intent of drawing the geometry at position $\scriptstyle { p _ { 1 } }$ . Adding commands to the command queue does not block the CPU, so the CPU continues on. It would be an error for the CPU to continue on and overwrite the data of $R$ to store a new position $\scriptstyle { p _ { 2 } }$ before the GPU executed the draw command $R$ (see Figure 4.9). 
+Suppose we have some resource $R$ that stores the position of some geometry we wish to draw. Furthermore, suppose the CPU updates the data of R to store position $\scriptstyle { p _ { 1 } }$ and then adds a drawing command $C$ that references $R$ to the command queue with the intent of drawing the geometry at position $\scriptstyle { p _ { 1 } }$ . Adding commands to the command queue does not block the CPU, so the CPU continues on. It would be an error for the CPU to continue on and overwrite the data of $R$ to store a new position $\scriptstyle { p _ { 2 } }$ before the GPU executed the draw command $R$ (see Figure聽4.9). 
 
 ![](images/b27d01c9f87b84c5ec9d9d917c405cfc3798e5a277ae08a948a7ee35f58f5a78.jpg)
 
@@ -785,9 +787,9 @@ static inline CD3DX12Resource_BARRIER Transition(
 ![](images/8bfc76263bba2702f199211af59259fbbbfbe205b92a831c40c0d0cd2d5d753f.jpg)
 
 
-Observe that CD3DX12_RESOURCE_BARRIER extends D3D12_RESOURCE_BARRIER_ DESC and adds convenience methods. Most Direct3D 12 structures have extended helper variations, and we prefer those variations for the convenience. The CD3DX12 variations are all defined in d3dx12.h. This file is not part of the core DirectX 12 SDK but is available for download from Microsoft. For convenience, a copy is included in the Common directory of the book’s source code. 
+Observe that CD3DX12_RESOURCE_BARRIER extends D3D12_RESOURCE_BARRIER_ DESC and adds convenience methods. Most Direct3D 12 structures have extended helper variations, and we prefer those variations for the convenience. The CD3DX12 variations are all defined in d3dx12.h. This file is not part of the core DirectX 12 SDK but is available for download from Microsoft. For convenience, a copy is included in the Common directory of the book鈥檚 source code. 
 
-An example of this function from this chapter’s sample application is as follows: 
+An example of this function from this chapter鈥檚 sample application is as follows: 
 
 ```cpp
 mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_present, D3D12_RESOURCE_STATE-render_TARGET)); 
@@ -846,7 +848,7 @@ other Direct3D interface objects like resources, views, and command lists. The d
 HRESULT WINAPI D3D12CreateDevice(IUnknown\* pAdapter, D3D_FEATURE_LEVEL MinimumFeatureLevel, REFIID riid, // Expected: ID3D12Device void\*\* ppDevice); 
 ```
 
-1. pAdapter: Specifies the display adapter we want the created device to represent. Specifying null for this parameter uses the primary display adapter. We always use the primary adapter in the sample programs of this book. $\ S 4 . 1 . 1 0$ showed how to enumerate all the system’s display adapters. 
+1. pAdapter: Specifies the display adapter we want the created device to represent. Specifying null for this parameter uses the primary display adapter. We always use the primary adapter in the sample programs of this book. $\ S 4 . 1 . 1 0$ showed how to enumerate all the system鈥檚 display adapters. 
 
 2. MinimumFeatureLevel: The minimum feature level our application requires support for; device creation will fail if the adapter does not support this feature level. In our framework, we specify D3D_FEATURE_LEVEL_12_2 (i.e., Direct3D 12 feature support with ray tracing and mesh shaders). 
 
@@ -883,12 +885,12 @@ Recall from $\ S 4 . 2 . 1$ that a command queue is represented by the ID3D12Com
 interface. The following function shows how we create a command queue, command allocator, and command list: 
 
 ```cpp
-ComPtr<ID3D12CommandQueue> mCommandQueue; ComPtr<ID3D12CommandAllocator> mDirectCmdListAlloc; ComPtr<ID3D12GraphicsCommandList6> mCommandList; void D3DApp::CreateCommandObjects() { D3D12_COMMAND_queue_DESC queueDesc = {}; queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT; queueDescFLAGS = D3D12_COMMAND_queue_FLAG_NONe; ThrowIfFailed (md3dDevice->CreateCommandQueue ( &queueDesc, IID_PPV_args (&mCommandQueue)); ThrowIfFailed (md3dDevice->CreateCommandAllocator( D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_args(mDirectCmdListAlloc.GetAddressOf())); ThrowIfFailed (md3dDevice->CreateCommandList( 0, D3D12_COMMAND_LIST_TYPE_DIRECT, mDirectCmdListAlloc.Get(), // Associated command allocator nullptr, // Initial PipelineStateObject IID_PPV_args(mCommandList↘GetAddressOf())); ThrowIfFailed (cmdList->QueryInterface (IID_PPV_ ARGS (&mCommandList))); // Start off in a closed state. This is because the first time we // refer to the command list we will Reset it, and it needs to be // closed before calling Reset. mCommandList->Close(); } 
+ComPtr<ID3D12CommandQueue> mCommandQueue; ComPtr<ID3D12CommandAllocator> mDirectCmdListAlloc; ComPtr<ID3D12GraphicsCommandList6> mCommandList; void D3DApp::CreateCommandObjects() { D3D12_COMMAND_queue_DESC queueDesc = {}; queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT; queueDescFLAGS = D3D12_COMMAND_queue_FLAG_NONe; ThrowIfFailed (md3dDevice->CreateCommandQueue ( &queueDesc, IID_PPV_args (&mCommandQueue)); ThrowIfFailed (md3dDevice->CreateCommandAllocator( D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_args(mDirectCmdListAlloc.GetAddressOf())); ThrowIfFailed (md3dDevice->CreateCommandList( 0, D3D12_COMMAND_LIST_TYPE_DIRECT, mDirectCmdListAlloc.Get(), // Associated command allocator nullptr, // Initial PipelineStateObject IID_PPV_args(mCommandList鈫楪etAddressOf())); ThrowIfFailed (cmdList->QueryInterface (IID_PPV_ ARGS (&mCommandList))); // Start off in a closed state. This is because the first time we // refer to the command list we will Reset it, and it needs to be // closed before calling Reset. mCommandList->Close(); } 
 ```
 
 Note that mCommandList is of type ID3D12GraphicsCommandList6. This is just interface versioning. We need interface version 6 to get access to the newer ray tracing and mesh shader APIs. Checking and getting a newer interface is done with the COM QueryInterface method. 
 
-Observe that for CreateCommandList, we specify null for the pipeline state object parameter. In this chapter’s sample program, we do not issue any draw commands, so we do not need a valid pipeline state object. We will discuss pipeline state objects in Chapter 6. 
+Observe that for CreateCommandList, we specify null for the pipeline state object parameter. In this chapter鈥檚 sample program, we do not issue any draw commands, so we do not need a valid pipeline state object. We will discuss pipeline state objects in Chapter 6. 
 
 # 4.3.4 Describe and Create the Swap Chain
 
@@ -958,22 +960,22 @@ ThrowIfFailed(swapChain1.As(&mSwapChain));
 
 # 4.3.5 Create the Descriptor Heaps
 
-We need to create the descriptor heaps to store the descriptors/views (§4.1.6) our application needs. A descriptor heap is represented by the ID3D12DescriptorHeap interface. A heap is created with the ID3D12Device::CreateDescriptorHeap method. In this chapter’s sample program, we need SwapChainBufferCount many render target views (RTVs) to describe the buffer resources in the swap chain we will render into, and one depth/stencil view (DSV) to describe the depth/ stencil buffer resource for depth testing. Therefore, we need a heap for storing SwapChainBufferCount RTVs, and we need a heap for storing one DSV. We define the following helper class (Common/DescriptorUtil.h/.cpp) for managing a heap: 
+We need to create the descriptor heaps to store the descriptors/views (搂4.1.6) our application needs. A descriptor heap is represented by the ID3D12DescriptorHeap interface. A heap is created with the ID3D12Device::CreateDescriptorHeap method. In this chapter鈥檚 sample program, we need SwapChainBufferCount many render target views (RTVs) to describe the buffer resources in the swap chain we will render into, and one depth/stencil view (DSV) to describe the depth/ stencil buffer resource for depth testing. Therefore, we need a heap for storing SwapChainBufferCount RTVs, and we need a heap for storing one DSV. We define the following helper class (Common/DescriptorUtil.h/.cpp) for managing a heap: 
 
 class DescriptorHeap   
 {   
 public: DescriptorHeap() $=$ default; DescriptorHeap(const DescriptorHeap& rhs) $=$ delete; DescriptorHeap& operator=(const DescriptorHeap& rhs) $=$ delete; void Init(ID3D12Device\* device, D3D12 DescriptorHEAP_TYPE type, UINT capacity); ID3D12DescriptorHeap\* GetD3dHeap() const; CD3DX12_CPU DescriptorHandle CpuHandle( uint32_t index); CD3DX12_GPU DescriptorHandle GpuHandle( uint32_t index); protected: Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mHeap $\equiv$ nullptr; UINT mDescriptorSize $= 0$ .   
-}；   
+}锛?  
 void DescriptorHeap::Init(ID3D12Device\* device, D3D12 DescriptorHEAP_TYPE type, UINT capacity)   
 { assert(mHeap $\equiv$ nullptr); D3D12 DescriptorHEAP_DESC heapDesc; heapDesc.NumDescriptors $=$ capacity; heapDesc.Type $=$ type; heapDescFLAGS $\equiv$ type $\equiv$ D3D12 DescriptorHEAP_TYPE_CBV_SRV_UAV || type $\equiv$ D3D12 DescriptorHEAP_TYPE_SAMPLEER ? D3D12 DescriptorHEAP_FLAGSHADER.Visible : 
 
-D3D12 DescriptorHeap_FLAG_NONE; heapDesc.NodeMask $= 0$ ： ThrowIfFailed(device->CreateDescriptorHeap( &heapDesc，IID_PPV_args(mHeap.GetAddressOf())）； mDescriptorSize $\equiv$ device->GetDescriptorHandleIncrementSize(type);   
+D3D12 DescriptorHeap_FLAG_NONE; heapDesc.NodeMask $= 0$ 锛?ThrowIfFailed(device->CreateDescriptorHeap( &heapDesc锛孖ID_PPV_args(mHeap.GetAddressOf())锛夛紱 mDescriptorSize $\equiv$ device->GetDescriptorHandleIncrementSize(type);   
 }   
 ID3D12DescriptorHeap\* DescriptorHeap::GetD3dHeap()const { return mHeap.Get();   
 }   
-CD3DX12_CPU DescriptorHANDLE DescriptorHeap::CpuHandle(void32_t index) { Auto hcpu $=$ CD3DX12_CPU DescriptorHANDLE( mHeap->GetCPUDescriptorHandleForHeapStart()); hcpu Offset(index，mDescriptorSize); return hcpu;   
+CD3DX12_CPU DescriptorHANDLE DescriptorHeap::CpuHandle(void32_t index) { Auto hcpu $=$ CD3DX12_CPU DescriptorHANDLE( mHeap->GetCPUDescriptorHandleForHeapStart()); hcpu Offset(index锛宮DescriptorSize); return hcpu;   
 }   
-CD3DX12_CPU Descriptor HANDLE DescriptorHeap::GpuHandle(void32_t index) { auto hgpu $=$ CD3DX12GPU Descriptor HANDLE( mHeap->GetGPUDescriptorHandleForHeapStart()); hgpu Offset(index，mDescriptorSize); return hgpu; 
+CD3DX12_CPU Descriptor HANDLE DescriptorHeap::GpuHandle(void32_t index) { auto hgpu $=$ CD3DX12GPU Descriptor HANDLE( mHeap->GetGPUDescriptorHandleForHeapStart()); hgpu Offset(index锛宮DescriptorSize); return hgpu; 
 
 Note that RTV and DSV descriptors are not considered shader visible because we do not access these resources explicitly in a shader program. Descriptor sizes can vary across GPUs; therefore, after creating the heap, we need to query the descriptor size using GetDescriptorHandleIncrementSize. This is needed to index into the descriptor heap to get a descriptor handle at each index in the heap. Each descriptor has two different kinds of handles: a CPU handle and a GPU handle. The CPU handle is used to identify the resource on the CPU and the GPU handle is used to identify the resource on the GPU (e.g., ID3D12GraphicsCommandList: :SetGraphicsRootDescriptorTable takes a GPU handle because the resources identified by the table of descriptors will be read by the GPU). 
 
@@ -1125,7 +1127,7 @@ b) D3D12_HEAP_TYPE_UPLOAD: Upload heap. See $\ S 4 . 1 . 1 4$ for details.
 
 c) D3D12_HEAP_TYPE_READBACK: Read-back heap. See $\ S 4 . 1 . 1 4$ for details. 
 
-d) D3D12_HEAP_TYPE_CUSTOM: For advanced usage scenarios—see the MSDN documentation for more information. 
+d) D3D12_HEAP_TYPE_CUSTOM: For advanced usage scenarios鈥攕ee the MSDN documentation for more information. 
 
 2. HeapMiscFlags: Additional flags about the heap we want to commit the resource to. This will usually be D3D12_HEAP_MISC_NONE. 
 
@@ -1296,12 +1298,12 @@ int64 B = 0;
 QueryPerformanceCounter((LARGE_INTEGER*) & B); 
 ```
 
-So it took (B–A) counts to do the work, or (B–A)*mSecondsPerCount seconds to do the work. 
+So it took (B鈥揂) counts to do the work, or (B鈥揂)*mSecondsPerCount seconds to do the work. 
 
 ![](images/7cdaa6097382a2cb58a340b3a98ec7cdad254cbf6619cdf7191bd862a36f16b1.jpg)
 
 
-MSDN has the following remark about QueryPerformanceCounter: “On a multiprocessor computer, it should not matter which processor is called. However, you can get different results on different processors due to bugs in the basic input/output system (BIOS) or the hardware abstraction layer (HAL).” You can use the SetThreadAffinityMask function so that the main application thread does not get switch to another processor. 
+MSDN has the following remark about QueryPerformanceCounter: 鈥淥n a multiprocessor computer, it should not matter which processor is called. However, you can get different results on different processors due to bugs in the basic input/output system (BIOS) or the hardware abstraction layer (HAL).鈥?You can use the SetThreadAffinityMask function so that the main application thread does not get switch to another processor. 
 
 # 4.4.2 Game Timer Class
 
@@ -1400,7 +1402,7 @@ Another time measurement that can be useful is the amount of time that has elaps
 Figure 4.12. Computing the time since the level started. Note that we choose the application start time as the origin (0), and measure time values relative to that frame of reference.
 
 
-Another application of total time is when we want to animate a quantity as a function of time. For instance, suppose we wish to have a light orbit the scene as a function of time. Its position can be described by the parametric equations: 
+Another application of total time is when we want to animate a quantity as a function of time. For instance, suppose we wish to have a light orbit the scene as a聽function of time. Its position can be described by the parametric equations: 
 
 $$
 \left\{ \begin{array}{l} x = 1 0 \cos t \\ y = 2 0 \\ z = 1 0 \sin t \end{array} \right.
@@ -1423,7 +1425,7 @@ int64 mPausedTime;
 int64 mStopTime; 
 ```
 
-As we saw in $\ S 4 . 4 . 3$ , mBaseTime is initialized to the current time when Reset was called. We can think of this as the time when the application started. In most cases, you will only call Reset once before the message loop, so mBaseTime stays constant throughout the application’s lifetime. The variable mPausedTime accumulates all the time that passes while we are paused. We need to accumulate this time so we can subtract it from the total running time, in order to not count paused time. The mStopTime variable gives us the time when the timer is stopped (paused); this is used to help us keep track of paused time. 
+As we saw in $\ S 4 . 4 . 3$ , mBaseTime is initialized to the current time when Reset was called. We can think of this as the time when the application started. In most cases, you will only call Reset once before the message loop, so mBaseTime stays constant throughout the application鈥檚 lifetime. The variable mPausedTime accumulates all the time that passes while we are paused. We need to accumulate this time so we can subtract it from the total running time, in order to not count paused time. The mStopTime variable gives us the time when the timer is stopped (paused); this is used to help us keep track of paused time. 
 
 Two important methods of the GameTimer class are Stop and Start. They should be called when the application is paused and unpaused, respectively, so that the GameTimer can keep track of paused time. The code comments explain the details of these two methods. 
 
@@ -1501,11 +1503,11 @@ else
 
 Note: 
 
-Our demo framework creates an instance of GameTimer for measuring the total time since the application started, and the time elapsed between frames; however, you can also create additional instances and use them as generic “stopwatches.” For example, when a bomb is ignited, you could start a new GameTimer, and when the TotalTime reached 5 seconds, you could raise an event that the bomb exploded. 
+Our demo framework creates an instance of GameTimer for measuring the total time since the application started, and the time elapsed between frames; however, you can also create additional instances and use them as generic 鈥渟topwatches.鈥?For example, when a bomb is ignited, you could start a new GameTimer, and when the TotalTime reached 5 seconds, you could raise an event that the bomb exploded. 
 
 # 4.5 THE DEMO APPLICATION FRAMEWORK
 
-The demos in this book use code from the Common directory. This folder contains some utility code that we will use in this demo, but it also contains utility code that we will not use until later on in this book. For now, the main files we want to concentrate on are d3dUtil.h/.cpp, d3dApp.h/.cpp, and DescriptorUtil.h/.cpp, which can be downloaded from the book’s website. The d3dUtil.h and d3dUtil.cpp files contain useful utility code, and the d3dApp.h and d3dApp.cpp files contain the core Direct3D application class code that is used to encapsulate a Direct3D sample application. We already saw in $\ S 4 . 3 . 5$ that DescriptorUtil.h/.cpp defines a helper class for managing descriptor heaps for render target views and depth/ stencil views (we will add new heap classes as needed throughout this book as we come to need other types of descriptor heaps). The reader is encouraged to study these files after reading this chapter, as we do not cover every line of code in these files (e.g., we do not show how to create a window, as basic Win32 programming is a prerequisite of this book). The goal of this framework was to hide the window creation code and Direct3D initialization code; by hiding this code, we feel it makes the demos less distracting, as you can focus only on the specific details the sample code is trying to illustrate. 
+The demos in this book use code from the Common directory. This folder contains some utility code that we will use in this demo, but it also contains utility code that we will not use until later on in this book. For now, the main files we want to concentrate on are d3dUtil.h/.cpp, d3dApp.h/.cpp, and DescriptorUtil.h/.cpp, which can be downloaded from the book鈥檚 website. The d3dUtil.h and d3dUtil.cpp files contain useful utility code, and the d3dApp.h and d3dApp.cpp files contain the core Direct3D application class code that is used to encapsulate a Direct3D sample application. We already saw in $\ S 4 . 3 . 5$ that DescriptorUtil.h/.cpp defines a helper class for managing descriptor heaps for render target views and depth/ stencil views (we will add new heap classes as needed throughout this book as we come to need other types of descriptor heaps). The reader is encouraged to study these files after reading this chapter, as we do not cover every line of code in these files (e.g., we do not show how to create a window, as basic Win32 programming is a prerequisite of this book). The goal of this framework was to hide the window creation code and Direct3D initialization code; by hiding this code, we feel it makes the demos less distracting, as you can focus only on the specific details the sample code is trying to illustrate. 
 
 # 4.5.1 D3DApp
 
@@ -1546,7 +1548,7 @@ bool mResizing = false; // are the resize bars being dragged?
 ```
 
 
-// Used to keep track of the "delta-time" and game time (§4.4). GameTimer mTimer;
+// Used to keep track of the "delta-time" and game time (搂4.4). GameTimer mTimer;
 
 
 ```cpp
@@ -1622,7 +1624,7 @@ float D3DApp::AspectRatio() const
 
 10. CreateCommandObjects: Creates the command queue, a command list allocator, and a command list, as described in $\ S 4 . 3 . 3$ . 
 
-11. CreateSwapChain: Creates the swap chain (§4.3.4.). 
+11. CreateSwapChain: Creates the swap chain (搂4.3.4.). 
 
 12. CurrentBackBuffer: Returns an ID3D12Resource to the current back buffer in the swap chain. 
 
@@ -1632,11 +1634,11 @@ float D3DApp::AspectRatio() const
 
 15. CalculateFrameStats: Calculates the average frames per second and the average milliseconds per frame. The implementation of this method is discussed in $\ S 4 . 4 . 4$ . 
 
-16. LogAdapters: Enumerates all the adapters on a system (§4.1.10). 
+16. LogAdapters: Enumerates all the adapters on a system (搂4.1.10). 
 
-17. LogAdapterOutputs: Enumerates all the outputs associated with an adapter (§4.1.10). 
+17. LogAdapterOutputs: Enumerates all the outputs associated with an adapter (搂4.1.10). 
 
-18. LogOutputDisplayModes: Enumerates all the display modes an output supports for a given format (§4.1.10). 
+18. LogOutputDisplayModes: Enumerates all the display modes an output supports for a given format (搂4.1.10). 
 
 19. InitImgui: Initializes the ImGUI open-source library, which is used to render GUI elements in Direct3D 12. We discuss ImGUI in $\ S 4 . 5 . 6$ . 
 
@@ -1682,7 +1684,7 @@ so that your initialization code can access the initialized members of D3DApp. T
 
 demos; for more advanced rendering techniques that use multiple render targets, we will have to override this method. 
 
-4. OnResize: This method is called by D3DApp::MsgProc when a WM_SIZE message is received. When the window is resized, some Direct3D properties need to be changed, as they depend on the client area dimensions. In particular, the back buffer and depth/stencil buffers need to be recreated to match the new client area of the window (§4.3.6 and $\ S 4 . 3 . 7 )$ ). The back buffer can be resized by calling the IDXGISwapChain::ResizeBuffers method. The depth/stencil buffer needs to be destroyed and then remade based on the new dimension. In addition, the render target and depth/stencil views need to be recreated. The D3DApp implementation of OnResize handles the code necessary to resize the back and depth/stencil buffers; see the source code for the straightforward details. In addition to the buffers, other properties depend on the size of the client area (e.g., the projection matrix), so this method is part of the framework because the client code may need to execute some of its own code when the window is resized. 
+4. OnResize: This method is called by D3DApp::MsgProc when a WM_SIZE message is received. When the window is resized, some Direct3D properties need to be changed, as they depend on the client area dimensions. In particular, the back buffer and depth/stencil buffers need to be recreated to match the new client area of the window (搂4.3.6 and $\ S 4 . 3 . 7 )$ ). The back buffer can be resized by calling the IDXGISwapChain::ResizeBuffers method. The depth/stencil buffer needs to be destroyed and then remade based on the new dimension. In addition, the render target and depth/stencil views need to be recreated. The D3DApp implementation of OnResize handles the code necessary to resize the back and depth/stencil buffers; see the source code for the straightforward details. In addition to the buffers, other properties depend on the size of the client area (e.g., the projection matrix), so this method is part of the framework because the client code may need to execute some of its own code when the window is resized. 
 
 5. Update: This abstract method is called every frame and should be used to update the 3D application over time (e.g., perform animations, move the camera, do collision detection, and check for user input). 
 
@@ -1700,7 +1702,7 @@ In this way, if you want to handle mouse messages, you can override these method
 
 # 4.5.4 Frame Statistics
 
-It is common for games and graphics application to measure the number of frames being rendered per second (FPS). To do this, we simply count the number of frames processed (and store it in a variable $n$ ) over some specified time period t. Then, the average FPS over the time period $t$ is $f p s _ { a \nu g } = n / \mathrm { t }$ . If we set $t = 1$ , then $f p s _ { a \nu g } =$ $n / 1 = n$ . In our code, we use $t = 1$ (second) since it avoids a division, and moreover, one second gives a pretty good average—it is not too long and not too short. The code to compute the FPS is provided by the D3DApp::CalculateFrameStats method: 
+It is common for games and graphics application to measure the number of frames being rendered per second (FPS). To do this, we simply count the number of frames processed (and store it in a variable $n$ ) over some specified time period t. Then, the average FPS over the time period $t$ is $f p s _ { a \nu g } = n / \mathrm { t }$ . If we set $t = 1$ , then $f p s _ { a \nu g } =$ $n / 1 = n$ . In our code, we use $t = 1$ (second) since it avoids a division, and moreover, one second gives a pretty good average鈥攊t is not too long and not too short. The code to compute the FPS is provided by the D3DApp::CalculateFrameStats method: 
 
 ```cpp
 void D3DApp::CalculateFrameStats()
@@ -1744,7 +1746,7 @@ The idea behind this line is to compute the time, in milliseconds, it takes to r
 
 # 4.5.5 The Message Handler
 
-The window procedure we implement for our application framework does the bare minimum. In general, we won’t be working very much with Win32 messages anyway. In fact, the core of our application code gets executed during idle processing (i.e., when no window messages are present). Still, there are some important messages we do need to process. However, because of the length of the window procedure, we do not embed all the code here; rather, we just explain the motivation behind each message we handle. We encourage the reader to download the source code files and spend some time getting familiar with the application framework code, as it is the foundation of every sample for this book. 
+The window procedure we implement for our application framework does the bare minimum. In general, we won鈥檛 be working very much with Win32 messages anyway. In fact, the core of our application code gets executed during idle processing (i.e., when no window messages are present). Still, there are some important messages we do need to process. However, because of the length of the window procedure, we do not embed all the code here; rather, we just explain the motivation behind each message we handle. We encourage the reader to download the source code files and spend some time getting familiar with the application framework code, as it is the foundation of every sample for this book. 
 
 The first message we handle is the WM_ACTIVATE message. This message is sent when an application becomes activated or deactivated. We implement it like so: 
 
@@ -1757,7 +1759,7 @@ else
 }   
 return 0; 
 
-As you can see, when our application becomes deactivated, we set the data member mAppPaused to true, and when our application becomes active, we set the data member mAppPaused to false. In addition, when the application is paused, we stop the timer, and then resume the timer once the application becomes active again. If we look back at the implementation to D3DApp::Run (§4.4.3), we find that if our application is paused, then we do not update our application code, but instead free some CPU cycles back to the OS; in this way, our application does not hog CPU cycles when it is inactive. 
+As you can see, when our application becomes deactivated, we set the data member mAppPaused to true, and when our application becomes active, we set the data member mAppPaused to false. In addition, when the application is paused, we stop the timer, and then resume the timer once the application becomes active again. If we look back at the implementation to D3DApp::Run (搂4.4.3), we find that if our application is paused, then we do not update our application code, but instead free some CPU cycles back to the OS; in this way, our application does not hog CPU cycles when it is inactive. 
 
 The next message we handle is the WM_SIZE message. Recall that this message is called when the window is resized. The main reason for handling this message is that we want the back buffer and depth/stencil dimensions to match the dimensions of the client area rectangle (so no stretching occurs). Thus, every time the window is resized, we want to resize the buffer dimensions. The code to resize the buffers is implemented in D3DApp::OnResize. As already stated, the back buffer can be resized by calling the IDXGISwapChain::ResizeBuffers method. The depth/stencil buffer needs to be destroyed and then remade based on the new dimensions. In addition, the render target and depth/stencil views need to be recreated. If the user is dragging the resize bars, we must be careful because dragging the resize bars sends continuous WM_SIZE messages, and we do not want to continuously resize the buffers. Therefore, if we determine that the user is resizing by dragging, we actually do nothing (except pause the application) until the user is done dragging the resize bars. We can do this by handling the WM_ EXITSIZEMOVE message. This message is sent when the user releases the resize bars. 
 
@@ -1808,7 +1810,7 @@ One thing that proves useful in a 3D application is some form of GUI system. For
 
 require a lot of boilerplate code, and the reader would need to be familiar with them. It would be nice to have a simple lightweight GUI framework that was rendered using Direct3D 12. Although we could author our own, there is now a mature, stable, open-source library available that is popular in the game industry called Dear ImGui (ImGUI). As mentioned, it supports rendering GUI elements using Direct3D 12 (among other graphics APIs), so it is easy to integrate into our Direct3D 12 applications. It is ideal for debug output and basic UI controls such as toggle buttons and slider controls. 
 
-The source code can be downloaded from https://github.com/ocornut/imgui, and the link also contains further details and documentation. After some setup, it is quite easy to learn by example. In the demos folder of this book, we put third party libraries in an external folder. For example, we download the ImGUI source code and put it in External\imgui. We then add the source code to our Visual Studio project (see Figure 4.14). ImGUI supports other graphics APIs besides Direct3D 12 and ImGUI calls these “backends.” Because we only care about the Windows Direct3D 12 backend, we only need to add the imgui_impl_dx12.h/.cpp and imgui_impl_win32.h/.cpp backend files to our project. 
+The source code can be downloaded from https://github.com/ocornut/imgui, and the link also contains further details and documentation. After some setup, it is quite easy to learn by example. In the demos folder of this book, we put third party libraries in an external folder. For example, we download the ImGUI source code and put it in External\imgui. We then add the source code to our Visual Studio project (see Figure 4.14). ImGUI supports other graphics APIs besides Direct3D 12 and ImGUI calls these 鈥渂ackends.鈥?Because we only care about the Windows Direct3D 12 backend, we only need to add the imgui_impl_dx12.h/.cpp and imgui_impl_win32.h/.cpp backend files to our project. 
 
 ![](images/b1adab90c92a8d8a0c6c09385a0055a1035f01323d2cd309ebef2a023090972a.jpg)
 
@@ -1871,7 +1873,7 @@ if (!io WantCaptureMouse)
 } 
 ```
 
-# 4.5.7 The “Init Direct3D” Demo
+# 4.5.7 The 鈥淚nit Direct3D鈥?Demo
 
 Now that we have discussed the application framework, let us make a small application using it. The program requires almost no real work on our part since the parent class D3DApp does most of the work required for this demo. The main thing to note is how we derive a class from D3DApp and implement the framework functions, where we will write our sample specific code. All of the programs in this book will follow the same template. 
 
@@ -2039,14 +2041,14 @@ Many Direct3D functions return HRESULT error codes. For our sample programs, we 
 
 class DxException   
 {   
-public: DxException() $=$ default; DxException(HRESULT hr, const std::wstring& functionName, const std::wstring& filename, int lineNumber); std::wstringToString(const; HRESULTErrorCode $\equiv$ S_OK; std::wstring FunctionName; std::wstring Filename; int LineNumber $= -1$ ）; #endif ThrowIfFailed #define ThrowIfFailed(x) { HRESULT hr $\equiv$ (x); std::wstring wfn $\equiv$ AnsiToWString(_FILE_); if(FAILED(hr)) { throw DxException(hr_, L#x, wfn, _LINE_); }   
+public: DxException() $=$ default; DxException(HRESULT hr, const std::wstring& functionName, const std::wstring& filename, int lineNumber); std::wstringToString(const; HRESULTErrorCode $\equiv$ S_OK; std::wstring FunctionName; std::wstring Filename; int LineNumber $= -1$ 锛? #endif ThrowIfFailed #define ThrowIfFailed(x) { HRESULT hr $\equiv$ (x); std::wstring wfn $\equiv$ AnsiToWString(_FILE_); if(FAILED(hr)) { throw DxException(hr_, L#x, wfn, _LINE_); }   
 } #endif 
 
 Observe that ThrowIfFailed must be a macro and not a function; otherwise FILE__ and __LINE__ would refer to the file and line of the function implementation instead of the file and line where ThrowIfFailed was written. 
 
 Note: 
 
-The L#x turns the ThrowIfFailed macro’s argument token into a Unicode string. In this way, we can output the function call that caused the error to the message box. 
+The L#x turns the ThrowIfFailed macro鈥檚 argument token into a Unicode string. In this way, we can output the function call that caused the error to the message box. 
 
 For a Direct3D function that returns an HRESULT, we use the macro like so: 
 
@@ -2073,7 +2075,7 @@ Figure 4.16. Example of the error message box shown when an HRESULT fails.
 
 1. Direct3D can be thought of as a mediator between the programmer and the graphics hardware. For example, the programmer calls Direct3D functions to bind resource views to the hardware rendering pipeline, to configure the output of the rendering pipeline, and to draw 3D geometry. 
 
-2. Component Object Model (COM) is the technology that allows DirectX to be language independent and have backwards compatibility. Direct3D programmers don’t need to know the details of COM and how it works; they need only to know how to acquire COM interfaces and how to release them. 
+2. Component Object Model (COM) is the technology that allows DirectX to be language independent and have backwards compatibility. Direct3D programmers don鈥檛 need to know the details of COM and how it works; they need only to know how to acquire COM interfaces and how to release them. 
 
 3. A 1D texture is like a 1D array of data elements, a 2D texture is like a 2D array of data elements, and a 3D texture is like a 3D array of data elements. 
 
@@ -2089,7 +2091,7 @@ The elements of a texture must have a format described by a member of the DXGI_F
 
 8. The GPU has a command queue. The CPU submits commands to the queue through the Direct3D API using command lists. A command instructs the GPU to do something. Submitted commands are not executed by the GPU until they reach the front of the queue. If the command queue gets empty, the GPU will idle because it does not have any work to do; on the other hand, if the command queue gets too full, the CPU will at some point have to idle 
 
-while the GPU catches up. Both of these scenarios underutilize the system’s hardware resources. 
+while the GPU catches up. Both of these scenarios underutilize the system鈥檚 hardware resources. 
 
 9. The GPU is a second processor in the system that runs in parallel with the CPU. Sometimes the CPU and GPU will need to be synchronized. For example, if the GPU has a command in its queue that references a resource, the CPU must not modify or destroy that resource until the GPU is done with it. Any synchronization methods that cause one of the processors to wait and idle should be minimized, as it means we are not taking full advantage of the two processors. 
 

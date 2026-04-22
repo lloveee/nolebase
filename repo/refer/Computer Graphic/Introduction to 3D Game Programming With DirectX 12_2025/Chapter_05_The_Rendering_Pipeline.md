@@ -1,10 +1,12 @@
+﻿# Chapter 05 The Rendering Pipeline
+
 Chapter 
 
 # 5
 
 # The Rendering Pip el ine
 
-The primary theme of this chapter is the rendering pipeline. Given a geometric description of a 3D scene with a positioned and oriented virtual camera, the rendering pipeline refers to the entire sequence of steps necessary to generate a 2D image based on what the virtual camera sees (Figure 5.1). This chapter is mostly theoretical—the next chapter puts the theory into practice as we learn to draw with Direct3D. Before we begin coverage of the rendering pipeline, we have two short stops: First, we discuss some elements of the 3D illusion (i.e., the illusion that we are looking into a 3D world through a flat 2D monitor screen); and second, we explain how colors will be represented and worked with mathematically and in Direct3D code. 
+The primary theme of this chapter is the rendering pipeline. Given a geometric description of a 3D scene with a positioned and oriented virtual camera, the rendering pipeline refers to the entire sequence of steps necessary to generate a 2D image based on what the virtual camera sees (Figure 5.1). This chapter is mostly theoretical鈥攖he next chapter puts the theory into practice as we learn to draw with Direct3D. Before we begin coverage of the rendering pipeline, we have two short stops: First, we discuss some elements of the 3D illusion (i.e., the illusion that we are looking into a 3D world through a flat 2D monitor screen); and second, we explain how colors will be represented and worked with mathematically and in Direct3D code. 
 
 # Chapter Objectives:
 
@@ -14,20 +16,20 @@ The primary theme of this chapter is the rendering pipeline. Given a geometric d
 
 3. To learn how we model the virtual camera. 
 
-4. To understand the rendering pipeline—the process of taking a geometric description of a 3D scene and generating a 2D image from it. 
+4. To understand the rendering pipeline鈥攖he process of taking a geometric description of a 3D scene and generating a 2D image from it. 
 
 ![](images/2ffcd6079b1435d2379c1f2536c13942f902ae52aba499a27693831b2b83d272.jpg)
 
 
 
-Figure 5.1. The left image shows a side view of some objects setup in the 3D world with a camera positioned and aimed; the middle image shows the same scene, but from a top-down view. The “pyramid” volume specifies the volume of space that the viewer can see; objects (and parts of objects) outside this volume are not seen. The image on the right shows the 2D image created based on what the camera “sees”.
+Figure 5.1. The left image shows a side view of some objects setup in the 3D world with a camera positioned and aimed; the middle image shows the same scene, but from a top-down view. The 鈥減yramid鈥?volume specifies the volume of space that the viewer can see; objects (and parts of objects) outside this volume are not seen. The image on the right shows the 2D image created based on what the camera 鈥渟ees鈥?
 
 
 # 5.1 THE 3D ILLUSION
 
 Before we embark on our journey of 3D computer graphics, a simple question remains outstanding: How do we display a 3D world with depth and volume on a flat 2D monitor screen? Fortunately for us, this problem has been well studied, as artists have been painting 3D scenes on 2D canvases for centuries. In this section, we outline several key techniques that make an image look 3D, even though it is actually drawn on a 2D plane. 
 
-Suppose that you have encountered a railroad track that doesn’t curve, but goes along a straight line for a long distance. Now the railroad rails remain parallel to each other for all time, but if you stand on the railroad and look down its path, you will observe that the two railroad rails get closer and closer together as their distance from you increases, and eventually they converge at an infinite distance. This is one observation that characterizes our human viewing system: parallel lines of vision converge to a vanishing point; see Figure 5.2. 
+Suppose that you have encountered a railroad track that doesn鈥檛 curve, but goes along a straight line for a long distance. Now the railroad rails remain parallel to each other for all time, but if you stand on the railroad and look down its path, you will observe that the two railroad rails get closer and closer together as their distance from you increases, and eventually they converge at an infinite distance. This is one observation that characterizes our human viewing system: parallel lines of vision converge to a vanishing point; see Figure 5.2. 
 
 ![](images/5fe8bde7cf27e0dae91451ec248ffdb59e4b0a17efef1f1c3dac1f0263c5cccf.jpg)
 
@@ -54,7 +56,7 @@ Another simple observation of how humans see things is that the size of an objec
 
 We all experience object overlap (Figure 5.4), which refers to the fact that opaque objects obscure parts (or all) of the objects behind them. This is an important perception, as it conveys the depth ordering relationship of the objects in the scene. We already discussed (Chapter 4) how Direct3D uses a depth buffer to figure out which pixels are being obscured and thus should not be drawn. 
 
-Consider Figure 5.5. On the left we have an unlit sphere, and on the right, we have a lit sphere. As you can see, the sphere on the left looks rather flat—maybe it 
+Consider Figure 5.5. On the left we have an unlit sphere, and on the right, we have a lit sphere. As you can see, the sphere on the left looks rather flat鈥攎aybe it 
 
 ![](images/6352ac936c220417a42b154560ff4d7c454cedeefc3daf73de858db10b99dca7.jpg)
 
@@ -65,7 +67,7 @@ Figure 5.5. (a) An unlit sphere that looks 2D. (b) A lit sphere that looks 3D.
 
 is not even a sphere at all, but just a textured 2D circle! Thus, lighting and shading play a very important role in depicting the solid form and volume of 3D objects. 
 
-Figure $5 . 6 a$ shows a scene with lighting only. Although it looks 3D, it certainly lacks detail. In Figure $5 . 6 b \mathrm { . }$ , shadows are added along with ambient occlusion. Shadows tell us the origin of the light sources in the scene and can give an idea of how large or how far off the ground an object is. Ambient occlusion is somewhat related to shadows. It has the effect of darkening areas in cracks and crevices. Informally, this is because nearby geometry is occluding light from some directions (i.e., not as much light will enter cracks and crevices). Figure $5 . 6 c$ adds textures to the scene, which is where we “stretch” image data over a 3D object to give it detail. This adds quite a lot to the look and feel of the scene. 
+Figure $5 . 6 a$ shows a scene with lighting only. Although it looks 3D, it certainly lacks detail. In Figure $5 . 6 b \mathrm { . }$ , shadows are added along with ambient occlusion. Shadows tell us the origin of the light sources in the scene and can give an idea of how large or how far off the ground an object is. Ambient occlusion is somewhat related to shadows. It has the effect of darkening areas in cracks and crevices. Informally, this is because nearby geometry is occluding light from some directions (i.e., not as much light will enter cracks and crevices). Figure $5 . 6 c$ adds textures to the scene, which is where we 鈥渟tretch鈥?image data over a 3D object to give it detail. This adds quite a lot to the look and feel of the scene. 
 
 Finally, Figure $5 . 6 d$ shows two orbs. The one on the left is glass, where the light refracts and makes it transparent, and the one on the right has mirror-like reflections. Some materials like glass and water are both reflective and refractive and the amount varies depending on the viewing angle. Besides perfect mirrors, most materials that are not completely matte have some mirror-like reflectivity, such as polished stone or finished wood floors. Modeling this reflectivity in everyday materials enhances the realism of computer graphics. Another thing to keep in mind when modeling surfaces is how paints and clearcoats, for example, affect the optical properties of a surface. 
 
@@ -73,14 +75,14 @@ Finally, Figure $5 . 6 d$ shows two orbs. The one on the left is glass, where th
 
 
 
-Figure 5.6. (a) A lit scene only. (b) Shadows and ambient occlusion added to the previous figure. (c) Texture data added to the previous figure. (d) Transparency and reflections.
+Figure 5.6. (a) A lit scene only. (b) Shadows and ambient occlusion added to the previous figure. (c)聽Texture data added to the previous figure. (d) Transparency and reflections.
 
 
 The observations just discussed, no doubt, are intuitively obvious from our day-to-day experiences. Nonetheless, it is helpful to explicitly state what we know and to keep these observations in mind as we study and work on 3D computer graphics. 
 
 # 5.2 MODEL REPRESENTATION
 
-A solid 3D object is represented by a triangle mesh approximation, and consequently, triangles form the basic building blocks of the objects we model. As Figure 5.7 implies, we can approximate any real-world 3D object by a triangle mesh. In general, the more triangles you use to approximate an object, the better the approximation, as you can model finer details. Of course, the more triangles we use, the more processing power is required, and so a balance must be made based on the hardware power of the application’s target audience. In addition to triangles, it is sometimes useful to draw lines or points. For example, a curve could be graphically drawn by a sequence of short line segments a pixel thick. 
+A solid 3D object is represented by a triangle mesh approximation, and consequently, triangles form the basic building blocks of the objects we model. As Figure 5.7 implies, we can approximate any real-world 3D object by a triangle mesh. In general, the more triangles you use to approximate an object, the better the approximation, as you can model finer details. Of course, the more triangles we use, the more processing power is required, and so a balance must be made based on the hardware power of the application鈥檚 target audience. In addition to triangles, it is sometimes useful to draw lines or points. For example, a curve could be graphically drawn by a sequence of short line segments a pixel thick. 
 
 The large number of triangles used in Figure 5.7 makes one thing clear: It would be extremely cumbersome to manually list the triangles of a 3D model. For all but the simplest models, special 3D applications called 3D modelers are used to generate and manipulate 3D objects. These modelers allow the user to build complex and realistic meshes in a visual and interactive environment with a rich tool set, thereby making the entire modeling process much easier. Examples of popular modelers used for game development are 3D Studio Max (https://www. autodesk.com/products/3ds-max), Maya (https://www.autodesk.com/products/ maya), Mudbox (https://www.autodesk.com/products/mudbox), and Blender (www.blender.org/). (Blender has the advantage for hobbyists of being open source and free.) Digital scanners can also generate 3D mesh data. Nevertheless, for the 
 
@@ -167,7 +169,7 @@ XMVECTOR XM_CALLCONV XMColorModulate(/ Returns $\mathbf{c}_1\otimes \mathbf{c}_2
 
 # 5.3.3 32-Bit Color
 
-To represent a color with 32-bits, a byte is given to each component. Since each color is given an 8-bit byte, we can represent 256 different shades for each color component—0 being no intensity, 255 being full intensity, and intermediate values being intermediate intensities. A byte per color component may seem small, but when we look at all the combinations $( 2 5 6 \times 2 5 6 \times 2 5 6 = 1 6 , 7 7 7 , 2 1 6 )$ , we see millions of distinct colors can be represented. The DirectX Math library (#include <DirectXPackedVector.h>) provides the following structure, in the 
+To represent a color with 32-bits, a byte is given to each component. Since each color is given an 8-bit byte, we can represent 256 different shades for each color component鈥? being no intensity, 255 being full intensity, and intermediate values being intermediate intensities. A byte per color component may seem small, but when we look at all the combinations $( 2 5 6 \times 2 5 6 \times 2 5 6 = 1 6 , 7 7 7 , 2 1 6 )$ , we see millions of distinct colors can be represented. The DirectX Math library (#include <DirectXPackedVector.h>) provides the following structure, in the 
 
 DirectX::PackedVector namespace, for storing a 32-bit color: 
 
@@ -299,7 +301,7 @@ typedef enum D3D_PRIMITIVE_TOPOLOGY
     D3D_PRIMITIVE_TOPOLOGY1_CONTROL_POINT PatchList = 33, 
 ```
 
-D3D_PRIMITIVE_TOPOLOGY_2_CONTROL_POINT PATCHLIST $= 34$ · D3D_PRIMITIVE_TOPOLOGY_32_CONTROL_POINT PATCHLIST $= 64$ }D3D_PRIMITIVE_TOPOLOGY; 
+D3D_PRIMITIVE_TOPOLOGY_2_CONTROL_POINT PATCHLIST $= 34$ 路 D3D_PRIMITIVE_TOPOLOGY_32_CONTROL_POINT PATCHLIST $= 64$ }D3D_PRIMITIVE_TOPOLOGY; 
 
 All subsequent drawing calls will use the currently set primitive topology until the topology is changed via the command list. The following code illustrates: 
 
@@ -337,7 +339,7 @@ Figure 5.13. (a) A point list; (b) a line strip; (c) a line list; (d) a triangle
 ![](images/8f3897c82d2ed01da985e31323c5859b2bb6908f73643dad176114d8f9918429.jpg)
 
 
-Observe that the winding order for even triangles in a triangle strip differs from the odd triangles, thereby causing culling issues (see §5.7.2). To fix this problem, the GPU internally swaps the order of the first two vertices of even triangles, so that they are consistently ordered like the odd triangles. 
+Observe that the winding order for even triangles in a triangle strip differs from the odd triangles, thereby causing culling issues (see 搂5.7.2). To fix this problem, the GPU internally swaps the order of the first two vertices of even triangles, so that they are consistently ordered like the odd triangles. 
 
 # 5.5.2.5 Triangle List
 
@@ -370,10 +372,10 @@ A triangle list with adjacency is where, for each triangle, you also include its
 
 
 
-Figure 5.14. (a) A triangle list; (b) A triangle list with adjacency—observe that each triangle requires 6 vertices to describe it and its adjacent triangles. Thus 6n vertices induce n triangles with adjacency info.
+Figure 5.14. (a) A triangle list; (b) A triangle list with adjacency鈥攐bserve that each triangle requires 6 vertices to describe it and its adjacent triangles. Thus 6n vertices induce n triangles with adjacency info.
 
 
-to be submitted to the pipeline in the vertex/index buffers along with the triangle itself, and the D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ topology must be specified so that the pipeline knows how construct the triangle and its adjacent triangles from the vertex buffer. Note that the vertices of adjacent primitives are only used as input into the geometry shader—they are not drawn. If there is no geometry shader, the adjacent primitives are still not drawn. 
+to be submitted to the pipeline in the vertex/index buffers along with the triangle itself, and the D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ topology must be specified so that the pipeline knows how construct the triangle and its adjacent triangles from the vertex buffer. Note that the vertices of adjacent primitives are only used as input into the geometry shader鈥攖hey are not drawn. If there is no geometry shader, the adjacent primitives are still not drawn. 
 
 It is also possible to have a line list with adjacency, line strip with adjacency, and triangle with strip adjacency primitives; see the SDK documentation for details. 
 
@@ -410,7 +412,7 @@ Vertex octagon[24] = { v0, v1, v2, // Triangle 0 v0, v2, v3, // Triangle 1 v0, v
 
 Note: 
 
-The order in which you specify the vertices of a triangle is important and is called the winding order; see §5.10.2 for details. 
+The order in which you specify the vertices of a triangle is important and is called the winding order; see 搂5.10.2 for details. 
 
 As Figure 5.15 illustrates, the triangles that form a 3D object share many of the same vertices. More specifically, each triangle of the quad in Figure $5 . 1 5 a$ shares the vertices $\mathbf { v } _ { 0 }$ and $\mathbf { v } _ { 2 }$ . While duplicating two vertices is not too bad, the duplication is worse in the octagon example (Figure 5.15b), as every triangle duplicates the center vertex $\mathbf { v } _ { 0 }$ , and each vertex on the perimeter of the octagon is shared by two triangles. In general, the number of duplicate vertices increases as the detail and complexity of the model increases. 
 
@@ -433,7 +435,7 @@ UINT indexList[6] = {0, 1, 2, // Triangle 0
 	0, 2, 3}; // Triangle 1 
 ```
 
-In the index list, every three elements define a triangle. So the above index list says, “form triangle 0 by using the vertices v[0], v[1], and v[2], and form triangle 1 by using the vertices v[0], v[2], and $\boldsymbol { \nabla } [  3 ]$ .” 
+In the index list, every three elements define a triangle. So the above index list says, 鈥渇orm triangle 0 by using the vertices v[0], v[1], and v[2], and form triangle 1 by using the vertices v[0], v[2], and $\boldsymbol { \nabla } [  3 ]$ .鈥?
 
 Similarly, the vertex list for the octagon would be constructed as follows: 
 
@@ -456,11 +458,11 @@ UINT indexList[24] = {
 }; 
 ```
 
-After the unique vertices in the vertex list are processed, the graphics card can use the index list to put the vertices together to form the triangles. Observe that we have moved the “duplication” over to the index list, but this is not bad since: 
+After the unique vertices in the vertex list are processed, the graphics card can use the index list to put the vertices together to form the triangles. Observe that we have moved the 鈥渄uplication鈥?over to the index list, but this is not bad since: 
 
 1. Indices are simply integers and do not take up as much memory as a full vertex structure (and vertex structures can get big as we add more components to them). 
 
-2. With good vertex cache ordering, the graphics hardware won’t have to process duplicate vertices (too often). 
+2. With good vertex cache ordering, the graphics hardware won鈥檛 have to process duplicate vertices (too often). 
 
 # 5.6 THE VERTEX SHADER STAGE
 
@@ -481,7 +483,7 @@ We will see many examples of different vertex shaders throughout this book; so b
 
 Suppose for a moment that you are working on a film and your team has to construct a miniature version of a train scene for some special effect shots. In particular, suppose that you are tasked with making a small bridge. Now, you would not construct the bridge in the middle of the scene, where you would likely have to work from a difficult angle and be careful not to mess up the other miniatures that compose the scene. Instead, you would work on the bridge at your workbench away from the scene. Then when it is all done, you would place the bridge at its correct position and angle in the scene. 
 
-3D artists do something similar when constructing 3D objects. Instead of building an object’s geometry with coordinates relative to a global scene coordinate system (world space), they specify them relative to a local coordinate system (local space); the local coordinate system will usually be some convenient coordinate system located near the object and axis-aligned with the object. Once the vertices of the 3D model have been defined in local space, it is placed in the global scene. In order to do this, we must define how the local space and world space are related; this is done by specifying where we want the origin and axes of the local space coordinate system relative to the global scene coordinate system, and executing a change of coordinate transformation (see Figure 5.16 and recall 
+3D artists do something similar when constructing 3D objects. Instead of building an object鈥檚 geometry with coordinates relative to a global scene coordinate system (world space), they specify them relative to a local coordinate system (local space); the local coordinate system will usually be some convenient coordinate system located near the object and axis-aligned with the object. Once the vertices of the 3D model have been defined in local space, it is placed in the global scene. In order to do this, we must define how the local space and world space are related; this is done by specifying where we want the origin and axes of the local space coordinate system relative to the global scene coordinate system, and executing a change of coordinate transformation (see Figure 5.16 and recall 
 
 ![](images/8fb56150c75a7c8f24475e62865c74b904e67e162971efe201e26958282eb9d8.jpg)
 
@@ -490,7 +492,7 @@ Suppose for a moment that you are working on a film and your team has to constru
 
 
 
-Figure 5.16. (a) The vertices of each object are defined with coordinates relative to their own local coordinate system. In addition, we define the position and orientation of each local coordinate system relative to the world space coordinate system based on where we want the object in the scene. Then we execute a change of coordinate transformation to make all coordinates relative to the world space system. (b) After the world transform, the objects’ vertices have coordinates all relative to the same world system.
+Figure 5.16. (a) The vertices of each object are defined with coordinates relative to their own local coordinate system. In addition, we define the position and orientation of each local coordinate system relative to the world space coordinate system based on where we want the object in the scene. Then we execute a change of coordinate transformation to make all coordinates relative to the world space system. (b) After the world transform, the objects鈥?vertices have coordinates all relative to the same world system.
 
 
 $\ S 3 . 4 )$ . The process of changing coordinates relative to a local coordinate system into the global scene coordinate system is called the world transform, and the corresponding matrix is called the world matrix. Each object in the scene has its own world matrix. After each object has been transformed from its local space to the world space, then all the coordinates of all the objects are relative to the same coordinate system (the world space). If you want to define an object directly in the world space, then you can supply an identity world matrix. 
@@ -499,7 +501,7 @@ Defining each model relative to its own local coordinate system has several adva
 
 1. It is easier. For instance, usually in local space the object will be centered at the origin and symmetrical with respect to one of the major axes. As another example, the vertices of a cube are much easier to specify if we choose a local coordinate system with origin centered at the cube and with axes orthogonal to the cube faces; see Figure 5.17. 
 
-2. The object may be reused across multiple scenes, in which case it makes no sense to hardcode the object’s coordinates relative to a particular scene. Instead, it is better to store its coordinates relative to a local coordinate system and then define, via a change of coordinate matrix, how the local coordinate system and world coordinate system are related for each scene. 
+2. The object may be reused across multiple scenes, in which case it makes no sense to hardcode the object鈥檚 coordinates relative to a particular scene. Instead, it is better to store its coordinates relative to a local coordinate system and then define, via a change of coordinate matrix, how the local coordinate system and world coordinate system are related for each scene. 
 
 ![](images/f509ee3421ab768cc5a6954e1aa75b663ed55d0ce69c557c7c1744e95ad5c26e.jpg)
 
@@ -508,7 +510,7 @@ Defining each model relative to its own local coordinate system has several adva
 Figure 5.17. The vertices of a cube are easily specified when the cube is centered at the origin and axisaligned with the coordinate system. It is not so easy to specify the coordinates when the cube is at an arbitrary position and orientation with respect to the coordinate system. Therefore, when we construct the geometry of an object, we usually always choose a convenient coordinate system near the object and aligned with the object, from which to build the object around.
 
 
-3. Finally, sometimes we draw the same object more than once in a scene, but in different positions, orientations, and scales (e.g., a tree object may be reused several times to build a forest). It would be wasteful to duplicate the object’s vertex and index data for each instance. Instead, we store a single copy of the geometry (i.e., vertex and index lists) relative to its local space. Then we draw the object several times, but each time with a different world matrix to specify the position, orientation, and scale of the instance in the world space. This is called instancing. 
+3. Finally, sometimes we draw the same object more than once in a scene, but in different positions, orientations, and scales (e.g., a tree object may be reused several times to build a forest). It would be wasteful to duplicate the object鈥檚 vertex and index data for each instance. Instead, we store a single copy of the geometry (i.e., vertex and index lists) relative to its local space. Then we draw the object several times, but each time with a different world matrix to specify the position, orientation, and scale of the instance in the world space. This is called instancing. 
 
 As $\ S 3 . 4 . 3$ shows, the world matrix for an object is given by describing its local space with coordinates relative to the world space, and placing these coordinates in the rows of a matrix. If $\mathbf { Q } _ { \scriptscriptstyle W } = ( Q _ { x } , Q _ { y } , Q _ { z } , 1 ) .$ , $\mathbf { u } _ { { W } } = ( u _ { { x } } , u _ { { y } } , u _ { { z } } , 0 )$ , $\mathbf { v } _ { \scriptscriptstyle W } = ( \nu _ { \scriptscriptstyle x } , \nu _ { \scriptscriptstyle y } , \nu _ { \scriptscriptstyle z } , 0 ) .$ , and $\mathbf { w } _ { W } = ( w _ { x } , w _ { y } , w _ { z } , 0 )$ describe, respectively, the origin, $x \mathrm { - } , y \mathrm { - }$ , and $z$ -axes of a local space with homogeneous coordinates relative to world space, then we know from $\ S 3 . 4 . 3$ that the change of coordinate matrix from local space to world space is: 
 
@@ -579,7 +581,7 @@ $$
 
 
 
-Figure 5.20. Constructing the camera coordinate system given the camera position, a target point, and a world “up” vector.
+Figure 5.20. Constructing the camera coordinate system given the camera position, a target point, and a world 鈥渦p鈥?vector.
 
 
 So the view matrix has the form: 
@@ -588,13 +590,13 @@ $$
 \mathbf {V} = \left[ \begin{array}{c c c c} u _ {x} & v _ {x} & w _ {x} & 0 \\ u _ {y} & v _ {y} & w _ {y} & 0 \\ u _ {z} & v _ {z} & w _ {z} & 0 \\ - \mathbf {Q} \cdot \mathbf {u} & - \mathbf {Q} \cdot \mathbf {v} & - \mathbf {Q} \cdot \mathbf {w} & 1 \end{array} \right]
 $$
 
-We now show an intuitive way to construct the vectors needed to build the view matrix. Let Q be the position of the camera and let $\mathbf { T }$ be the target point the camera is aimed at. Furthermore, let j be the unit vector that describes the “up” direction of the world space. (In this book, we use the world $_ { x z }$ -plane as our world “ground plane” and the world y-axis describes the “up” direction; therefore, ${ \bf j } = ( 0 , 1 , 0 )$ is just a unit vector parallel to the world $\boldsymbol { y }$ -axis. However, this is just a convention, and some applications might choose the $x y$ -plane as the ground plane, and the $z$ -axis as the “up” direction.) Referring to Figure 5.20, the direction the camera is looking is given by: 
+We now show an intuitive way to construct the vectors needed to build the view matrix. Let Q be the position of the camera and let $\mathbf { T }$ be the target point the camera is aimed at. Furthermore, let j be the unit vector that describes the 鈥渦p鈥?direction of the world space. (In this book, we use the world $_ { x z }$ -plane as our world 鈥済round plane鈥?and the world y-axis describes the 鈥渦p鈥?direction; therefore, ${ \bf j } = ( 0 , 1 , 0 )$ is just a unit vector parallel to the world $\boldsymbol { y }$ -axis. However, this is just a convention, and some applications might choose the $x y$ -plane as the ground plane, and the $z$ -axis as the 鈥渦p鈥?direction.) Referring to Figure 5.20, the direction the camera is looking is given by: 
 
 $$
 \mathbf {w} = \frac {\mathbf {T} - \mathbf {Q}}{\left\| \mathbf {T} - \mathbf {Q} \right\|}
 $$
 
-This vector describes the local $z$ -axis of the camera. A unit vector that aims to the “right” of w is given by: 
+This vector describes the local $z$ -axis of the camera. A unit vector that aims to the 鈥渞ight鈥?of w is given by: 
 
 $$
 \mathbf {u} = \frac {\mathbf {j} \times \mathbf {w}}{| | \mathbf {j} \times \mathbf {w} | |}
@@ -608,7 +610,7 @@ $$
 
 Since w and u are orthogonal unit vectors, $\mathbf { w } \times \mathbf { u }$ is necessarily a unit vector, and so it does not need to be normalized. 
 
-Thus, given the position of the camera, the target point, and the world “up” direction, we were able to derive the local coordinate system of the camera, which can be used to form the view matrix. 
+Thus, given the position of the camera, the target point, and the world 鈥渦p鈥?direction, we were able to derive the local coordinate system of the camera, which can be used to form the view matrix. 
 
 The DirectXMath library provides the following function for computing the view matrix based on the just described process: 
 
@@ -619,7 +621,7 @@ FXMVECTOR FocusPosition, // Input target point T
 FXMVECTOR UpDirection); // Input world up direction j 
 ```
 
-Usually the world’s $y$ -axis corresponds to the “up” direction, so the “up” vector is usually always ${ \bf j } = ( 0 , 1 , 0 )$ . As an example, suppose we want to position the camera at the point ( , 5 3, ) −10 relative to the world space, and have the camera look at the origin of the world (0 0 0 , , ). We can build the view matrix by writing: 
+Usually the world鈥檚 $y$ -axis corresponds to the 鈥渦p鈥?direction, so the 鈥渦p鈥?vector is usually always ${ \bf j } = ( 0 , 1 , 0 )$ . As an example, suppose we want to position the camera at the point ( , 5 3, ) 鈭?0 relative to the world space, and have the camera look at the origin of the world (0 0 0 , , ). We can build the view matrix by writing: 
 
 ```cpp
 XMVECTOR pos = XMVectorSet(5, 3, -10, 1.0f);  
@@ -642,7 +644,7 @@ Eye /Center of Projection
 
 
 
-Figure 5.21. A frustum defines the volume of space that the camera “sees.”
+Figure 5.21. A frustum defines the volume of space that the camera 鈥渟ees.鈥?
 
 
 ![](images/634ba059442c05f1b1b47c6d7bdc5bfd5305d1b305ca33315c708708be5cfc5b.jpg)
@@ -652,7 +654,7 @@ Figure 5.21. A frustum defines the volume of space that the camera “sees.”
 Figure 5.22. Both cylinders in 3D space are the same size but are placed at different depths. The projection of the cylinder closer to the eye is bigger than the projection of the farther cylinder. Geometry inside the frustum is projected onto a projection window; geometry outside the frustum, gets projected onto the projection plane, but will lie outside the projection window.
 
 
-the size of its projection diminishes; a perspective projection does this, and is illustrated in Figure 5.22. We call the line from a vertex to the eye point the vertex’s line of projection. Then we define the perspective projection transformation as the transformation that transforms a 3D vertex v to the point $\mathbf { v ^ { \prime } }$ where its line of projection intersects the 2D projection plane; we say that $\mathbf { v } ^ { \prime }$ is the projection of v. The projection of a 3D object refers to the projection of all the vertices that make up the object. 
+the size of its projection diminishes; a perspective projection does this, and is illustrated in Figure 5.22. We call the line from a vertex to the eye point the vertex鈥檚 line of projection. Then we define the perspective projection transformation as the transformation that transforms a 3D vertex v to the point $\mathbf { v ^ { \prime } }$ where its line of projection intersects the 2D projection plane; we say that $\mathbf { v } ^ { \prime }$ is the projection of v. The projection of a 3D object refers to the projection of all the vertices that make up the object. 
 
 # 5.6.3.1 Defining a Frustum
 
@@ -723,7 +725,7 @@ Figure 5.24. Similar triangles.
 
 The coordinates of the projected points in the preceding section are computed in view space. In view space, the projection window has a height of 2 and a width of $2 r$ , where $r$ is the aspect ratio. The problem with this is that the dimensions 
 
-depend on the aspect ratio. This means we would need to tell the hardware the aspect ratio, since the hardware will later need to do some operations that involve the dimensions of the projection window (such as map it to the back buffer). It would be more convenient if we could remove this dependency on the aspect ratio. The solution is to scale the projected $x$ -coordinate from the interval $[ - r , r ]$ to [ , −1 1] like so: 
+depend on the aspect ratio. This means we would need to tell the hardware the aspect ratio, since the hardware will later need to do some operations that involve the dimensions of the projection window (such as map it to the back buffer). It would be more convenient if we could remove this dependency on the aspect ratio. The solution is to scale the projected $x$ -coordinate from the interval $[ - r , r ]$ to [ , 鈭? 1] like so: 
 
 $$
 \begin{array}{l} - r \leq x ^ {\prime} \leq r \\ - 1 \leq x ^ {\prime} / r \leq 1 \\ \end{array}
@@ -751,7 +753,7 @@ Note that in NDC coordinates, the projection window has a height of 2 and a widt
 
 # 5.6.3.4 Writing the Projection Equations with a Matrix
 
-For uniformity, we would like to express the projection transformation by a matrix. However, Equation 5.1 is nonlinear, so it does not have a matrix representation. The “trick” is to separate it into two parts: a linear part and a nonlinear part. The 
+For uniformity, we would like to express the projection transformation by a matrix. However, Equation 5.1 is nonlinear, so it does not have a matrix representation. The 鈥渢rick鈥?is to separate it into two parts: a linear part and a nonlinear part. The 
 
 nonlinear part is the divide by $z$ . As will be discussed in the next section, we are going to normalize the $z \mathrm { . }$ -coordinate; this means we will not have the original $z \mathrm { . }$ -coordinate around for the divide. Therefore, we must save the input $z$ -coordinate before it is transformed; to do this, we take advantage of homogeneous coordinates and copy the input $z$ -coordinate to the output w-coordinate. In terms of matrix multiplication, this is done by setting entry $\left[ 2 \right] \left[ 3 \right] = 1$ and entry $\big [ 3 \big ] \big [ 3 \big ] = 0$ (zerobased indices). Our projection matrix looks like this: 
 
@@ -771,7 +773,7 @@ $$
 \left[ \frac {x}{r \tan (\alpha / 2)}, \frac {y}{\tan (\alpha / 2)}, A z + B, z \right] \xrightarrow {\text {d i v i d e b y} w} \left[ \frac {x}{r z \tan (\alpha / 2)}, \frac {y}{z \tan (\alpha / 2)}, A + \frac {B}{z}, 1 \right] \tag {eq.5.3}
 $$
 
-Incidentally, you may wonder about a possible divide by zero; however, the near plane should be greater than zero, so such a point would be clipped (§5.6). The divide by $w$ is sometimes called the perspective divide or homogeneous divide. We see that the projected $x$ - and y-coordinates agree with Equation 5.1. 
+Incidentally, you may wonder about a possible divide by zero; however, the near plane should be greater than zero, so such a point would be clipped (搂5.6). The divide by $w$ is sometimes called the perspective divide or homogeneous divide. We see that the projected $x$ - and y-coordinates agree with Equation 5.1. 
 
 # 5.6.3.5 Normalized Depth Value
 
@@ -801,7 +803,7 @@ $$
 g (z) = \frac {f}{f - n} - \frac {n f}{(f - n) z}
 $$
 
-A graph of $g$ (Figure 5.25) shows it is strictly increasing (order preserving) and nonlinear. It also shows that most of the range is “used up” by depth values close to the near plane. Consequently, the majority of the depth values get mapped to 
+A graph of $g$ (Figure 5.25) shows it is strictly increasing (order preserving) and nonlinear. It also shows that most of the range is 鈥渦sed up鈥?by depth values close to the near plane. Consequently, the majority of the depth values get mapped to 
 
 ![](images/47958d84e856c7f48415233565465fe3e6981d011dce2ff404a0924b32f34584.jpg)
 
@@ -869,7 +871,7 @@ geometry would have to be uploaded back to the GPU for rendering. However, uploa
 
 The geometry shader stage is optional, and we do not use it until Chapter 11, so we will be brief here. The geometry shader inputs entire primitives. For example, if we were drawing triangle lists, then the input to the geometry shader would be the three vertices defining the triangle. (Note that the three vertices will have already passed through the vertex shader.) The main advantage of the geometry shader is that it can create or destroy geometry. For example, the input primitive can be expanded into one or more other primitives, or the geometry shader can choose not to output a primitive based on some condition. This is in contrast to a vertex shader, which cannot create vertices: it inputs one vertex and outputs one vertex. A common example of the geometry shader is to expand a point into a quad or to expand a line into a quad. 
 
-We also notice the “stream-out” arrow from Figure 5.11. That is, the geometry shader can stream-out vertex data into a buffer in memory, which can later be drawn. This is an advanced technique, and will be discussed in a later chapter. 
+We also notice the 鈥渟tream-out鈥?arrow from Figure 5.11. That is, the geometry shader can stream-out vertex data into a buffer in memory, which can later be drawn. This is an advanced technique, and will be discussed in a later chapter. 
 
 ![](images/403b9808e2403cb311e8c280048d2cf44e103e0bdda848a9ae2fec0dd0178bc0.jpg)
 
@@ -1008,7 +1010,7 @@ Figure 5.31. (a) A solid object with front-facing and back-facing triangles. (b)
 
 
 
-Figure 5.32. (Left) We draw the cubes with transparency so that you can see all six sides. (Right) We draw the cubes as solid blocks. Note that we do not see the three back-facing sides since the three front-facing sides occlude them—thus the back-facing triangles can actually be discarded from further processing and no one will notice.
+Figure 5.32. (Left) We draw the cubes with transparency so that you can see all six sides. (Right) We draw the cubes as solid blocks. Note that we do not see the three back-facing sides since the three front-facing sides occlude them鈥攖hus the back-facing triangles can actually be discarded from further processing and no one will notice.
 
 
 refers to the process of discarding back-facing triangles from the pipeline. This can potentially reduce the amount of triangles that need to be processed by half. 
@@ -1080,7 +1082,7 @@ Figure 5.35. The triangles of a pyramid.
 Figure 5.36. Shapes for Exercise 2.
 
 
-3. Relative to the world coordinate system, suppose that the camera is positioned at $( - 2 0 , 3 5 , - 5 0 )$ and looking at the point ( , 10 0 3, ) 0 . Compute the view matrix assuming $( 0 , 1 , 0 )$ describes the “up” direction in the world. 
+3. Relative to the world coordinate system, suppose that the camera is positioned at $( - 2 0 , 3 5 , - 5 0 )$ and looking at the point ( , 10 0 3, ) 0 . Compute the view matrix assuming $( 0 , 1 , 0 )$ describes the 鈥渦p鈥?direction in the world. 
 
 4. Given that the view frustum has a vertical field of view angle $\theta = 4 5 ^ { \circ }$ , the aspect ratio is $a = 4 / 3$ , the near plane is $n = 1 ;$ and the far plane is $f = 1 0 0$ , find the corresponding perspective projection matrix. 
 

@@ -1,3 +1,5 @@
+﻿# Chapter 06 Drawing in Direct3D
+
 Chapter 
 
 # 6
@@ -138,7 +140,7 @@ The CD3DX12_RESOURCE_DESC class also provides convenience methods for constructi
 
 For static geometry (i.e., geometry that does not change on a per-frame basis), we put vertex buffers in the default heap (D3D12_HEAP_TYPE_DEFAULT) for optimal performance. (The reader may wish to reread $\ S 4 . 1 . 1 4$ for the discussion about heap types.) Generally, most geometry in a game will be like this (e.g., trees, buildings, terrain, and characters). After the vertex buffer has been initialized, only the GPU needs to read from the vertex buffer to draw the geometry, so the 
 
-default heap makes sense. However, if the CPU cannot write to the vertex buffer in the default heap, how do we initialize the vertex buffer? Because this is a onetime initialization, it makes the most sense to do option (c) from Figure 4.7. That is, we create an intermediate upload buffer resource with heap type D3D12_HEAP_TYPE_ UPLOAD. The CPU can write to an upload buffer since it is stored in the system memory. After we create the upload buffer, we copy our vertex data to the upload buffer on the CPU, and then we copy the vertex data from the upload buffer to the vertex buffer in a default heap. This last copy happens on the GPU timeline (i.e., we submit a command to the command list to do this copy). Because this is such a common pattern, the DirectX Toolkit has a utility function in DirectXTK12/Src/BufferHelpers.h/.cpp called CreateStaticBuffer. This function and similar functions for transferring data from the CPU to GPU rely on the ResourceUploadBatch helper class (also part of the DirectX Toolkit). 
+default heap makes sense. However, if the CPU cannot write to the vertex buffer in the default heap, how do we initialize the vertex buffer? Because this is a onetime initialization, it makes the most sense to do option (c) from Figure聽4.7. That is, we create an intermediate upload buffer resource with heap type D3D12_HEAP_TYPE_ UPLOAD. The CPU can write to an upload buffer since it is stored in the system memory. After we create the upload buffer, we copy our vertex data to the upload buffer on the CPU, and then we copy the vertex data from the upload buffer to the vertex buffer in a default heap. This last copy happens on the GPU timeline (i.e., we submit a command to the command list to do this copy). Because this is such a common pattern, the DirectX Toolkit has a utility function in DirectXTK12/Src/BufferHelpers.h/.cpp called CreateStaticBuffer. This function and similar functions for transferring data from the CPU to GPU rely on the ResourceUploadBatch helper class (also part of the DirectX Toolkit). 
 
 ```cpp
 HRESULT DirectX::CreateStaticBuffer(
@@ -383,7 +385,7 @@ To illustrate these parameters, consider the following situation. Suppose we hav
 Figure 6.3. Concatenating several vertex buffers into one large vertex buffer, and concatenating several index buffers into one large index buffer.
 
 
-are relative to the corresponding local vertex buffer. Now suppose that we concatenate the vertices and indices of the sphere, box, and cylinder into one global vertex and index buffer, as shown in Figure 6.3. (One might concatenate vertex and index buffers because there is some API overhead when changing the vertex and index buffers. Most likely this will not be a bottleneck, but if you have many small vertex and index buffers that could be easily merged, it may be worth doing so for performance reasons.) After this concatenation, the indices are no longer correct, as they store index locations relative to their corresponding local vertex buffers, not the global one; thus the indices need to be recomputed to index correctly into the global vertex buffer. The original box indices were computed with the assumption that the box’s vertices ran through the indices 
+are relative to the corresponding local vertex buffer. Now suppose that we concatenate the vertices and indices of the sphere, box, and cylinder into one global vertex and index buffer, as shown in Figure 6.3. (One might concatenate vertex and index buffers because there is some API overhead when changing the vertex and index buffers. Most likely this will not be a bottleneck, but if you have many small vertex and index buffers that could be easily merged, it may be worth doing so for performance reasons.) After this concatenation, the indices are no longer correct, as they store index locations relative to their corresponding local vertex buffers, not the global one; thus the indices need to be recomputed to index correctly into the global vertex buffer. The original box indices were computed with the assumption that the box鈥檚 vertices ran through the indices 
 
 0, 1, ..., numBoxVertices-1 
 
@@ -396,7 +398,7 @@ firstBoxVertexPos+1,
 firstBoxVertexPos+numBoxVertices-1 
 ```
 
-Therefore, to update the indices, we need to add firstBoxVertexPos to every box index. Likewise, we need to add firstCylVertexPos to every cylinder index. Note that the sphere’s indices do not need to be changed (since the first sphere vertex position is zero). Let us call the position of an object’s first vertex relative to the global vertex buffer its base vertex location. In general, the new indices of an object are computed by adding its base vertex location to each index. Instead of having to compute the new indices ourselves, we can let Direct3D do it by passing the base vertex location to the third parameter of 
+Therefore, to update the indices, we need to add firstBoxVertexPos to every box index. Likewise, we need to add firstCylVertexPos to every cylinder index. Note that the sphere鈥檚 indices do not need to be changed (since the first sphere vertex position is zero). Let us call the position of an object鈥檚 first vertex relative to the global vertex buffer its base vertex location. In general, the new indices of an object are computed by adding its base vertex location to each index. Instead of having to compute the new indices ourselves, we can let Direct3D do it by passing the base vertex location to the third parameter of 
 
 
 DrawIndexedInstanced.
@@ -405,16 +407,16 @@ DrawIndexedInstanced.
 We can then draw the sphere, box, and cylinder one-by-one with the following three calls: 
 
 ```c
-mCmdList->DrawIndexedInstanced( numSphereIndices,1，0，0，0);   
-mCmdList->DrawIndexedInstanced( numBoxIndices，1，firstBoxIndex，firstBoxVertexPos，0);   
-mCmdList->DrawIndexedInstanced( numCylIndices，1，firstCylIndex，firstCylVertexPos，0); 
+mCmdList->DrawIndexedInstanced( numSphereIndices,1锛?锛?锛?);   
+mCmdList->DrawIndexedInstanced( numBoxIndices锛?锛宖irstBoxIndex锛宖irstBoxVertexPos锛?);   
+mCmdList->DrawIndexedInstanced( numCylIndices锛?锛宖irstCylIndex锛宖irstCylVertexPos锛?); 
 ```
 
-The “Shapes” demo project in the next chapter uses this technique. 
+The 鈥淪hapes鈥?demo project in the next chapter uses this technique. 
 
 # 6.4 EXAMPLE VERTEX SHADER
 
-Below in an implementation of the simple vertex shader (recall §5.6): 
+Below in an implementation of the simple vertex shader (recall 搂5.6): 
 
 ```cpp
 cbuffer cbPerObject : register(b0)  
@@ -434,9 +436,9 @@ book, we will introduce any new HLSL concepts we need in order to implement the 
 
 The vertex shader is the function called VS. Note that you can give the vertex shader any valid function name. This vertex shader has four parameters; the first two are input parameters, and the last two are output parameters (indicated by the out keyword). The HLSL does not have references or pointers, so to return multiple values from a function, you need to either use structures or out parameters. In HLSL, functions are always inlined. 
 
-The first two input parameters form the input signature of the vertex shader and correspond to data members in our custom vertex structure we are using for the draw. The parameter semantics “:POSITION” and “:COLOR” are used for mapping the elements in the vertex structure to the vertex shader input parameters, as Figure 6.4 shows. 
+The first two input parameters form the input signature of the vertex shader and correspond to data members in our custom vertex structure we are using for the draw. The parameter semantics 鈥?POSITION鈥?and 鈥?COLOR鈥?are used for mapping the elements in the vertex structure to the vertex shader input parameters, as Figure 6.4 shows. 
 
-The output parameters also have attached semantics (“:SV_POSITION” and “:COLOR”). These are used to map vertex shader outputs to the corresponding inputs of the next stage (either the geometry shader or pixel shader). Note that the SV_POSITION semantic is special (SV stands for system value). It is used to denote the vertex shader output element that holds the vertex position in homogeneous clip space. We must attach the SV_POSITION semantic to the position output because the GPU needs to be aware of this value because it is involved in operations the other attributes are not involved in, such as clipping, depth testing and rasterization. The semantic name for output parameters that are not system values can be any valid semantic name. 
+The output parameters also have attached semantics (鈥?SV_POSITION鈥?and 鈥?COLOR鈥?. These are used to map vertex shader outputs to the corresponding inputs of the next stage (either the geometry shader or pixel shader). Note that the SV_POSITION semantic is special (SV stands for system value). It is used to denote the vertex shader output element that holds the vertex position in homogeneous clip space. We must attach the SV_POSITION semantic to the position output because the GPU needs to be aware of this value because it is involved in operations the other attributes are not involved in, such as clipping, depth testing and rasterization. The semantic name for output parameters that are not system values can be any valid semantic name. 
 
 The first line transforms the vertex position from local space to homogeneous clip space by multiplying by the $4 \times 4$ matrix gWorldViewProj: 
 
@@ -501,9 +503,9 @@ Note from Figure 6.4 that there is a linking between the attributes of the verti
 //   
 struct Vertex   
 { XMFLOAT3 Pos; XMFLOAT4 Color;   
-}；   
-D3D12_INPUT_element_DESC desc[] = { {"POSITION",0，DXGI_FORMAT_R32G32B32_FLOAT，0，0, D3D12_INPUT_PER_FLOAT_DATA，0}, {"COLOR",0，DXGI_FORMAT_R32G32B32A32_FLOAT，0，12, D3D12_INPUT_PER_FLOAT_DATA，0}   
-}；   
+}锛?  
+D3D12_INPUT_element_DESC desc[] = { {"POSITION",0锛孌XGI_FORMAT_R32G32B32_FLOAT锛?锛?, D3D12_INPUT_PER_FLOAT_DATA锛?}, {"COLOR",0锛孌XGI_FORMAT_R32G32B32A32_FLOAT锛?锛?2, D3D12_INPUT_PER_FLOAT_DATA锛?}   
+}锛?  
 //   
 // Vertex Shader   
 //   
@@ -513,7 +515,7 @@ struct VertexIn
 ```cpp
 float3PosL:POSITION; float4Color:COLOR; float3Normal:NORMAL;   
 };   
-struct VertexOut { float4PosH:SV POSITION; float4Color:COLOR; }；   
+struct VertexOut { float4PosH:SV POSITION; float4Color:COLOR; }锛?  
 VertexOutVS(VertexInvin){...} 
 ```
 
@@ -527,15 +529,15 @@ The vertex data and input signature do not need to match exactly. What is needed
 //   
 struct Vertex   
 { XMFLOAT3 Pos; XMFLOAT4 Color; XMFLOAT3 Normal;   
-}；   
-D3D12_INPUT_element_DESC desc[] = { {"POSITION",0，DXGI_FORMAT_R32G32B32_FLOAT，0，0, D3D12_INPUT_PER_FLOAT_DATA，0}, {"COLOR",0，DXGI_FORMAT_R32G32B32A32_FLOAT，0，12, D3D12_INPUT_PER_FLOAT_DATA，0}, {"NORMAL",0，DXGI_FORMAT_R32G32B32_FLOAT，0，28, D3D12_INPUT_PER_FLOAT_DATA，0}   
-}；   
+}锛?  
+D3D12_INPUT_element_DESC desc[] = { {"POSITION",0锛孌XGI_FORMAT_R32G32B32_FLOAT锛?锛?, D3D12_INPUT_PER_FLOAT_DATA锛?}, {"COLOR",0锛孌XGI_FORMAT_R32G32B32A32_FLOAT锛?锛?2, D3D12_INPUT_PER_FLOAT_DATA锛?}, {"NORMAL",0锛孌XGI_FORMAT_R32G32B32_FLOAT锛?锛?8, D3D12_INPUT_PER_FLOAT_DATA锛?}   
+}锛?  
 //   
 // Vertex Shader   
 //   
 struct VertexIn   
-{ float3PosL：POSITION; float4Color：COLOR;   
-}； 
+{ float3PosL锛歅OSITION; float4Color锛欳OLOR;   
+}锛?
 ```
 
 ```cpp
@@ -556,10 +558,10 @@ struct Vertex
 {  
     XMFLOAT3 Pos;  
     XMFLOAT4 Color;  
-}；  
+}锛? 
 D3D12_INPUT_element_DESC desc[] = {  
-    {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_PER鼓舞_DATA, 0},  
-    {"COLOR", 0, DXGI_format_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_PER鼓舞_DATA, 0}  
+    {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_PER榧撹垶_DATA, 0},  
+    {"COLOR", 0, DXGI_format_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_PER榧撹垶_DATA, 0}  
 };  
 //--------  
 // Vertex shader  
@@ -568,12 +570,12 @@ struct VertexIn
 {  
     float3 PosL : POSITION;  
     int4 Color : COLOR;  
-}；  
+}锛? 
 struct VertexOut  
 {  
     float4 PosH : SV POSITION;  
     float4 Color : COLOR;  
-}；  
+}锛? 
 VertexOut VS(VertexIn vin) { ... } 
 ```
 
@@ -585,9 +587,9 @@ D3D12 WARNING: ID3D11Device::CreateInputLayout: The provided input signature exp
 
 # 6.5 EXAMPLE PIXEL SHADER
 
-As discussed in $\ S 5 . 1 0 . 3$ , during rasterization vertex attributes output from the vertex shader (or geometry shader) are interpolated across the pixels of a triangle. The interpolated values are then fed into the pixel shader as input (§5.11). Assuming there is no geometry shader, Figure 6.5 illustrates the path vertex data takes up to now. 
+As discussed in $\ S 5 . 1 0 . 3$ , during rasterization vertex attributes output from the vertex shader (or geometry shader) are interpolated across the pixels of a triangle. The interpolated values are then fed into the pixel shader as input (搂5.11). Assuming there is no geometry shader, Figure 6.5 illustrates the path vertex data takes up to now. 
 
-A pixel shader is like a vertex shader in that it is a function executed for each pixel fragment. Given the pixel shader input, the job of the pixel shader is to calculate a color value for the pixel fragment. We note that the pixel fragment may not survive and make it onto the back buffer; for example, it might be clipped in the pixel shader (the HLSL includes a clip function which can discard a pixel fragment from further processing), occluded by another pixel fragment with a smaller depth value, or the pixel fragment may be discarded by a later pipeline test like the stencil buffer test. Therefore, a pixel on the back buffer may have several pixel fragment candidates; this is the distinction between what is meant by “pixel fragment” and “pixel,” although sometimes the terms are used interchangeably, but context usually makes it clear what is meant. 
+A pixel shader is like a vertex shader in that it is a function executed for each pixel fragment. Given the pixel shader input, the job of the pixel shader is to calculate a color value for the pixel fragment. We note that the pixel fragment may not survive and make it onto the back buffer; for example, it might be clipped in the pixel shader (the HLSL includes a clip function which can discard a pixel fragment from further processing), occluded by another pixel fragment with a smaller depth value, or the pixel fragment may be discarded by a later pipeline test like the stencil buffer test. Therefore, a pixel on the back buffer may have several pixel fragment candidates; this is the distinction between what is meant by 鈥減ixel fragment鈥?and 鈥減ixel,鈥?although sometimes the terms are used interchangeably, but context usually makes it clear what is meant. 
 
 ![](images/dcb2e53b2ec821ab7a651e232468b902353b0b6ee4529bb7ea087592381ba6d8.jpg)
 
@@ -721,7 +723,7 @@ memcpy(mMappedData, &data, dataSizeInBytes);
 
 Note: 
 
-When doing a memcpy, we need to be careful to take into account that the constant data is allocated in multiples of 256 bytes. If the source data elements are not a multiple of 256, then we cannot just memcpy an array (source) to mapped data (destination) because their byte sizes would not match and the elements would be misaligned. We would have to do it element-by-element like this: 
+When doing a memcpy, we need to be careful to take into account that the constant data is allocated in multiples of 256 bytes. If the source data elements are not a multiple of 256, then we cannot just memcpy an array (source) to mapped data (destination) because their byte sizes would not match and the elements would be misaligned. We would have to do it element-by-element like聽this: 
 
 ```cpp
 // T data[n];
@@ -841,7 +843,7 @@ XMMatrixworld $\equiv$ XMLoadFloat4x4(&mWorld);
 XMMatrixproj $\equiv$ XMLoadFloat4x4(&mProj);   
 XMMatrixviewProj $=$ view\*proj;   
 // Update the per-object buffer with the latest world matrix. ObjectConstants objConstants;   
-XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose的世界)); mObjectCB->CopyData(0, objConstants);   
+XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose鐨勪笘鐣?); mObjectCB->CopyData(0, objConstants);   
 // Update the per-pass buffer with the latest viewProj matrix. PassConstants passConstants;   
 XMStoreFloat4x4(&passConstants.ViewProj, XMMatrixTranspose/viewProj)); mPassCB->CopyData(0, passConstants); 
 
@@ -852,7 +854,7 @@ We could add a dirty flag to not update the constant buffer data if nothing chan
 
 # 6.6.4 Constant Buffer Descriptors
 
-Recall from $\ S 4 . 1 . 6$ that we bind a resource to the rendering pipeline through a descriptor object. So far, we have used descriptors/views for render targets, depth/ stencil buffers, and vertex and index buffers. We also need descriptors to bind constant buffers to the pipeline. Constant buffer descriptors live in a descriptor heap of type D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV. Such a heap can store a mixture of constant buffer, shader resource, and unordered access descriptors. To store these new types of descriptors we will need to create a new descriptor heap of this type. To facilitate this, we create a new utility class CbvSrvUavHeap, in Common/DescriptorUtil.h/.cpp, that inherits from DescriptorHeap (§4.3.5). 
+Recall from $\ S 4 . 1 . 6$ that we bind a resource to the rendering pipeline through a descriptor object. So far, we have used descriptors/views for render targets, depth/ stencil buffers, and vertex and index buffers. We also need descriptors to bind constant buffers to the pipeline. Constant buffer descriptors live in a descriptor heap of type D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV. Such a heap can store a mixture of constant buffer, shader resource, and unordered access descriptors. To store these new types of descriptors we will need to create a new descriptor heap of this type. To facilitate this, we create a new utility class CbvSrvUavHeap, in Common/DescriptorUtil.h/.cpp, that inherits from DescriptorHeap (搂4.3.5). 
 
 class CbvSrvUavHeap : public DescriptorHeap   
 public: CbvSrvUavHeap(const DescriptorHeap& rhs) $=$ delete; CbvSrvUavHeap& operator $\equiv$ (const CbvSrvUavHeap& rhs) $=$ delete; static CbvSrvUavHeap& Get() { static CbvSrvUavHeap singleton; return singleton; } bool Is Initialized(){ void Init(ID3D12Device\* device, UINT capacity); 
@@ -948,7 +950,7 @@ void BoxApp::BuildConstantBuffers()
     D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = mObjectCB->Resource()->GetGPUVirtualAddress(); 
 ```
 
-cbObjElementOffset \* objCBByteSize; int cbPassElementOffset $= 0$ D3D12_GPU_VIRTUAL_ADDRESS passCBAddress $=$ mPassCB->Resource()->GetGPUVirtualAddress(）+ cbPassElementOffset \* passCBByteSize; D3D12CONSTANT_bufferVIEW_DESC cbvObj; cbvObj.BufferLocation $=$ objCBAddress; cbvObj.SizeInBytes $=$ objCBByteSize; md3dDevice->CreateConstantBufferView( &cbvObj, cbsvRvUavHeap.CpuHandle(mBoxCBHeapIndex)); D3D12CONSTANT_bufferVIEW_DESC cbvPassDesc; cbvPassDesc.BufferLocation $=$ passCBAddress; cbvPassDesc.SizeInBytes $=$ passCBByteSize; md3dDevice->CreateConstantBufferView( &cbvPassDesc, cbsvRvUavHeap.CpuHandle(mPassCBHeapIndex)); 
+cbObjElementOffset \* objCBByteSize; int cbPassElementOffset $= 0$ D3D12_GPU_VIRTUAL_ADDRESS passCBAddress $=$ mPassCB->Resource()->GetGPUVirtualAddress(锛? cbPassElementOffset \* passCBByteSize; D3D12CONSTANT_bufferVIEW_DESC cbvObj; cbvObj.BufferLocation $=$ objCBAddress; cbvObj.SizeInBytes $=$ objCBByteSize; md3dDevice->CreateConstantBufferView( &cbvObj, cbsvRvUavHeap.CpuHandle(mBoxCBHeapIndex)); D3D12CONSTANT_bufferVIEW_DESC cbvPassDesc; cbvPassDesc.BufferLocation $=$ passCBAddress; cbvPassDesc.SizeInBytes $=$ passCBByteSize; md3dDevice->CreateConstantBufferView( &cbvPassDesc, cbsvRvUavHeap.CpuHandle(mPassCBHeapIndex)); 
 
 The D3D12_CONSTANT_BUFFER_VIEW_DESC structure describes a subset of the constant buffer resource to bind to the HLSL constant buffer structure. As mentioned, typically a constant buffer stores an array of per-object constants for $n$ objects, but we can get a view to the ith object constant data by using the BufferLocation and SizeInBytes. The D3D12_CONSTANT_BUFFER_VIEW_DESC::SizeInBytes and D3D12_ CONSTANT_BUFFER_VIEW_DESC::BufferLocation members must by a multiple of 256 bytes due to hardware requirements. For example, if you specified 64, then you would get the following debug errors: 
 
@@ -968,7 +970,7 @@ Generally, different shader programs will expect different resources to be bound
 cbuffer cbMaterial : register(b2) { float4 gDiffuseAlbedo; float3 gFresnelR0; float gRoughness; float4x4 gMatTransform; }; 
 ```
 
-The root signature defines what resources the application will bind to the rendering pipeline before a draw call can be executed and where those resources get mapped to shader input registers. The root signature must be compatible with the shaders it will be used with (i.e., the root signature must provide all the resources the shaders expect to be bound to the rendering pipeline before a draw call can be executed); this will be validated when the pipeline state object is created (§6.9). Different draw calls may use a different set of shader programs, which will require a different root signature. 
+The root signature defines what resources the application will bind to the rendering pipeline before a draw call can be executed and where those resources get mapped to shader input registers. The root signature must be compatible with the shaders it will be used with (i.e., the root signature must provide all the resources the shaders expect to be bound to the rendering pipeline before a draw call can be executed); this will be validated when the pipeline state object is created (搂6.9). Different draw calls may use a different set of shader programs, which will require a different root signature. 
 
 Note: 
 
@@ -980,9 +982,9 @@ The following code creates a root signature that has two root parameters (one fo
 
 enum ROOTArg   
 { ROOT.Arg_OBJECT_CBV $= 0$ , ROOT.Arg_PASS_CBV, ROOT.Arg_COUNT   
-}；   
+}锛?  
 void BoxApp::BuildRootSignature()   
-{ // Root parameter can be a table, root descriptor or root constants. CD3DX12_ROOT_PARAMETER slotRootParameter[ROOT.Arg_COUNT] $= \{\}$ ： // Create a table for per-object constants. Arguments would need to be // set once per object. CD3DX12 Descriptor_RANGE objectCbvTable; UINT numDescriptors $= 1$ ; UINT baseRegister $= 0$ . objectCbvTable Init(D3D12 Descriptor_RANGE_TYPE_CBV, numDescriptors, baseRegister); // Create a table for per-pass constants. Arguments would need to be // set once per pass. CD3DX12 Descriptor_RANGE passCbvTable; baseRegister $= 1$ . passCbvTable Init(D3D12 Descriptor_RANGE_TYPE_CBV, numDescriptors, baseRegister); slotRootParameter[ROOT.Arg_OBJECT_CBV].InitAsDescriptorTable(1, &objectCbvTable); slotRootParameter[ROOT.Arg_PASS_CBV].InitAsDescriptorTable(1, &passCbvTable); // A root signature is an array of root parameters. CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc( ROOT.Arg_COUNT, slotRootParameter, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAGAllow_INPUT_ASSEMBLER_INPUT_LAYOUT); 
+{ // Root parameter can be a table, root descriptor or root constants. CD3DX12_ROOT_PARAMETER slotRootParameter[ROOT.Arg_COUNT] $= \{\}$ 锛?// Create a table for per-object constants. Arguments would need to be // set once per object. CD3DX12 Descriptor_RANGE objectCbvTable; UINT numDescriptors $= 1$ ; UINT baseRegister $= 0$ . objectCbvTable Init(D3D12 Descriptor_RANGE_TYPE_CBV, numDescriptors, baseRegister); // Create a table for per-pass constants. Arguments would need to be // set once per pass. CD3DX12 Descriptor_RANGE passCbvTable; baseRegister $= 1$ . passCbvTable Init(D3D12 Descriptor_RANGE_TYPE_CBV, numDescriptors, baseRegister); slotRootParameter[ROOT.Arg_OBJECT_CBV].InitAsDescriptorTable(1, &objectCbvTable); slotRootParameter[ROOT.Arg_PASS_CBV].InitAsDescriptorTable(1, &passCbvTable); // A root signature is an array of root parameters. CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc( ROOT.Arg_COUNT, slotRootParameter, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAGAllow_INPUT_ASSEMBLER_INPUT_LAYOUT); 
 
 ```cpp
 // create a root signature
@@ -991,8 +993,8 @@ ComPtr<ID3DBlob> errorBlob = nullptr;
 HRESULT hr = D3D12SerializerRootSignature(
     &rootSigDesc,
     D3D_ROOT_SIGNATURE_VERSION_1,
-    serializedRootSig↘↘↘↘↘↘↘↘↘↘
-    errorBlob↘↘↘↘↘↘↘↘↘
+    serializedRootSig鈫樷啒鈫樷啒鈫樷啒鈫樷啒鈫樷啒
+    errorBlob鈫樷啒鈫樷啒鈫樷啒鈫樷啒鈫?
 ); 
 ```
 
@@ -1056,7 +1058,7 @@ If you change the root signature then you lose all the existing bindings. That i
 
 # 6.7 COMPILING SHADERS
 
-In Direct3D 12, shader programs must first be compiled from HLSL to a portable bytecode (DXIL – DirectX Intermediate Language) using the DirectX Shader Compiler (DXC). The graphics driver will then take this bytecode and compile it again into optimal native instructions for the system’s GPU [ATI1]. DXC is open source, but we are mostly interested in the releases, which are available at https:// github.com/microsoft/DirectXShaderCompiler/wiki/Releases. This will include the necessary header, .lib and DLLs. As with ImGUI, we put the DXC release files in the Externals/dxc folder relative to the root of the book’s demos folder. Important: We must copy dxil.dll and dxcompiler.dll to the bin directory where our demo executables live. 
+In Direct3D 12, shader programs must first be compiled from HLSL to a portable bytecode (DXIL 鈥?DirectX Intermediate Language) using the DirectX Shader Compiler (DXC). The graphics driver will then take this bytecode and compile it again into optimal native instructions for the system鈥檚 GPU [ATI1]. DXC is open source, but we are mostly interested in the releases, which are available at https:// github.com/microsoft/DirectXShaderCompiler/wiki/Releases. This will include the necessary header, .lib and DLLs. As with ImGUI, we put the DXC release files in the Externals/dxc folder relative to the root of the book鈥檚 demos folder. Important: We must copy dxil.dll and dxcompiler.dll to the bin directory where our demo executables live. 
 
 # Note:
 
@@ -1162,12 +1164,12 @@ WriteBinaryToFile(pdbData.Get(),
 
 std::unordered_map<std::string,ComPtr<IDxcBlob>>mShaders;   
 #if defined(DEBUG) || defined(_DEBUG)   
-#defineCOMMA_DEBUG Arguments,DXC.Arg_DEBUG，DXC.Arg_SKIP_OPTIMIZATIONS #else   
+#defineCOMMA_DEBUG Arguments,DXC.Arg_DEBUG锛孌XC.Arg_SKIP_OPTIMIZATIONS #else   
 #defineCOMMA_DEBUG_args   
 endif   
-std::vector<LPCWSTR> vsArgs $=$ std::vector<LPCWSTR> { L"-E"，L"VS"，L"-T"，L"vs_6_6"COMMA_DEBUGArguments}；   
-std::vector<LPCWSTR>psArgs $=$ std::vector<LPCWSTR> { L"-E"，L"PS"，L"-T"，L"ps_6_6"COMMA_DEBUGArguments}；   
-std::vector<LPCWSTR>psAlphaTestedArgs $=$ std::vector<LPCWSTR> { L"-E"，L"PS"，L"-T"，L"ps_6_6"，L"-D ALPHA_TEST=1"COMMA_DEBUG ARGs}；   
+std::vector<LPCWSTR> vsArgs $=$ std::vector<LPCWSTR> { L"-E"锛孡"VS"锛孡"-T"锛孡"vs_6_6"COMMA_DEBUGArguments}锛?  
+std::vector<LPCWSTR>psArgs $=$ std::vector<LPCWSTR> { L"-E"锛孡"PS"锛孡"-T"锛孡"ps_6_6"COMMA_DEBUGArguments}锛?  
+std::vector<LPCWSTR>psAlphaTestedArgs $=$ std::vector<LPCWSTR> { L"-E"锛孡"PS"锛孡"-T"锛孡"ps_6_6"锛孡"-D ALPHA_TEST=1"COMMA_DEBUG ARGs}锛?  
 std::vector<LPCWSTR> vsSkinnedArgs $=$ std::vector<LPCWSTR> { 
 
 ```cpp
@@ -1188,7 +1190,7 @@ define DXC.Arg_DEBUG L"-Zi"
 
 Three other arguments we use in this book are as follows: 
 
-1. -E: Defines the shader entry point function name. For example, we often use “VS” for vertex shader, $\mathrm { { } ^ { \mathfrak { { c } } } { } _ { M \mathrm { { S } ^ { \mathfrak { { \rangle } } } } } }$ for mesh shader, and “PS” for pixel shader, but these can be any valid function names. 
+1. -E: Defines the shader entry point function name. For example, we often use 鈥淰S鈥?for vertex shader, $\mathrm { { } ^ { \mathfrak { { c } } } { } _ { M \mathrm { { S } ^ { \mathfrak { { \rangle } } } } } }$ for mesh shader, and 鈥淧S鈥?for pixel shader, but these can be any valid function names. 
 
 2. -T: Defines the shader model target profile. In this book, we use shader version 6.6. There is a separate target for each shader type: 
 
@@ -1211,7 +1213,7 @@ h) lib_6_6: shader library (used for ray tracing)
 3. -D: Defines a macro. This is often used to enable/disable shader code. For example, the vertex shader used to render skinned meshes (i.e., animated characters) is almost the same as rendering static meshes with the exception of the animation code. Instead of duplicating the code and adding some animation code, we write the code once but can compile the code with and without skinned animation by defining a macro: 
 
 ```cpp
-if SKINNED ApplySkinning(vin.BoneWeights,vin.BoneIndices, vin_PosL，vin.NormalL，vin.TangentU.xyz); #endif 
+if SKINNED ApplySkinning(vin.BoneWeights,vin.BoneIndices, vin_PosL锛寁in.NormalL锛寁in.TangentU.xyz); #endif 
 ```
 
 HLSL errors are output to the debug window; for example, if we misspelled the mul function, then we get the following error output to the debug window: 
@@ -1250,7 +1252,7 @@ Most of these members are advanced or not used very often; therefore, we refer y
 
 3. FrontCounterClockwise: Specify false if you want triangles ordered clockwise (with respect to the camera) to be treated as front-facing and triangles ordered counterclockwise (with respect to the camera) to be treated as back-facing. Specify true if you want triangles ordered counterclockwise (with respect to the camera) to be treated as front-facing and triangles ordered clockwise (with respect to the camera) to be treated as back-facing. This state is false by default. 
 
-4. ScissorEnable: Specify true to enable the scissor test (§4.3.10) and false to disable it. The default is false. 
+4. ScissorEnable: Specify true to enable the scissor test (搂4.3.10) and false to disable it. The default is false. 
 
 The following code shows how to create a rasterize state that turns on wireframe mode and disables backface culling: 
 
@@ -1318,7 +1320,7 @@ typedef struct D3D12_SHADER_BYTECODE {
 
 9. SampleMask: Multisampling can take up to 32 samples. This 32-bit integer value is used to enable/disable the samples. For example, if you turn off the 5th bit, then the 5th sample will not be taken. Of course, disabling the 5th sample only has any consequence if you are actually using multisampling with at least 5 samples. If an application is using single sampling, then only the first bit of this parameter matters. Generally, the default of 0xffffffff is used, which does not disable any samples. 
 
-10. RasterizerState: Specifies the rasterization state which configures the rasterizer (§6.8). 
+10. RasterizerState: Specifies the rasterization state which configures the rasterizer (搂6.8). 
 
 11. DepthStencilState: Specifies the depth/stencil state which configures the depth/stencil test. We will discuss this state group in a later chapter; for now, specify the default CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT). 
 
@@ -1346,7 +1348,7 @@ After we have filled out a D3D12_GRAPHICS_PIPELINE_STATE_DESC instance, we creat
 
 ```cpp
 static D3D12_SHADER_BYTECODE ByteCodeFromBlob(IDxcBlob\* Shader)   
-{ return { reinterpret_cast<BYTE\*>(shader->GetBufferPointer(), shader->GetBufferSize()) }； 
+{ return { reinterpret_cast<BYTE\*>(shader->GetBufferPointer(), shader->GetBufferSize()) }锛?
 ```
 
 ```cpp
@@ -1391,7 +1393,7 @@ In other words, when a PSO is bound to the command list, it does not change unti
 
 Note: 
 
-PSO state changes should be kept to a minimum for performance. Draw all objects together that can use the same PSO. Do not change the PSO per draw call! 
+PSO state changes should be kept to a minimum for performance. Draw all objects together that can use the same PSO. Do not change the PSO per draw聽call! 
 
 # 6.10 GEOMETRY HELPER STRUCTURE
 
@@ -1408,7 +1410,7 @@ UINT StartIndexLocation $= 0$ INT BaseVertexLocation $= 0$ ..
 UINT VertexCount $= 0$ ..   
 // Bounding box of the geometry defined by this submesh.   
 // This is used in later chapters of the book. DirectX::BoundingBox Bounds;   
-}；   
+}锛?  
 struct MeshGeometry   
 { // Give it a name so we can look it up by name. std::string Name; // System memory copies. Use byte blobs because the   
 // vertex/index format can be generic. // It is up to the client to cast appropriately. std::vector<byte> VertexBufferCPU; 
@@ -1435,7 +1437,7 @@ struct ObjectConstants { DirectX::XMFLOAT4X4 World = MathHelper::Identity4x4();
 };   
 struct PassConstants { DirectX::XMFLOAT4X4 ViewProj = MathHelper::Identity4x4();   
 };   
-enum ROOTArg {ROOT.Arg_OBJECT_CBV = 0,ROOT.Arg_PASS_CBV,ROOT.Arg_COUNT}；   
+enum ROOTArg {ROOT.Arg_OBJECT_CBV = 0,ROOT.Arg_PASS_CBV,ROOT.Arg_COUNT}锛?  
 class BoxApp : public D3DApp {public: BoxApp(HINSTANCE hInstance); BoxApp(const BoxApp& rhs) $=$ delete; BoxApp& operator=(const BoxApp& rhs) $=$ delete; ~BoxApp(); virtual bool Initialize()override;   
 private: virtual void CreateRtvAndDsvDescriptorHeaps()override; virtual void OnResize()override; virtual void Update(const GameTimer& gt)override; virtual void Draw(const GameTimer& gt)override; virtual void UpdateImgui(const GameTimer& gt)override; virtual void OnDown(WPARAM btnState,int x,int y)override; virtual void OnMouseUp(WPARAM btnState,int x,int y)override; virtual void OnMove(WPARAM btnState,int x,int y)override; void BuildCbvSrvUavDescriptorHeap(); 
 
@@ -1461,8 +1463,8 @@ struct ColorVertex
 
 ```cpp
 { XMFLOAT3 Pos; XMFLOAT4 Color;   
-}；   
-int WINAPI WinMain(HINSTANCE hInstance，HINSTANCE prevInstance, PSTR cmdLine，int showCmd) { //Enable run-time memory check for debug builds. #if defined(DEBUG) | defined(_DEBUG) _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF| _CRTDBG_LEAK_CHECK_DF); #endif try { BoxApp theApp(hInstance); if(!theApp.Initialize()) return 0; return theAppRUN(); } catch(DxException& e) { MessageBox(nullptr，e.ToString().c_str()，L"HR Failed"，MB_OK); return 0; } } BoxApp::BoxApp(HINSTANCE hInstance) : D3DApp(hInstance) { } BoxApp::~BoxApp() { if (md3dDevice != nullptr) FlushCommandQueue(); } bool BoxApp::Initialize() { if(!D3DApp::Initialize()) return false; // We will upload on the direct queue for the book samples, but // copy queue would be better for real game. mUploadBatch->Begin(D3D12_COMMAND_LIST_TYPE_DIRECT); BuildBoxGeometry (md3dDevice.Get(), *mUploadBatch.get()); // Kick off upload work asynchronously. std::future<void> result = mUploadBatch->End(mCommandQueue.Get()); 
+}锛?  
+int WINAPI WinMain(HINSTANCE hInstance锛孒INSTANCE prevInstance, PSTR cmdLine锛宨nt showCmd) { //Enable run-time memory check for debug builds. #if defined(DEBUG) | defined(_DEBUG) _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF| _CRTDBG_LEAK_CHECK_DF); #endif try { BoxApp theApp(hInstance); if(!theApp.Initialize()) return 0; return theAppRUN(); } catch(DxException& e) { MessageBox(nullptr锛宔.ToString().c_str()锛孡"HR Failed"锛孧B_OK); return 0; } } BoxApp::BoxApp(HINSTANCE hInstance) : D3DApp(hInstance) { } BoxApp::~BoxApp() { if (md3dDevice != nullptr) FlushCommandQueue(); } bool BoxApp::Initialize() { if(!D3DApp::Initialize()) return false; // We will upload on the direct queue for the book samples, but // copy queue would be better for real game. mUploadBatch->Begin(D3D12_COMMAND_LIST_TYPE_DIRECT); BuildBoxGeometry (md3dDevice.Get(), *mUploadBatch.get()); // Kick off upload work asynchronously. std::future<void> result = mUploadBatch->End(mCommandQueue.Get()); 
 ```
 
 ```cpp
@@ -1520,12 +1522,12 @@ void BoxApp::Draw(const GameTimer& gt) { CbvSrvUavHeap& cbvSrvUavHeap = CbvSrvUa
 
 mCommandList->SetGraphicsRootDescriptorTable(ROOT_arg_OBJECT_CBV,cbvSrvUavHeap.GpuHandle(mBoxCBHeapIndex));mCommandList->SetGraphicsRootDescriptorTable(ROOT_argPASS_CBV,cbvSrvUavHeap.GpuHandle(mPassCBHeapIndex));  
 mCommandList->IASetVertexBuffers(0,1,&mBoxGeo->VertexBufferView());mCommandList->IASetIndexBuffer(&mBoxGeo->IndexBufferView());mCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);  
-mCommandList->DrawIndexedInstanced(mBoxGeo->DrawArgs["box"].IndexCount,1，//instanceCountmBoxGeo->DrawArgs["box"].StartIndexLocation,mBoxGeo->DrawArgs["box"].BaseVertexLocation,0）; // startInstanceLocation  
+mCommandList->DrawIndexedInstanced(mBoxGeo->DrawArgs["box"].IndexCount,1锛?/instanceCountmBoxGeo->DrawArgs["box"].StartIndexLocation,mBoxGeo->DrawArgs["box"].BaseVertexLocation,0锛? // startInstanceLocation  
 //Draw imgui UI.ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(),mCommandList.Get();  
-//Indicate a state transition on the resource usage.mCommandList->ResourceBarrier(1,&CD3DX12RESOURCE_BARRIER::Transition(CurrentBackBuffer()，D3D12_RESOURCE_STATE_RENDER_TARGET，D3D12_RESOURCE_STATE_PRESENT)）;  
+//Indicate a state transition on the resource usage.mCommandList->ResourceBarrier(1,&CD3DX12RESOURCE_BARRIER::Transition(CurrentBackBuffer()锛孌3D12_RESOURCE_STATE_RENDER_TARGET锛孌3D12_RESOURCE_STATE_PRESENT)锛?  
 //Done recording commandsThrowIfFailed(mCommandList->Close();  
-//Add the command list to the queue for execution.ID3D12CommandList\* cmdLists[] $\equiv$ {mCommandList.Get();mCommandQueue->ExecuteCommandLists(_countof(cmdLists)，cmdLists);  
-//Swap the back and front buffersDXGI_present_PARAMETERSPresentParams $=$ {0}；ThrowIfFailed(mSwapChain->Presentl(0，0，&presentParams));mCurrBackBuffer $=$ (mCurrBackBuffer+1)%SwapChainBufferCount;//Wait until frame commands are complete. This waiting is//inefficient and is done for simplicity.Later we will show//how to organize our rendering code so we do not have to//wait per frame.FlushCommandQueue();  
+//Add the command list to the queue for execution.ID3D12CommandList\* cmdLists[] $\equiv$ {mCommandList.Get();mCommandQueue->ExecuteCommandLists(_countof(cmdLists)锛宑mdLists);  
+//Swap the back and front buffersDXGI_present_PARAMETERSPresentParams $=$ {0}锛汿hrowIfFailed(mSwapChain->Presentl(0锛?锛?presentParams));mCurrBackBuffer $=$ (mCurrBackBuffer+1)%SwapChainBufferCount;//Wait until frame commands are complete. This waiting is//inefficient and is done for simplicity.Later we will show//how to organize our rendering code so we do not have to//wait per frame.FlushCommandQueue();  
 }  
 void BoxApp::UpdateImgui(const GameTimer&gt)  
 {D3DApp::UpdateImgui(gt); 
@@ -1574,10 +1576,10 @@ void BoxApp::BuildRootSignature()
 ```cpp
 }   
 void BoxApp::BuildBoxGeometry(ID3D12Device* device, DirectX::ResourceUploadBatch& uploadBatch)   
-{ std::array< color vertex, 8> vertices = { ColorVertex({ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT4 (Colors::White) }）， ColorVertex({ XMFLOAT3(-1.0f, +1.0f, -1.0f), XMFLOAT4 (Colors::Black) }）， ColorVertex({ XMFLOAT3(+1.0f, +1.0f, -1.0f), XMFLOAT4 (Colors::Red) }）， ColorVertex({ XMFLOAT3(+1.0f, -1.0f, -1.0f), XMFLOAT4 (Colors::Green) }）， ColorVertex({ XMFLOAT3(-1.0f, -1.0f, +1.0f), XMFLOAT4 (Colors::Blue) }）， ColorVertex({ XMFLOAT3(-1.0f, +1.0f, +1.0f), XMFLOAT4 (Colors::Yellow) }）， ColorVertex({ XMFLOAT3(+1.0f, +1.0f, +1.0f), XMFLOAT4 (Colors::Cyan) }）， ColorVertex({ XMFLOAT3(+1.0f, -1.0f, +1.0f), XMFLOAT4 (Colors::Magenta) }）}; std::array< std::uint16_t, 36> indices = { // front face 0, 1, 2, 0, 2, 3, // back face 4, 6, 5, 4, 7, 6, // left face 4, 5, 1, 4, 1, 0, // right face 3, 2, 6, 3, 6, 7, // top face 1, 5, 6, 1, 6, 2, // bottom face 4, 0, 3, 4, 3, 7 }; const UINT vbByteSize = (UINT)vertices.size() * sizeof(ColorVertex); const UINT ibByteSize = (UINT)indices.size() * sizeof( uint16_t); 
+{ std::array< color vertex, 8> vertices = { ColorVertex({ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT4 (Colors::White) }锛夛紝 ColorVertex({ XMFLOAT3(-1.0f, +1.0f, -1.0f), XMFLOAT4 (Colors::Black) }锛夛紝 ColorVertex({ XMFLOAT3(+1.0f, +1.0f, -1.0f), XMFLOAT4 (Colors::Red) }锛夛紝 ColorVertex({ XMFLOAT3(+1.0f, -1.0f, -1.0f), XMFLOAT4 (Colors::Green) }锛夛紝 ColorVertex({ XMFLOAT3(-1.0f, -1.0f, +1.0f), XMFLOAT4 (Colors::Blue) }锛夛紝 ColorVertex({ XMFLOAT3(-1.0f, +1.0f, +1.0f), XMFLOAT4 (Colors::Yellow) }锛夛紝 ColorVertex({ XMFLOAT3(+1.0f, +1.0f, +1.0f), XMFLOAT4 (Colors::Cyan) }锛夛紝 ColorVertex({ XMFLOAT3(+1.0f, -1.0f, +1.0f), XMFLOAT4 (Colors::Magenta) }锛墋; std::array< std::uint16_t, 36> indices = { // front face 0, 1, 2, 0, 2, 3, // back face 4, 6, 5, 4, 7, 6, // left face 4, 5, 1, 4, 1, 0, // right face 3, 2, 6, 3, 6, 7, // top face 1, 5, 6, 1, 6, 2, // bottom face 4, 0, 3, 4, 3, 7 }; const UINT vbByteSize = (UINT)vertices.size() * sizeof(ColorVertex); const UINT ibByteSize = (UINT)indices.size() * sizeof( uint16_t); 
 ```
 
-mBoxGeo $=$ std::make_unique<MeshGeometry $\rightharpoondown$ ); mBoxGeo->Name $=$ "boxGeo"; mBoxGeo->VertexBufferCPU.resize(vbByteSize); CopyMemory(mBoxGeo->VertexBufferCPU.data(), vertices.data(), vbByteSize); mBoxGeo->IndexBufferCPU.resize(ibByteSize); CopyMemory(mBoxGeo->IndexBufferCPU.data(), indices.data(), ibByteSize); CreateStaticBuffer( device, uploadBatch, vertices.data(), vertices.size(), sizeof(ColorVertex), D3D12Resource_STATEVertex_ANDCONSTANT_BUFFER, &mBoxGeo->VertexBufferGPU); CreateStaticBuffer( device, uploadBatch, indices.data(), indices.size(), sizeof uint16_t), D3D12Resource_STATE_INDEX_buffer, &mBoxGeo->IndexBufferGPU); mBoxGeo->VertexByteStride $=$ sizeof(ColorVertex); mBoxGeo->VertexBufferByteSize $=$ vbByteSize; mBoxGeo->IndexFormat $=$ DXGI_FORMAT_R16_UID; mBoxGeo->IndexBufferByteSize $=$ ibByteSize; SubmeshGeometry submesh; submesh.IndexCount $=$ (UINT)indices.size(); submesh.StartIndexLocation $= 0$ . submesh.BaseVertexLocation $= 0$ . submesh.VortexCount $= 8$ // Box that tightly contains all the geometry. This // is used in later chapters of the book. submesh.Bounds $=$ BoundingBox( XMFLOAT3(0.0f,0.0f,0.0f)，// center XMFLOAT3(1.0f，1.0f，1.0f));// extents mBoxGeo->DrawArgs["box"] $=$ submesh;   
+mBoxGeo $=$ std::make_unique<MeshGeometry $\rightharpoondown$ ); mBoxGeo->Name $=$ "boxGeo"; mBoxGeo->VertexBufferCPU.resize(vbByteSize); CopyMemory(mBoxGeo->VertexBufferCPU.data(), vertices.data(), vbByteSize); mBoxGeo->IndexBufferCPU.resize(ibByteSize); CopyMemory(mBoxGeo->IndexBufferCPU.data(), indices.data(), ibByteSize); CreateStaticBuffer( device, uploadBatch, vertices.data(), vertices.size(), sizeof(ColorVertex), D3D12Resource_STATEVertex_ANDCONSTANT_BUFFER, &mBoxGeo->VertexBufferGPU); CreateStaticBuffer( device, uploadBatch, indices.data(), indices.size(), sizeof uint16_t), D3D12Resource_STATE_INDEX_buffer, &mBoxGeo->IndexBufferGPU); mBoxGeo->VertexByteStride $=$ sizeof(ColorVertex); mBoxGeo->VertexBufferByteSize $=$ vbByteSize; mBoxGeo->IndexFormat $=$ DXGI_FORMAT_R16_UID; mBoxGeo->IndexBufferByteSize $=$ ibByteSize; SubmeshGeometry submesh; submesh.IndexCount $=$ (UINT)indices.size(); submesh.StartIndexLocation $= 0$ . submesh.BaseVertexLocation $= 0$ . submesh.VortexCount $= 8$ // Box that tightly contains all the geometry. This // is used in later chapters of the book. submesh.Bounds $=$ BoundingBox( XMFLOAT3(0.0f,0.0f,0.0f)锛?/ center XMFLOAT3(1.0f锛?.0f锛?.0f));// extents mBoxGeo->DrawArgs["box"] $=$ submesh;   
 }   
 void BoxApp::BuildPSO() { D3D12graphics_pipeLINE_STATE_DESC basePsoDesc = d3dUtil::InitDefaultPso( mBackBufferFormat, mDepthStencilFormat, mInputLayout, mRootSignature.Get(), mvsByteCode.Get(), mpsByteCode.Get()); 
 
@@ -1589,7 +1591,7 @@ ThrowIfFailed Md3dDevice->CreateGraphicsPipelineState( &basePsoDesc, IID_PPV_arg
 
 
 
-Figure 6.6. Screenshot of the “Box” demo.
+Figure 6.6. Screenshot of the 鈥淏ox鈥?demo.
 
 
 # 6.12 SUMMARY
@@ -1602,7 +1604,7 @@ shader input signature. An input layout is bound to the IA stage when the PSO it
 
 A buffer that stores vertices is called a vertex buffer and a buffer that stores indices is called an index buffer. A buffer resource is created by filling out a D3D12_RESOURCE_DESC structure and then calling the ID3D12Device::CreateCom mittedResource method. A view to a vertex buffer is represented by the D3D12_ VERTEX_BUFFER_VIEW structure, and a view to an index buffer is represented by the D3D12_INDEX_BUFFER_VIEW structure. A vertex buffer is bound to the IA stage with the ID3D12GraphicsCommandList::IASetVertexBuffers method, and an index buffer is bound to the IA stage with the ID3D12GraphicsCommandList ::IASetIndexBuffer method. Non-indexed geometry can be drawn with ID3D 12GraphicsCommandList::DrawInstanced, and indexed geometry can be drawn with ID3D12GraphicsCommandList::DrawIndexedInstanced. 
 
-3. A vertex shader is a program written in HLSL, executed on the GPU, which inputs a vertex and outputs a vertex. Every drawn vertex goes through the vertex shader. This enables the programmer to do specialized work on a per  vertex basis to achieve various rendering effects. The values output from the vertex shader are passed on to the next stage in the pipeline. 
+3. A vertex shader is a program written in HLSL, executed on the GPU, which inputs a vertex and outputs a vertex. Every drawn vertex goes through the vertex shader. This enables the programmer to do specialized work on a per聽 vertex basis to achieve various rendering effects. The values output from聽the vertex shader are passed on to the next stage in the pipeline. 
 
 4. A constant buffer is a GPU resource (ID3D12Resource) whose data contents can be read in shader programs. In this way, the $\mathrm { C } { + + }$ application can communicate with the shader and update the values in the constant buffers the shader uses; for example, the $\mathrm { C } { + + }$ application can change the world-view-projection matrix the shader uses. Constant buffers should be small (in fact, they are limited to 64 KB), and the data should be accessed in a uniform manner (i.e., all vertex/pixel shader invocations in a draw call are accessing the constant buffer data in the same way). Constant buffers also have the special hardware requirement that their size must be a multiple of the minimum hardware allocation size (256 bytes). The primary use case for constant buffers is to pass a small amount of data to a shader program that is fixed over a draw call. World, view, and projection matrices are good examples, but so are properties of active light sources, the camera position, and features enabled. Based on constant buffers being relatively small, and their intended access patterns, GPUs can often optimize for them, such as with special hardware caches. When a constant buffer is updated, all its variables must be updated; therefore, it is efficient to group them based on their update frequency to minimize redundant updates. 
 
@@ -1665,7 +1667,7 @@ e) a triangle list like the one shown in Figure 5.14a.
 
 4. Construct the vertex and index list of a pyramid, as shown in Figure 6.7, and draw it. Color the base vertices green and the tip vertex red. 
 
-5. Run the “Box” demo, and recall that we specified colors at the vertices only. Explain how pixel colors were obtained for each pixel on the triangle. 
+5. Run the 鈥淏ox鈥?demo, and recall that we specified colors at the vertices only. Explain how pixel colors were obtained for each pixel on the triangle. 
 
 ![](images/609e3c0ce4ee1205f04212d4b0182ad202b4c8bad9ec669d654d52d6c61eb107.jpg)
 
@@ -1696,7 +1698,7 @@ Figure 6.8. A grid of boxes
 
 9. Modify the Box demo by disabling backface culling (D3D12_CULL_NONE); also try culling front faces instead of back faces (D3D12_CULL_FRONT). Output your results in wireframe mode so that you can more easily see the difference. 
 
-10. If vertex memory is significant, then reducing from 128-bit color values to 32-bit color values may be worthwhile. Modify the “Box” demo by using a 32-bit color value instead of a 128-bit color value in the vertex structure. Your vertex structure and corresponding vertex input description will look like this: 
+10. If vertex memory is significant, then reducing from 128-bit color values to 32-bit color values may be worthwhile. Modify the 鈥淏ox鈥?demo by using a 32-bit color value instead of a 128-bit color value in the vertex structure. Your vertex structure and corresponding vertex input description will look like this: 
 
 ```c
 struct Vertex
@@ -1706,8 +1708,8 @@ struct Vertex
 };
 D3D12_INPUT ELEMENT_DESC vertexDesc[] = 
 {
-    {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_PER鼓舞_DATA, 0},
-    {"COLOR", 0, DXGI_FORMAT_B8G8R8A8_UNORM, 0, 12, D3D12_INPUT_PER鼓舞_DATA, 0}
+    {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_PER榧撹垶_DATA, 0},
+    {"COLOR", 0, DXGI_FORMAT_B8G8R8A8_UNORM, 0, 12, D3D12_INPUT_PER榧撹垶_DATA, 0}
 }; 
 ```
 

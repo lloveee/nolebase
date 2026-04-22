@@ -1,3 +1,5 @@
+﻿# Chapter 11 Stenciling
+
 Chapter 
 
 # 11 Stencil ing
@@ -133,7 +135,7 @@ D3D12_DEPTH_STENCILOP_DESC BackFace;
 
 # 11.3.1 Depth Settings
 
-1. DepthEnable: Specify true to enable the depth buffering; specify false to disable it. 
+1. DepthEnable: Specify true to enable the depth buffering; specify false to disable聽it. 
 
 When depth testing is disabled, the draw order matters, and a pixel fragment will be drawn even if it is behind an occluding object (review $\ S 4 . 1 . 5 \AA$ ). If depth buffering is disabled, elements in the depth buffer are not updated either, regardless of the DepthWriteMask setting. 
 
@@ -190,7 +192,7 @@ enum D3D12_STENCIL_OP
 
 2. D3D12_STENCIL_OP_ZERO: Specifies to set the stencil buffer entry to zero. 
 
-3. D3D12_STENCIL_OP_REPLACE: Specifies to replaces the stencil buffer entry with the stencil-reference value (StencilRef) used in the stencil test. Note that the StencilRef value is set by a separate function on the command list (§11.3.3). 
+3. D3D12_STENCIL_OP_REPLACE: Specifies to replaces the stencil buffer entry with the stencil-reference value (StencilRef) used in the stencil test. Note that the StencilRef value is set by a separate function on the command list (搂11.3.3). 
 
 4. D3D12_STENCIL_OP_INCR_SAT: Specifies to increment the stencil buffer entry. If the incremented value exceeds the maximum value (e.g., 255 for an 8-bit stencil buffer), then we clamp the entry to that maximum. 
 
@@ -216,9 +218,9 @@ mCommandList->OMSetStencilRef(1);
 
 # 11.4 IMPLEMENTING PLANAR MIRRORS
 
-Many surfaces in nature serve as mirrors and allow us to see the reflections of objects. This section describes how we can simulate mirrors for our 3D applications. Note that for simplicity, we reduce the task of implementing mirrors to planar surfaces only. For instance, a shiny car can display a reflection; however, a car’s body is smooth, round, and not planar. Instead, we render reflections such as those that are displayed in a shiny marble floor or those that are displayed in a mirror hanging on a wall—in other words, mirrors that lie on a plane. 
+Many surfaces in nature serve as mirrors and allow us to see the reflections of objects. This section describes how we can simulate mirrors for our 3D applications. Note that for simplicity, we reduce the task of implementing mirrors to planar surfaces only. For instance, a shiny car can display a reflection; however, a car鈥檚 body is smooth, round, and not planar. Instead, we render reflections such as those that are displayed in a shiny marble floor or those that are displayed in a mirror hanging on a wall鈥攊n other words, mirrors that lie on a plane. 
 
-Implementing mirrors programmatically requires us to solve two problems. First, we must learn how to reflect an object about an arbitrary plane so that we can draw the reflection correctly. Second, we must only display the reflection in a mirror, that is, we must somehow “mark” a surface as a mirror and then, as we are rendering, only draw the reflected object if it is in a mirror. Refer back to Figure 11.1, which first introduced this concept. 
+Implementing mirrors programmatically requires us to solve two problems. First, we must learn how to reflect an object about an arbitrary plane so that we can draw the reflection correctly. Second, we must only display the reflection in a mirror, that is, we must somehow 鈥渕ark鈥?a surface as a mirror and then, as we are rendering, only draw the reflected object if it is in a mirror. Refer back to Figure聽11.1, which first introduced this concept. 
 
 The first problem is easily solved with some analytical geometry, and is discussed in Appendix C. The second problem can be solved using the stencil buffer. 
 
@@ -229,7 +231,7 @@ The first problem is easily solved with some analytical geometry, and is discuss
 
 When we draw the reflection, we also need to reflect the light source across the mirror plane. Otherwise, the lighting in the reflection would not be accurate. 
 
-Figure 11.2 shows that to draw a reflection of an object, we just need to reflect it over the mirror plane. However, this introduces the problem shown in Figure 11.1. Namely, the reflection of the object (the skull in this case) is just another object in our scene, and if nothing is occluding it, then the eye will see it. However, the reflection should only be seen through the mirror. We can solve this problem 
+Figure 11.2 shows that to draw a reflection of an object, we just need to reflect it over the mirror plane. However, this introduces the problem shown in Figure聽11.1. Namely, the reflection of the object (the skull in this case) is just another object in our scene, and if nothing is occluding it, then the eye will see it. However, the reflection should only be seen through the mirror. We can solve this problem 
 
 ![](images/bc0b71edd89d88acaa0313e7d9c8f88afa0f98d8bf3240e2eb7a96981be99511.jpg)
 
@@ -253,7 +255,7 @@ Stencil buffer
 
 
 
-Figure 11.3. The floor, walls, and skull to the back buffer and the stencil buffer cleared to 0 (denoted by light gray color). The black outlines drawn on the stencil buffer illustrate the relationship between the back buffer pixels and the stencil buffer pixels—they do not indicate any data drawn on the stencil buffer.
+Figure 11.3. The floor, walls, and skull to the back buffer and the stencil buffer cleared to 0 (denoted by light gray color). The black outlines drawn on the stencil buffer illustrate the relationship between the back buffer pixels and the stencil buffer pixels鈥攖hey do not indicate any data drawn on the stencil buffer.
 
 
 using the stencil buffer because the stencil buffer allows us to block rendering to certain areas on the back buffer. Thus we can use the stencil buffer to block the rendering of the reflected skull if it is not being rendered into the mirror. The following outlines the step of how this can be accomplished: 
@@ -274,7 +276,7 @@ and we can disable writes to the depth buffer by setting
 D3D12_DEPTH_STENCIL_DESC::DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO; 
 ```
 
-When rendering the mirror to the stencil buffer, we set the stencil test to always succeed (D3D12_COMPARISON_ALWAYS) and specify that the stencil buffer entry should be replaced (D3D12_STENCIL_OP_REPLACE) with 1 (StencilRef) if the test passes. If the depth test fails, we specify D3D12_STENCIL_OP_KEEP so that the stencil buffer is not changed if the depth test fails (this can happen, for example, if the skull obscures part of the mirror). Since we are only rendering the mirror to the stencil buffer, it follows that all the pixels in the stencil buffer will be 0 except for the pixels that correspond to the visible part of the mirror—they will have a 1. Figure 11.4 shows the updated stencil buffer. Essentially, we are marking the visible pixels of the mirror in the stencil buffer. 
+When rendering the mirror to the stencil buffer, we set the stencil test to always succeed (D3D12_COMPARISON_ALWAYS) and specify that the stencil buffer entry should be replaced (D3D12_STENCIL_OP_REPLACE) with 1 (StencilRef) if the test passes. If the depth test fails, we specify D3D12_STENCIL_OP_KEEP so that the stencil buffer is not changed if the depth test fails (this can happen, for example, if the skull obscures part of the mirror). Since we are only rendering the mirror to the stencil buffer, it follows that all the pixels in the stencil buffer will be 0 except for the pixels that correspond to the visible part of the mirror鈥攖hey will have a 1. Figure 11.4 shows the updated stencil buffer. Essentially, we are marking the visible pixels of the mirror in the stencil buffer. 
 
 It is important to draw the mirror to the stencil buffer after we have drawn the skull so that pixels of the mirror occluded by the skull fail the depth test, and thus do not modify the stencil buffer. We do not want to turn on parts of the stencil buffer that are occluded; otherwise the reflection will show through the skull. 
 
@@ -298,7 +300,7 @@ Figure 11.4: Rendering the mirror to the stencil buffer, essentially marking the
 
 4. Now we render the reflected skull to the back buffer and stencil buffer. But recall that we only will render to the back buffer if the stencil test passes. This time, we set the stencil test to only succeed if the value in the stencil buffer equals 1; this is done using a StencilRef of 1, and the stencil operator D3D12_ COMPARISON_EQUAL. In this way, the reflected skull will only be rendered to areas that have a 1 in their corresponding stencil buffer entry. Since the areas in the stencil buffer that correspond to the visible parts of the mirror are the only entries that have a 1, it follows that the reflected skull will only be rendered into the visible parts of the mirror. 
 
-5. Finally, we render the mirror to the back buffer as normal. However, in order for the skull reflection to show through (which lies behind the mirror), we need to render the mirror with transparency blending. If we did not render the mirror with transparency, the mirror would simply occlude the reflection since its depth is less than that of the reflection. To implement this, we simply need to define a new material instance for the mirror; we set the alpha channel of the diffuse component to 0.6 to make the mirror $6 0 \%$ opaque, and we render the mirror with the transparency blend state as described in the last chapter (§10.5.4). 
+5. Finally, we render the mirror to the back buffer as normal. However, in order for the skull reflection to show through (which lies behind the mirror), we need to render the mirror with transparency blending. If we did not render the mirror with transparency, the mirror would simply occlude the reflection since its depth is less than that of the reflection. To implement this, we simply need to define a new material instance for the mirror; we set the alpha channel of the diffuse component to 0.6 to make the mirror $6 0 \%$ opaque, and we render the mirror with the transparency blend state as described in the last chapter (搂10.5.4). 
 
 ```javascript
 matLib.AddMaterial("icemirror", texLib["iceMap"], texLib["defaultNormalMap"], texLib["defaultGlossHeightAoMap"], XMFLOAT4(1.0f, 1.0f, 1.0f, 0.6f), // diffuse XMFLOAT3(0.1f, 0.1f, 0.1f), 0.5f); 
@@ -412,7 +414,7 @@ Figure 11.5. The polygon normals do not get reversed with reflection, which make
 
 # 11.4.4 Winding Order and Reflections
 
-When a triangle is reflected across a plane, its winding order does not reverse, and thus, its face normal does not reverse. Hence, outward facing normals become inward facing normals (see Figure 11.5), after reflection. To correct this, we tell Direct3D to interpret triangles with a counterclockwise winding order as frontfacing and triangles with a clockwise winding order as back-facing (this is the opposite of our usual convention—§5.10.2). This effectively reflects the normal directions so that they are outward facing after reflection. We reverse the winding order convention by setting the following rasterizer properties in the PSO: 
+When a triangle is reflected across a plane, its winding order does not reverse, and thus, its face normal does not reverse. Hence, outward facing normals become inward facing normals (see Figure 11.5), after reflection. To correct this, we tell Direct3D to interpret triangles with a counterclockwise winding order as frontfacing and triangles with a clockwise winding order as back-facing (this is the opposite of our usual convention鈥斅?.10.2). This effectively reflects the normal directions so that they are outward facing after reflection. We reverse the winding order convention by setting the following rasterizer properties in the PSO: 
 
 drawReflectionsPsoDesc.RasterizerState.FrontCounterClockwise $=$ true; 
 
@@ -430,14 +432,14 @@ To implement planar shadows, we must first find the shadow an object casts to a 
 
 
 
-Figure 11.6. The main light source casts a planar shadow in the “Mirror” demo.
+Figure 11.6. The main light source casts a planar shadow in the 鈥淢irror鈥?demo.
 
 
-some rendering artifacts called “double blending,” which we explain in a few sections; we utilize the stencil buffer to prevent double blending from occurring. 
+some rendering artifacts called 鈥渄ouble blending,鈥?which we explain in a few sections; we utilize the stencil buffer to prevent double blending from occurring. 
 
 # 11.5.1 Parallel Light Shadows
 
-Figure 11.7 shows the shadow an object casts with respect to a parallel light source. Given a parallel light source with direction L, the light ray that passes through a vertex p is given by $\mathbf { r } ( t ) = \mathbf { p } + t \mathbf { L }$ . The intersection of the ray $\mathbf { r } ( t )$ with the shadow plane $( \mathbf { n } , d )$ gives s. (The reader can read more about rays and planes in Appendix C.) The set of intersection points found by shooting a ray through each of the object’s vertices with the plane defines the projected geometry of the shadow. For a vertex p, its shadow projection is given by 
+Figure 11.7 shows the shadow an object casts with respect to a parallel light source. Given a parallel light source with direction L, the light ray that passes through a vertex p is given by $\mathbf { r } ( t ) = \mathbf { p } + t \mathbf { L }$ . The intersection of the ray $\mathbf { r } ( t )$ with the shadow plane $( \mathbf { n } , d )$ gives s. (The reader can read more about rays and planes in Appendix C.) The set of intersection points found by shooting a ray through each of the object鈥檚 vertices with the plane defines the projected geometry of the shadow. For a vertex p, its shadow projection is given by 
 
 $$
 \mathbf {s} = \mathbf {r} \left(t _ {s}\right) = \mathbf {p} - \frac {\mathbf {n} \cdot \mathbf {p} + d}{\mathbf {n} \cdot \mathbf {L}} \mathbf {L} \tag {eq.11.1}
@@ -456,7 +458,7 @@ $$
 \mathbf {s} ^ {\prime} = \left[ \begin{array}{c c c c} p _ {x} & p _ {y} & p _ {z} & 1 \end{array} \right] \left[ \begin{array}{c c c c} \mathbf {n} \cdot \mathbf {L} - L _ {x} n _ {x} & - L _ {y} n _ {x} & - L _ {z} n _ {x} & 0 \\ - L _ {x} n _ {y} & \mathbf {n} \cdot \mathbf {L} - L _ {y} n _ {y} & - L _ {z} n _ {y} & 0 \\ - L _ {x} n _ {z} & - L _ {y} n _ {z} & \mathbf {n} \cdot \mathbf {L} - L _ {z} n _ {z} & 0 \\ - L _ {x} d & - L _ {y} d & - L _ {z} d & \mathbf {n} \cdot \mathbf {L} \end{array} \right]
 $$
 
-We call the preceding $4 \times 4$ matrix the directional shadow matrix and denote it by ${ \pmb S } _ { d i r }$ . To see how this matrix is equivalent to Equation 11.1, we just need to perform the multiplication. First, however, observe that this equation modifies the $w$ -component so that $s _ { w } = \mathbf { n } \cdot \mathbf { L }$ . Thus, when the perspective divide (§5.6.3.4) takes place, each coordinate of s will be divided by $\mathbf { n } \cdot \mathbf { L }$ ; this is how we get the division by $\mathbf { n } \cdot \mathbf { L }$ in Equation 11.1 using matrices. Now doing the matrix multiplication to obtain the ith coordinate $s _ { i } ^ { \prime }$ for $i \in \{ 1 , 2 , 3 \}$ , followed by the perspective divide we obtain: 
+We call the preceding $4 \times 4$ matrix the directional shadow matrix and denote it by ${ \pmb S } _ { d i r }$ . To see how this matrix is equivalent to Equation 11.1, we just need to perform the multiplication. First, however, observe that this equation modifies the $w$ -component so that $s _ { w } = \mathbf { n } \cdot \mathbf { L }$ . Thus, when the perspective divide (搂5.6.3.4) takes place, each coordinate of s will be divided by $\mathbf { n } \cdot \mathbf { L }$ ; this is how we get the division by $\mathbf { n } \cdot \mathbf { L }$ in Equation 11.1 using matrices. Now doing the matrix multiplication to obtain the ith coordinate $s _ { i } ^ { \prime }$ for $i \in \{ 1 , 2 , 3 \}$ , followed by the perspective divide we obtain: 
 
 $$
 \begin{array}{l} s _ {i} ^ {\prime} = \frac {(\mathbf {n} \cdot \mathbf {L}) p _ {i} - L _ {i} n _ {x} p _ {x} - L _ {i} n _ {y} p _ {y} - L _ {i} n _ {z} p _ {z} - L _ {i} d}{\mathbf {n} \cdot \mathbf {L}} \\ = \frac {(\mathbf {n} \cdot \mathbf {L}) p _ {i} - (\mathbf {n} \cdot \mathbf {p} + d) L _ {i}}{\mathbf {n} \cdot \mathbf {L}} \\ = p _ {i} - \frac {\mathbf {n} \cdot \mathbf {p} + d}{\mathbf {n} \cdot \mathbf {L}} L _ {i} \\ \end{array}
@@ -484,7 +486,7 @@ Figure 11.9. The shadow cast with respect to a point light source.
 
 # 11.5.2 Point Light Shadows
 
-Figure 11.9 shows the shadow an object casts with respect to a point light source whose position is described by the point L. The light ray from a point light through any vertex $\mathbf { p }$ is given by $\mathbf { r } ( t ) = \mathbf { p } + t ( \mathbf { p } - \mathbf { L } )$ . The intersection of the ray $\mathbf { r } ( t )$ with the shadow plane $( \mathbf { n } , d )$ gives s. The set of intersection points found by shooting a ray through each of the object’s vertices with the plane defines the projected geometry of the shadow. For a vertex p, its shadow projection is given by 
+Figure 11.9 shows the shadow an object casts with respect to a point light source whose position is described by the point L. The light ray from a point light through any vertex $\mathbf { p }$ is given by $\mathbf { r } ( t ) = \mathbf { p } + t ( \mathbf { p } - \mathbf { L } )$ . The intersection of the ray $\mathbf { r } ( t )$ with the shadow plane $( \mathbf { n } , d )$ gives s. The set of intersection points found by shooting a ray through each of the object鈥檚 vertices with the plane defines the projected geometry of the shadow. For a vertex p, its shadow projection is given聽by 
 
 $$
 \mathbf {s} = \mathbf {r} \left(t _ {s}\right) = \mathbf {p} - \frac {\mathbf {n} \cdot \mathbf {p} + d}{\mathbf {n} \cdot (\mathbf {p} - \mathbf {L})} (\mathbf {p} - \mathbf {L}) \tag {eq.11.2}
@@ -528,7 +530,7 @@ The DirectX math library provides the following function to build the shadow mat
 
 inline XMMATRIX XM_CALLCONV XMMatrixShadow( FXMVECTOR ShadowPlane, FXMVECTOR LightPosition); 
 
-For further reading, both [Blinn96] and [Möller02] discuss planar shadows. 
+For further reading, both [Blinn96] and [M枚ller02] discuss planar shadows. 
 
 # 11.5.4 Using the Stencil Buffer to Prevent Double Blending
 
@@ -541,7 +543,7 @@ When we flatten out the geometry of an object onto the plane to describe its sha
 
 
 
-Figure 11.10. Notice the darker “acne” areas of the shadow in the left image; these correspond to areas where parts of the flattened skull overlapped, thus causing a “double blend.” The image on the right shows the shadow rendered correctly, without double blending.
+Figure 11.10. Notice the darker 鈥渁cne鈥?areas of the shadow in the left image; these correspond to areas where parts of the flattened skull overlapped, thus causing a 鈥渄ouble blend.鈥?The image on the right shows the shadow rendered correctly, without double blending.
 
 
 We can solve this problem using the stencil buffer. 
@@ -595,7 +597,7 @@ mCommandList->SetPipelineState(mPSOs["shadow"].Get());
 DrawRenderItems(mCommandList.Get(), mRItemLayer[(int) RenderLayer::Shadow]); 
 ```
 
-where the skull shadow render-item’s world matrix is computed like so: 
+where the skull shadow render-item鈥檚 world matrix is computed like so: 
 
 ```cpp
 // Update shadow world matrix.  
@@ -626,11 +628,11 @@ where the $\trianglelefteq$ operator is any one of the functions defined in the 
 
 2. Prove that $\begin{array} { r } { \dot { \mathbf { s } } = \mathbf { p } - \frac { \mathbf { n } \cdot \mathbf { p } + d } { \mathbf { n } \cdot ( \mathbf { p } - \mathbf { L } ) } ( \mathbf { p } - \mathbf { L } ) = \mathbf { p } \mathbf { S } _ { p o i n t } } \end{array}$ by doing the matrix multiplication for each component, as was done in $\$ 123.1$ for directional lights. 
 
-3. Modify the “Mirror” demo to produce the “Left” image in Figure 11.1. 
+3. Modify the 鈥淢irror鈥?demo to produce the 鈥淟eft鈥?image in Figure 11.1. 
 
-4. Modify the “Mirror” demo to produce the “Left” image in Figure 11.10. 
+4. Modify the 鈥淢irror鈥?demo to produce the 鈥淟eft鈥?image in Figure 11.10. 
 
-5. Modify the “Mirror” demo in the following way. First draw a wall with the following depth settings: 
+5. Modify the 鈥淢irror鈥?demo in the following way. First draw a wall with the following depth settings: 
 
 depthStencilDesc.DepthEnable $=$ false;   
 depthStencilDesc.DepthWriteMask $\equiv$ D3D12_DEPTH_WRITE_MASK_ALL;   
@@ -654,7 +656,7 @@ depthStencilDesc.DepthFunc = D3D12_COMPARISON LESS;
 
 Note that this exercise does not use the stencil buffer, so that should be disabled. 
 
-6. Modify the “Mirror” demo by not reversing the triangle winding order convention. Does the reflected teapot render correctly? 
+6. Modify the 鈥淢irror鈥?demo by not reversing the triangle winding order convention. Does the reflected teapot render correctly? 
 
 7. Depth complexity refers to the number of pixel fragments that compete, via the depth test, to be written to a particular entry in the back buffer. For example, a pixel we have drawn may be overwritten by a pixel that is closer to the camera (and this can happen several times before the closest pixel is actually figured out once the entire scene has been drawn). The pixel in Figure 11.11 has a depth complexity of 3 since three pixel fragments compete for the pixel. 
 
@@ -673,7 +675,7 @@ We can measure the depth complexity as follows: Render the scene and use the ste
 
 To visualize the depth complexity (stored in the stencil buffer), proceed as follows: 
 
-a. Associate a color $\mathbf { c } _ { k }$ for each level of depth complexity $k$ . For example, blue for a depth complexity of one, green for a depth complexity of two, red for a depth complexity of three, and so on. (In very complex scenes where the depth complexity for a pixel could get very large, you probably do not want to associate a color for each level. Instead, you could associate a color for a range of disjoint levels. For example, pixels with depth complexity 1-5 are colored blue, pixels with depth complexity 6-10 are colored green, and so on.) 
+a. Associate a color $\mathbf { c } _ { k }$ for each level of depth complexity $k$ . For example, blue for a depth complexity of one, green for a depth complexity of two, red for a depth complexity of three, and so on. (In very complex scenes where the depth complexity for a pixel could get very large, you probably do not want to associate a color for each level. Instead, you could associate a color for a range of disjoint levels. For example, pixels with depth complexity 1-5 are colored blue, pixels with depth complexity 6-10 are colored green, and so聽on.) 
 
 b. Set the stencil buffer operation to D3D12_STENCIL_OP_KEEP so that we do not modify it anymore. (We modify the stencil buffer with D3D12_STENCIL_OP_ INCR when we are counting the depth complexity as the scene is rendered, but when writing the code to visualize the stencil buffer, we only need to read from the stencil buffer and we should not write to it.) 
 
@@ -683,7 +685,7 @@ i). Set the stencil comparison function to D3D12_COMPARISON_EQUAL and set the st
 
 ii). draw a quad of color $\mathbf { c } _ { k }$ that covers the entire projection window. Note that this will only color the pixels that have a depth complexity of $k$ because of the preceding set stencil comparison function and reference value. 
 
-With this setup, we have colored each pixel based on its depth complexity uniquely, and so we can easily study the depth complexity of the scene. For this exercise, render the depth complexity of the scene used in the “Blend” demo from Chapter 10. Figure 11.12 shows a sample screenshot. 
+With this setup, we have colored each pixel based on its depth complexity uniquely, and so we can easily study the depth complexity of the scene. For this exercise, render the depth complexity of the scene used in the 鈥淏lend鈥?demo from Chapter 10. Figure 11.12 shows a sample screenshot. 
 
 ![](images/73d5d19b9ae2938ab11e5513d8f90d1897a5869c0a18e3162d99016244a3d40a.jpg)
 
@@ -697,7 +699,7 @@ Figure 11.12. Sample screenshot of the solution to exercise 8.
 
 Note: 
 
-The depth test occurs in the output merger stage of the pipeline, which occurs after the pixel shader stage. This means that a pixel fragment is processed through the pixel shader, even if it may ultimately be rejected by the depth test. However, modern hardware does an “early z-test” where the depth test is performed before the pixel shader. This way, a rejected pixel fragment will be discarded before being processed by a potentially expensive pixel shader. To take advantage of this optimization, you should try to render your non-blended game objects in front-to-back order with respect to the camera; in this way, the nearest objects will be drawn first, and objects behind them will fail the early z-test and not be processed further. This can be a significant performance benefit if your scene suffers from lots overdraw due to a high depth complexity. We are not able to control the early z-test through the Direct3D API; the graphics driver is the one that decides if it is possible to perform the early z-test. For example, if a pixel shader modifies the pixel fragment’s depth value, then the early z-test is not possible, as the pixel shader must be executed before the depth test since the pixel shader modifies depth values. 
+The depth test occurs in the output merger stage of the pipeline, which occurs after the pixel shader stage. This means that a pixel fragment is processed through the pixel shader, even if it may ultimately be rejected by the depth test. However, modern hardware does an 鈥渆arly z-test鈥?where the depth test is performed before the pixel shader. This way, a rejected pixel fragment will be discarded before being processed by a potentially expensive pixel shader. To take advantage of this optimization, you should try to render your non-blended game objects in front-to-back order with respect to the camera; in this way, the nearest objects will be drawn first, and objects behind them will fail the early z-test and not be processed further. This can be a significant performance benefit if your scene suffers from lots overdraw due to a high depth complexity. We are not able to control the early z-test through the Direct3D API; the graphics driver is the one that decides if it is possible to perform the early z-test. For example, if a pixel shader modifies the pixel fragment鈥檚 depth value, then the early z-test is not possible, as the pixel shader must be executed before the depth test since the pixel shader modifies depth values. 
 
 Note: 
 
@@ -724,10 +726,10 @@ return pout;
 
 The z-coordinate of the SV_Position element (pin.PosH.z) gives the unmodified pixel depth value. Using the special system value semantic SV_Depth, the pixel shader can output a modified depth value. 
 
-8. Another way to implement depth complexity visualization is to use additive blending. First clear the back buffer black and disable the depth test. Next, set the source and destination blend factors both to D3D12_BLEND_ONE, and the blend operation to D3D12_BLEND_OP_ADD so that the blending equation looks like $\mathbf { C } = \mathbf { C } _ { s r c } + \mathbf { C } _ { d s t }$ . Observe that with this formula, for each pixel, we are accumulating the colors of all the pixel fragments written to it. Now render all the objects in the scene with a pixel shader that outputs a low intensity color like ( . 0 05 0, .05, . 0 05 .) The more overdraw a pixel has, the more of these low intensity colors will be summed in, thus increasing the brightness of the pixel. If a pixel was overdrawn ten times, for example, then it will have a color intensity of ( . 0 5, . 0 5, . 0 5). Thus by looking at the intensity of each pixel after rendering the scene, we obtain an idea of the scene depth complexity. Implement this version of depth complexity measurement using the “Blend” demo from Chapter 9 as a test scene. 
+8. Another way to implement depth complexity visualization is to use additive blending. First clear the back buffer black and disable the depth test. Next, set the source and destination blend factors both to D3D12_BLEND_ONE, and the blend operation to D3D12_BLEND_OP_ADD so that the blending equation looks like $\mathbf { C } = \mathbf { C } _ { s r c } + \mathbf { C } _ { d s t }$ . Observe that with this formula, for each pixel, we are accumulating the colors of all the pixel fragments written to it. Now render all the objects in the scene with a pixel shader that outputs a low intensity color like ( . 0 05 0, .05, . 0 05 .) The more overdraw a pixel has, the more of these low intensity colors will be summed in, thus increasing the brightness of the pixel. If a pixel was overdrawn ten times, for example, then it will have a color intensity of ( . 0 5, . 0 5, . 0 5). Thus by looking at the intensity of each pixel after rendering the scene, we obtain an idea of the scene depth complexity. Implement this version of depth complexity measurement using the 鈥淏lend鈥?demo from Chapter 9 as a test scene. 
 
 9. Explain how you can count the number of pixels that pass the depth test. Explain how you can count the number of pixels that fail the depth test? 
 
-10. Modify the “Mirror” demo to reflect the floor into the mirror in addition to the skull. 
+10. Modify the 鈥淢irror鈥?demo to reflect the floor into the mirror in addition to the skull. 
 
 11. Remove the vertical offset from the world matrix of the shadow render-item so that you can see z-fighting. 

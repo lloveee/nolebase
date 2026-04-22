@@ -1,3 +1,5 @@
+﻿# Chapter 13 The Compute Shader
+
 Chapter 
 
 # 13 The Compute Shader
@@ -28,7 +30,7 @@ The previous example has an obvious dependency. We must update the particles in 
 
 performance. For example, it is common for particles to not participate in shadow mapping. Therefore, we could theoretically update particles on the GPU and render shadow maps on the GPU at the same time. For this to work, the GPU must be underutilized, which is to say, rendering the shadow maps does not utilize all the GPU cores, and so it has spare cores available to update the particles concurrently. Overlapping compute and graphics work is an advanced technique called async compute. For this, we create another command queue called the compute queue (created with type D3D12_COMMAND_LIST_TYPE_COMPUTE). We then feed the compute queue work and the graphics queue work and execute the commands in parallel. Just like with CPU multithreading, you want the compute and graphics workloads to be independent so that they can be executed in parallel. Generally, you might have a hunch of good opportunities to apply async compute. However, for this kind of technique, you will want to verify in a GPU profiler which areas of a frame are underutilized and where you can execute work in parallel. Finally, we do not use async compute in this book as we consider it an advanced topic, but you should at least be familiar with the concept as it is likely used in commercial engines. 
 
-The Compute Shader is a programmable shader Direct3D exposes that is not directly part of the rendering pipeline. Instead, it sits off to the side and can read from GPU resources and write to GPU resources (Figure 13.2). Essentially, the Compute Shader allows us to access the GPU to implement data-parallel algorithms without drawing anything. As mentioned, this is useful for GPGPU programming, but there are still many graphical effects that can be implemented on the compute shader as well—so it is still very relevant for a graphics programmer. And as already mentioned, because the Compute Shader is part of Direct3D, it reads from and writes to Direct3D resources, which enables us to bind the output of a compute shader directly to the rendering pipeline. 
+The Compute Shader is a programmable shader Direct3D exposes that is not directly part of the rendering pipeline. Instead, it sits off to the side and can read from GPU resources and write to GPU resources (Figure 13.2). Essentially, the Compute Shader allows us to access the GPU to implement data-parallel algorithms without drawing anything. As mentioned, this is useful for GPGPU programming, but there are still many graphical effects that can be implemented on the compute shader as well鈥攕o it is still very relevant for a graphics programmer. And as already mentioned, because the Compute Shader is part of Direct3D, it reads from and writes to Direct3D resources, which enables us to bind the output of a compute shader directly to the rendering pipeline. 
 
 # Chapter Objectives:
 
@@ -50,13 +52,13 @@ In GPU programming, the number of threads desired for execution is divided up in
 
 Each thread group gets shared memory that all threads in that group can access; a thread cannot access shared memory in a different thread group. Thread synchronization operations can take place amongst the threads in a thread group, but different thread groups cannot be synchronized. In fact, we have no control over the order in which different thread groups are processed. This makes sense as the thread groups can be executed on different multiprocessors. 
 
-A thread group consists of $n$ threads. The hardware divides these threads up into warps (32 threads per warp), and a warp is processed by the multiprocessor in SIMD32 (i.e., the same instructions are executed for the 32 threads simultaneously). Each CUDA core processes a thread so a CUDA core is like an SIMD “lane.” In Direct3D, you can specify a thread group size with dimensions that are not multiples of 32, but for performance reasons, the thread group dimensions should always be multiples of the warp size [Fung10]. 
+A thread group consists of $n$ threads. The hardware divides these threads up into warps (32 threads per warp), and a warp is processed by the multiprocessor in SIMD32 (i.e., the same instructions are executed for the 32 threads simultaneously). Each CUDA core processes a thread so a CUDA core is like an SIMD 鈥渓ane.鈥?In Direct3D, you can specify a thread group size with dimensions that are not multiples of 32, but for performance reasons, the thread group dimensions should always be multiples of the warp size [Fung10]. 
 
 Thread group sizes of 64-128 seems to be a good starting point that should work well for various hardware. Then experiment with other sizes. Changing the number of threads per group will change the number of groups dispatched. 
 
 Note: 
 
-NVIDIA hardware uses warp sizes of 32 threads. ATI uses “wavefront” sizes of sixty-four threads, and recommends the thread group size should always be a multiple of the wavefront size [Bilodeau10]. Also, the warp size or wavefront size can change in future generations of hardware. 
+NVIDIA hardware uses warp sizes of 32 threads. ATI uses 鈥渨avefront鈥?sizes of sixty-four threads, and recommends the thread group size should always be a multiple of the wavefront size [Bilodeau10]. Also, the warp size or wavefront size can change in future generations of hardware. 
 
 In Direct3D, thread groups are launched via the following method call: 
 
@@ -90,7 +92,7 @@ Below is a simple compute shader that sums two textures, assuming all the textur
 ```cpp
 cbuffer cbSettings   
 { // Compute shader can access values in constant buffers. uint gIndexA; uint gIndexB; uint gOutputIndex;   
-}；   
+}锛?  
 // The number of threads in the thread group. The threads in a   
 // group can be arranged in a 1D, 2D, or 3D grid layout. [numthreads(16, 16, 1)]   
 void CS(int3 dispatchThreadID : SV_DispatchThreadID) // Thread ID   
@@ -117,7 +119,7 @@ Observe that we can define different topologies of the thread group; for example
 
 # 13.2.1 Compute PSO
 
-To enable a compute shader, we use a special “compute pipeline state description.” This structure has far fewer fields than D3D12_GRAPHICS_PIPELINE_STATE_DESC because the compute shader sits to the side of the graphics pipeline, so all the graphics pipeline state does not apply to compute shaders and thus does not need to be set. Below shows an example of creating a compute pipeline state object: 
+To enable a compute shader, we use a special 鈥渃ompute pipeline state description.鈥?This structure has far fewer fields than D3D12_GRAPHICS_PIPELINE_STATE_DESC because the compute shader sits to the side of the graphics pipeline, so all the graphics pipeline state does not apply to compute shaders and thus does not need to be set. Below shows an example of creating a compute pipeline state object: 
 
 ```cpp
 D3D12.Compute_PIPELINE_STATE_DESC wavesUpdatePSO = {};  
@@ -157,7 +159,7 @@ The compute shader defined in the previous section defined one output resource:
 RWTexture2D gOutput = ResourceDescriptorHeap[gOutputIndex]; 
 ```
 
-Outputs are treated specially and have the special prefix to their type “RW,” which stands for read-write, and as the name implies, you can read and write to elements in this resource in the compute shader. In contrast, the textures gInputA and gInputB are read-only. Also, it is necessary to specify the type and dimensions of the output with the template angle brackets syntax <float4>. If our output was a 2D integer like DXGI_FORMAT_R8G8_SINT, then we would have instead written: 
+Outputs are treated specially and have the special prefix to their type 鈥淩W,鈥?which stands for read-write, and as the name implies, you can read and write to elements in this resource in the compute shader. In contrast, the textures gInputA and gInputB are read-only. Also, it is necessary to specify the type and dimensions of the output with the template angle brackets syntax <float4>. If our output was a 2D integer like DXGI_FORMAT_R8G8_SINT, then we would have instead written: 
 
 ```cpp
 RWTexture2D<int2> gOutput; 
@@ -229,9 +231,9 @@ Observe that if a texture is going to be bound as UAV, then it must be created w
 Recall that a descriptor heap of type D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV can mix CBVs, SRVs, and UAVs all in the same heap. Therefore, we can put UAV descriptors in that heap and index them directly in the shader provided we use a root signature with the flag D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_ DIRECTLY_INDEXED. Incidentally, we use the following root signature for all of our compute work: 
 
 enum compute_root_arg   
-{ COMPUTE_ROOTArg_DISPATCH_CBV $= 0$ ， COMPUTE_ROOTArg_PASS_CBV, COMPUTE_ROOTArgPASSExtra_CBV, COMPUTE_ROOTArg_COUNT   
-}；   
-// Root parameter can be a table, root descriptor or root constants. CD3DX12_ROOT_PARAMETER computeRootParameters[COMPUTE_ROOT.Arg_ COUNT]； //Performance TIP: Order from most frequent to least frequent. computeRootParameters[COMPUTE_ROOT.Arg_DISPATCH_CBV]. InitAsConstantBufferView(0); computeRootParameters[COMPUTE_ROOT.Arg_PASS_CBV]. InitAsConstantBufferView(1); computeRootParameters[COMPUTE_ROOT.Arg_PASSExtra_CBV]. InitAsConstantBufferView(2); //A root signature is an array of root parameters. CD3DX12_ROOT_SIGNATURE_DESC computeRootSigDesc( COMPUTE_ROOT.Arg_COUNT, computeRootParameters, 0,nullptr，//static samplers D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED | D3D12_ROOT_SIGNATURE_FLAG_SAMPLER_HEAP_DIRECTLY_INDEXED)； hr $=$ D3D12NormalizeRootSignature( &computeRootSigDesc，D3D_ROOT_SIGNATURE_VERSION_1, serializedRootSig.GetAddressOf(),errorBlob.GetAddressOf()); 
+{ COMPUTE_ROOTArg_DISPATCH_CBV $= 0$ 锛?COMPUTE_ROOTArg_PASS_CBV, COMPUTE_ROOTArgPASSExtra_CBV, COMPUTE_ROOTArg_COUNT   
+}锛?  
+// Root parameter can be a table, root descriptor or root constants. CD3DX12_ROOT_PARAMETER computeRootParameters[COMPUTE_ROOT.Arg_ COUNT]锛?//Performance TIP: Order from most frequent to least frequent. computeRootParameters[COMPUTE_ROOT.Arg_DISPATCH_CBV]. InitAsConstantBufferView(0); computeRootParameters[COMPUTE_ROOT.Arg_PASS_CBV]. InitAsConstantBufferView(1); computeRootParameters[COMPUTE_ROOT.Arg_PASSExtra_CBV]. InitAsConstantBufferView(2); //A root signature is an array of root parameters. CD3DX12_ROOT_SIGNATURE_DESC computeRootSigDesc( COMPUTE_ROOT.Arg_COUNT, computeRootParameters, 0,nullptr锛?/static samplers D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED | D3D12_ROOT_SIGNATURE_FLAG_SAMPLER_HEAP_DIRECTLY_INDEXED)锛?hr $=$ D3D12NormalizeRootSignature( &computeRootSigDesc锛孌3D_ROOT_SIGNATURE_VERSION_1, serializedRootSig.GetAddressOf(),errorBlob.GetAddressOf()); 
 
 ```cpp
 if(errorBlob != nullptr)   
@@ -306,7 +308,7 @@ struct Data
 }; 
 ```
 
-A structured buffer is simply a buffer of elements of the same type—essentially an array. As you can see, the type can be a user-defined structure in the HLSL. 
+A structured buffer is simply a buffer of elements of the same type鈥攅ssentially an array. As you can see, the type can be a user-defined structure in the HLSL. 
 
 A structured buffer used as an SRV can be created just like we have been creating our vertex and index buffers. A structured buffer used as a UAV is almost created the same way, except that we must specify the flag D3D12_RESOURCE_FLAG_ ALLOW_UNORDERED_ACCESS, and it is good practice to put it in the D3D12_RESOURCE_ STATE_UNORDERED_ACCESS state. 
 
@@ -318,7 +320,7 @@ struct Data
 };
 // Generate some data.
 std::vector<std>A(DataA(DataDataElements);
-std::vector<std>A(dataB的数据DataElements);
+std::vector<std>A(dataB鐨勬暟鎹瓺ataElements);
 for(int i = 0; i < NumDataElements; ++i)
 {
     float x = static_cast<std>(i);
@@ -356,7 +358,7 @@ inline void CreateBufferUav( ID3D12Device* device, UINT64 firstElement, UINT ele
 
 uavDesc.Bufferer.FirstElement $=$ firstElement; uavDesc.Bufferer.NumElements $\equiv$ elementCount; uavDesc.Bufferer.StructureByteStride $\equiv$ elementByteSize; uavDesc.BufferercounterOffsetInBytes $\equiv$ counterOffset; uavDesc/DDer.Flags $\equiv$ D3D12buffer_UAV_FLAG_NON; device->CreateUnorderedAccessView resource, counterResource, &uavDesc,hDescriptor);   
 }   
-inline void CreateBufferSrv( ID3D12Device\* device,UINT64firstElement, UINT elementCount,UINT elementByteSize, ID3D12Resource\* resource,CD3DX12_CPU describingSORHANDLE hDescriptor) { D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc $\equiv$ {}； srvDesc.Format $\equiv$ DXGI_FORMAT_UNKNOW; // structured buffer srvDesc.ViewDimension $\equiv$ D3D12_SRV_DIMENSION_BUFFERER; srvDesc.Shader4ComponentMapping $\equiv$ D3D12_DEFAULT_SHADER_4 ComponentMAPPING; srvDesc-DDer.FirstElement $\equiv$ firstElement; srvDesc-DDer.NumElements $\equiv$ elementCount; srvDesc-DDer.StructureByteStride $\equiv$ elementByteSize; srvDesc-DDer.Contents $\equiv$ D3D12 Bufferer_SRV_FLAG_NONE; device->CreateShaderResourceView resource, &srvDesc,hDescriptor);   
+inline void CreateBufferSrv( ID3D12Device\* device,UINT64firstElement, UINT elementCount,UINT elementByteSize, ID3D12Resource\* resource,CD3DX12_CPU describingSORHANDLE hDescriptor) { D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc $\equiv$ {}锛?srvDesc.Format $\equiv$ DXGI_FORMAT_UNKNOW; // structured buffer srvDesc.ViewDimension $\equiv$ D3D12_SRV_DIMENSION_BUFFERER; srvDesc.Shader4ComponentMapping $\equiv$ D3D12_DEFAULT_SHADER_4 ComponentMAPPING; srvDesc-DDer.FirstElement $\equiv$ firstElement; srvDesc-DDer.NumElements $\equiv$ elementCount; srvDesc-DDer.StructureByteStride $\equiv$ elementByteSize; srvDesc-DDer.Contents $\equiv$ D3D12 Bufferer_SRV_FLAG_NONE; device->CreateShaderResourceView resource, &srvDesc,hDescriptor);   
 }   
 void VecAddCS::BuildComputeDescriptors() { CbvSrvUavHeap& cbvSrvUavHeap $\equiv$ CbvSrvUavHeap::Get(); mBufferIndexA $=$ cbvSrvUavHeap.NextFreeIndex(); mBufferIndexB $=$ cbvSrvUavHeap.NextFreeIndex(); mBufferOutputIndex $\equiv$ cbvSrvUavHeap.NextFreeIndex(); const UINT64firstElement $= 0$ CreateBufferSrv( md3dDevice.Get(), firstElement, NumDataElements, sizeof(Data), mInputBufferA.Get(), cbvSrvUavHeap.CpuHandle(mBufferIndexA)); CreateBufferSrv( md3dDevice.Get(), firstElement, NumDataElements, sizeof(Data), mInputBufferB.Get(), cbvSrvUavHeap.CpuHandle(mBufferIndexB)); CreateBufferUav( md3dDevice.Get(), firstElement, NumDataElements, 
 
@@ -376,7 +378,7 @@ Typically, when we use the compute shader to process a texture, we will display 
 
 CopyResource does not execute immediately; it is a command put on the GPU command queue. It is only valid to read the destination data after the copy completes on the GPU timeline. We can either block the CPU and wait for the GPU to complete or use fences to check when the work is done. 
 
-We have included a structured buffer demo for this chapter called “VecAdd,” which simply sums the corresponding vector components stored in two structured buffers: 
+We have included a structured buffer demo for this chapter called 鈥淰ecAdd,鈥?which simply sums the corresponding vector components stored in two structured buffers: 
 
 ```cpp
 struct Data
@@ -456,14 +458,14 @@ mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mOutputBu
 
 
 ```cpp
-// Map the data so we can read it on CPU. Data*的数据Data = nullptr; ThrowIfFailed(mReadBackBuffer->Map(0, nullptr, reinterpret_cast<void**>(&mappedData)); std:: ofstream fout("results.txt"); for(int i = 0; i < NumDataElements; ++i) { cout << "(" + mappedData[i].v1.x << ", " << mappedData[i].v1.y << ", " << mappedData[i].v1.z << ", " << mappedData[i].v2.x << ", " << mappedData[i].v2.y << ")" << std::endl; } mReadBackBuffer->Unmap(0, nullptr); } 
+// Map the data so we can read it on CPU. Data*鐨勬暟鎹瓺ata = nullptr; ThrowIfFailed(mReadBackBuffer->Map(0, nullptr, reinterpret_cast<void**>(&mappedData)); std:: ofstream fout("results.txt"); for(int i = 0; i < NumDataElements; ++i) { cout << "(" + mappedData[i].v1.x << ", " << mappedData[i].v1.y << ", " << mappedData[i].v1.z << ", " << mappedData[i].v2.x << ", " << mappedData[i].v2.y << ")" << std::endl; } mReadBackBuffer->Unmap(0, nullptr); } 
 ```
 
 In the demo, we fill the two input buffers with the following initial data: 
 
-std::vector数据A（NumDataElements）;   
-std::vector数据B（NumDataElements）;   
-for(int $\mathrm{i} = 0$ ；i $<$ NumDataElements；++i） { dataA[i].v1 $=$ XMFLOAT3(i，i，i); dataA[i].v2 $=$ XMFLOAT2(i，0); dataB[i].v1 $=$ XMFLOAT3(-i，i，0.0f); dataB[i].v2 $=$ XMFLOAT2(0，-i);   
+std::vector鏁版嵁A锛圢umDataElements锛?   
+std::vector鏁版嵁B锛圢umDataElements锛?   
+for(int $\mathrm{i} = 0$ 锛沬 $<$ NumDataElements锛?+i锛?{ dataA[i].v1 $=$ XMFLOAT3(i锛宨锛宨); dataA[i].v2 $=$ XMFLOAT2(i锛?); dataB[i].v1 $=$ XMFLOAT3(-i锛宨锛?.0f); dataB[i].v2 $=$ XMFLOAT2(0锛?i);   
 } 
 
 The resulting text file contains the following data, which confirms that the compute shader is working as expected. 
@@ -509,7 +511,7 @@ The resulting text file contains the following data, which confirms that the com
 ![](images/03d76f6908e6f990e01843097b30db33e727a432422a735910499b79a18529be.jpg)
 
 
-From Figure 13.1, we see that copying between CPU and GPU memory is the slowest, as it has to go over the PCI-Express bus. You should be careful about how much data you are transferring and how often. Furthermore, in practice, you would not want to block the CPU waiting for the GPU to finish processing commands as we do in the “VecAddCS” demo. 
+From Figure 13.1, we see that copying between CPU and GPU memory is the slowest, as it has to go over the PCI-Express bus. You should be careful about how much data you are transferring and how often. Furthermore, in practice, you would not want to block the CPU waiting for the GPU to finish processing commands as we do in the 鈥淰ecAddCS鈥?demo. 
 
 # 13.4 THREAD IDENTIFICATION SYSTEM VALUES
 
@@ -534,7 +536,7 @@ from (0, 0, 0) to $( X - 1 , Y - 1 , Z - 1 )$ . The system value semantic for th
 dispatchThreadID.xyz = groupID.xyz * ThreadGroupSize.xyz + groupThreadID.xyz; 
 ```
 
-The dispatch thread ID has the system value semantic SV_DispatchThreadID. If $3 \times 2$ thread groups are dispatched, where each thread group is $1 0 \times 1 0$ , then a total of 60 threads are dispatched and the dispatch thread IDs will range from (0, 0, 0) to (29, 19, 0). 
+The dispatch thread ID has the system value semantic SV_DispatchThreadID. If $3 \times 2$ thread groups are dispatched, where each thread group is $1 0 \times 1 0$ , then a total of 60 threads are dispatched and the dispatch thread IDs will range from (0,聽0, 0) to (29, 19, 0). 
 
 4. A linear index version of the group thread ID is given to us by Direct3D through the SV_GroupIndex system value; it is computed as: 
 
@@ -556,7 +558,7 @@ void CS(int3 dispatchThreadID : SV_DispatchThreadID)
 { // Data sources and outputs. Texture2D gInputA = ResourceDescriptorHeap[gIndexA]; Texture2D gInputB = ResourceDescriptorHeap[gIndexB]; RWTexture2D gOutput = ResourceDescriptorHeap[gOutputIndex]; // Use dispatch thread ID to index into output and input textures. gOutput[dispatchThreadID.xy] = gInputA[dispatchThreadID.xy] + gInputB[dispatchThreadID.xy]; } 
 ```
 
-The SV_GroupThreadID is useful for indexing into thread local storage memory (§13.6). 
+The SV_GroupThreadID is useful for indexing into thread local storage memory (搂13.6). 
 
 # 13.5 APPEND AND CONSUME BUFFERS
 
@@ -613,7 +615,7 @@ The array size can be whatever you want, but the maximum size of group shared me
 
 Using too much shared memory can lead to performance issues [Fung10], as the following example illustrates. Suppose a multiprocessor supports 32kb of shared memory, and your compute shader requires 20kb of shared memory. This means that only one thread group will fit on the multiprocessor because there is not enough memory left for another thread group [Fung10], as $2 0 \mathrm { k b } +$ $2 0 \mathrm { k b } = 4 0 \mathrm { k b } > 3 2 \mathrm { k b }$ . This limits the parallelism of the GPU, as a multiprocessor cannot switch off between thread groups to hide latency (recall from $\$ 13.1$ that at least two thread groups per multiprocessor is recommended). Thus, even though the hardware technically supports 32kb of shared memory, performance improvements can be achieved by using less. 
 
-A common application of shared memory is to store texture values in it. Certain algorithms, such as blurs, require fetching the same texel multiple times. Sampling textures is actually one of the slower GPU operations because memory bandwidth and memory latency have not improved as much as the raw computational power of GPUs [Möller08]. A thread group can avoid redundant texture fetches by preloading all the needed texture samples into the shared memory array. The algorithm then proceeds to look up the texture samples in the shared memory array, which is very fast. Suppose we implement this strategy with the following erroneous code: 
+A common application of shared memory is to store texture values in it. Certain algorithms, such as blurs, require fetching the same texel multiple times. Sampling textures is actually one of the slower GPU operations because memory bandwidth and memory latency have not improved as much as the raw computational power of GPUs [M枚ller08]. A thread group can avoid redundant texture fetches by preloading all the needed texture samples into the shared memory array. The algorithm then proceeds to look up the texture samples in the shared memory array, which is very fast. Suppose we implement this strategy with the following erroneous code: 
 
 groupshared float4 gCache[256]; 
 
@@ -641,7 +643,7 @@ $$
 \operatorname {B l u r} \left(P _ {i j}\right) = \sum_ {r = - a c = - b} ^ {a} \sum_ {w _ {r c}} P _ {i + r, j + c} \text {f o r} \sum_ {r = - a c = - b} ^ {a} \sum_ {w _ {r c}} ^ {b} w _ {r c} = 1
 $$
 
-where $m = 2 a + 1$ and $n = 2 b + 1$ . By forcing m and $n$ to be odd, we ensure that the $m \times n$ matrix always has a natural “center.” We call $^ a$ the vertical blur radius and $^ { b }$ the horizontal blur radius. If $a = b$ , then we just refer to the blur radius without having to specify the dimension. The $m \times n$ matrix of weights is called the blur kernel. Observe also that the weights must sum to 1. If the sum of the weights is 
+where $m = 2 a + 1$ and $n = 2 b + 1$ . By forcing m and $n$ to be odd, we ensure that the $m \times n$ matrix always has a natural 鈥渃enter.鈥?We call $^ a$ the vertical blur radius and $^ { b }$ the horizontal blur radius. If $a = b$ , then we just refer to the blur radius without having to specify the dimension. The $m \times n$ matrix of weights is called the blur kernel. Observe also that the weights must sum to 1. If the sum of the weights is 
 
 ![](images/24dadc010b0fa7f7ef58268eaf5b2f815a6308d9b5cc32f9b7508b3cd1153da0.jpg)
 
@@ -676,7 +678,7 @@ $$
 
 
 
-Figure 13.6. Plot of $G ( x )$ for $\sigma = 1$ , 2, 3. Observe that a larger σ flattens the curve out and gives more weight to the neighboring points.
+Figure 13.6. Plot of $G ( x )$ for $\sigma = 1$ , 2, 3. Observe that a larger 蟽 flattens the curve out and gives more weight to the neighboring points.
 
 
 $$
@@ -760,9 +762,9 @@ The contents of the back buffer are eventually displayed on the screen when the 
 
 A texture that will be used as a render target must be created with the flag D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET. 
 
-If we think about this code, there is nothing that stops us from creating another texture, creating a render target view to it, and binding it to the OM stage of the rendering pipeline. Thus, we will be drawing to this different “off-screen” texture (possible with a different camera) instead of the back buffer. This technique is known as render-to-off-screen-texture or simply render-to-texture. The only difference is that since this texture is not the back buffer, it does not get displayed to the screen during presentation. 
+If we think about this code, there is nothing that stops us from creating another texture, creating a render target view to it, and binding it to the OM stage of the rendering pipeline. Thus, we will be drawing to this different 鈥渙ff-screen鈥?texture (possible with a different camera) instead of the back buffer. This technique is known as render-to-off-screen-texture or simply render-to-texture. The only difference is that since this texture is not the back buffer, it does not get displayed to the screen during presentation. 
 
-Consequently, render-to-texture might seem worthless at first as it does not get presented to the screen. But, after we have rendered-to-texture, we can bind the back buffer back to the OM stage, and resume drawing geometry to the back buffer. We can texture geometry with the texture we generated during the render-to-texture period. This strategy is used to implement a variety of special effects. For example, you can render-to-texture the scene from a bird’s eye view to a texture. Then, when drawing to the back buffer, you can draw a quad in the lower-right corner of the screen with the bird’s eye view texture to simulate a radar system (see Figure 13.7). Other render-to-texture techniques include: 
+Consequently, render-to-texture might seem worthless at first as it does not get presented to the screen. But, after we have rendered-to-texture, we can bind the back buffer back to the OM stage, and resume drawing geometry to the back buffer. We can texture geometry with the texture we generated during the render-to-texture period. This strategy is used to implement a variety of special effects. For example, you can render-to-texture the scene from a bird鈥檚 eye view to a texture. Then, when drawing to the back buffer, you can draw a quad in the lower-right corner of the screen with the bird鈥檚 eye view texture to simulate a radar system (see Figure 13.7). Other render-to-texture techniques include: 
 
 1. Shadow mapping 
 
@@ -774,7 +776,7 @@ Consequently, render-to-texture might seem worthless at first as it does not get
 
 
 
-Figure 13.7. A camera is placed above the player from a bird’s eye view and renders the scene into an off-screen texture. When we draw the scene from the player’s eye to the back buffer, we map the texture onto a quad in the bottom-right corner of the screen to display the radar map.
+Figure 13.7. A camera is placed above the player from a bird鈥檚 eye view and renders the scene into an off-screen texture. When we draw the scene from the player鈥檚 eye to the back buffer, we map the texture onto a quad in the bottom-right corner of the screen to display the radar map.
 
 
 Using render-to-texture, implementing a blurring algorithm on the GPU would work the following way: render our normal demo scene to an off-screen texture. This texture will be the input into our blurring algorithm that executes on the compute shader. After the texture is blurred, we will draw a full screen quad to the back buffer with the blurred texture applied so that we can see the blurred result to test our blur implementation. The steps are outlined as follows: 
@@ -801,7 +803,7 @@ The above process requires us to draw with the usual rendering pipeline, switch 
 
 # 13.7.3 Blur Implementation Overview
 
-We assume that the blur is separable, so we break the blur down into computing two 1D blurs—a horizontal one and a vertical one. Implementing this requires two texture buffers where we can read and write to both; therefore, we need a SRV and UAV to both textures. Let us call one of the textures A and the other texture B. The blurring algorithm proceeds as follows: 
+We assume that the blur is separable, so we break the blur down into computing two 1D blurs鈥攁 horizontal one and a vertical one. Implementing this requires two texture buffers where we can read and write to both; therefore, we need a SRV and UAV to both textures. Let us call one of the textures A and the other texture B. The blurring algorithm proceeds as follows: 
 
 1. Bind the SRV to A as an input to the compute shader (this is the input image that will be horizontally blurred). 
 
@@ -931,7 +933,7 @@ Finally, the last situation to discuss is that the left-most thread group and th
 
 
 
-Figure 13.10. Consider just two neighboring pixels in the input image, and suppose that the blur kernel is 1 $\times 7$ . Observe that six out of the eight unique pixels are sampled twice—once for each pixel.
+Figure 13.10. Consider just two neighboring pixels in the input image, and suppose that the blur kernel is 1 $\times 7$ . Observe that six out of the eight unique pixels are sampled twice鈥攐nce for each pixel.
 
 
 ![](images/7b4e008604f3f7211456b89c39e91865eb22e7fafabe4396022c785fa585f5a0.jpg)
@@ -955,7 +957,7 @@ Figure 13.12. In this example, $R = 4$ . The four leftmost threads each read two
 Figure 13.13. Situations where we can read outside the bounds of the image.
 
 
-Reading from an out-of-bounds index is not illegal—it is defined to return 0 (and writing to an out-of-bounds index results in a no-op). However, we do not want to read 0 when we go out-of-bounds, as it means 0 colors (i.e., black) will make their way into the blur at the boundaries. Instead, we want to implement something analogous to the clamp texture address mode, where if we read an out-of-bounds value, it returns the same value as the boundary texel. This can be implemented by clamping the indices: 
+Reading from an out-of-bounds index is not illegal鈥攊t is defined to return 0 (and writing to an out-of-bounds index results in a no-op). However, we do not want to read 0 when we go out-of-bounds, as it means 0 colors (i.e., black) will make their way into the blur at the boundaries. Instead, we want to implement something analogous to the clamp texture address mode, where if we read an out-of-bounds value, it returns the same value as the boundary texel. This can be implemented by clamping the indices: 
 
 ```cpp
 // Clamp out of bound samples that occur at image borders. // Note: Need int cast since subtracting. int x = max((int)dispatchThreadID.x - gBlurRadius, 0); gCache[groupId.x] = gInput[uint2(x, dispatchThreadID.y)]; 
@@ -1093,7 +1095,7 @@ The array size N can be whatever you want, but the maximum size of group shared 
 
 3. Assume that in the previous exercises that we do not care the order in which the vectors are normalized. Redo Exercise 1 using Append and Consume buffers. 
 
-4. Research the bilateral blur technique and implement it on the compute shader. Redo the “Blur” demo using the bilateral blur. 
+4. Research the bilateral blur technique and implement it on the compute shader. Redo the 鈥淏lur鈥?demo using the bilateral blur. 
 
 5. So far in our demos we have done a 2D wave equation on the CPU with the Waves class in Waves.h/.cpp. Port this to a GPU implementation. Use textures of floats to store the previous, current, and next height solutions. 
 
@@ -1147,7 +1149,7 @@ Compare your performance results (time per frame) to a CPU implementation with $
 
 6. The Sobel Operator measures edges in an image. For each pixel, it estimates the magnitude of the gradient. A pixel with a large gradient magnitude means the color difference between the pixel and its neighbors has high variation, and so 
 
-that pixel must be on an edge. A pixel with a small gradient magnitude means the color difference between the pixel and its neighbors has low variation, and so that pixel is not on an edge. Note that the Sobel Operator does not return a binary result (on edge or not on edge); it returns a grayscale value in the range [0, 1] that denotes an edge “steepness” amount, where 0 denotes no edge (the color is not changing locally about a pixel) and 1 denotes a very steep edge or discontinuity (the color is changing a lot locally about a pixel). The inverse Sobel image $( 1 - c )$ is often more useful, as white denotes no edge and black denotes edges (see Figure 13.14). 
+that pixel must be on an edge. A pixel with a small gradient magnitude means the color difference between the pixel and its neighbors has low variation, and so that pixel is not on an edge. Note that the Sobel Operator does not return a binary result (on edge or not on edge); it returns a grayscale value in the range [0, 1] that denotes an edge 鈥渟teepness鈥?amount, where 0 denotes no edge (the color is not changing locally about a pixel) and 1 denotes a very steep edge or discontinuity (the color is changing a lot locally about a pixel). The inverse Sobel image $( 1 - c )$ is often more useful, as white denotes no edge and black denotes edges (see Figure 13.14). 
 
 ![](images/727d68cf482bade9840b32db5e0eada75d8829051113535499dc47619b4989bf.jpg)
 
@@ -1156,7 +1158,7 @@ that pixel must be on an edge. A pixel with a small gradient magnitude means the
 Figure 13.14. Left: In image after applying Sobel Operator, the white pixels denote edges. In the inverse image of the Sobel Operator, the black pixels denote edge.
 
 
-If you color multiply the original image by the inverse of the image generated by the Sobel Operator, then you get a stylized cartoon/comic book like effect by making edges look like black pen strokes (see Figure 13.15). You can take this stylized cartoon/comic book effect even further by first blurring  the original image to wash out details, then applying the Sobel Operator on the blurred image to build the edge detection image, and finally multiplying the blurred image by the inverse of the edge detection image. 
+If you color multiply the original image by the inverse of the image generated by the Sobel Operator, then you get a stylized cartoon/comic book like effect by making edges look like black pen strokes (see Figure 13.15). You can take this stylized cartoon/comic book effect even further by first blurring聽 the original image to wash out details, then applying the Sobel Operator on the聽blurred image to build the edge detection image, and finally multiplying the blurred image by the inverse of the edge detection image. 
 
 ![](images/95a59c0ab839895fcacedc4b5e4d752a8e94500d8cc153cfeb00c7ee7c7fd67f.jpg)
 
