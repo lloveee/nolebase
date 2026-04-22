@@ -20,10 +20,8 @@ export default defineConfig({
     {
       name: 'pdf-to-md-static-shield',
       transform(code, id) {
-        // Target specifically the 'refer' directory which contains messy PDF artifacts
         if (id.endsWith('.md') && id.replace(/\\/g, '/').includes('repo/refer')) {
-          // 1. Extreme escaping: convert all sensitive chars to entities to shield from Vue compiler
-          // This preserves the exact look for readers but makes it "invisible" to Vue's parser.
+          // Shield the messy PDF content from Vue compiler
           const escaped = code
             .replace(/\\/g, '&#92;')
             .replace(/</g, '&lt;')
@@ -31,8 +29,6 @@ export default defineConfig({
             .replace(/\$/g, '&#36;')
             .replace(/\{/g, '&#123;')
             .replace(/\}/g, '&#125;')
-          
-          // 2. Wrap in v-pre for good measure
           return {
             code: `\n\n<div v-pre>\n\n${escaped}\n\n</div>\n`,
             map: null
@@ -54,25 +50,20 @@ export default defineConfig({
     }),
     UnoCSS(),
   ],
+  // Remove manualChunks to fix "Circular chunk" warning/error
   build: {
     chunkSizeWarningLimit: 2000,
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            return 'vendor'
-          }
-        }
-      }
-    }
   },
   ssr: {
+    // FIX: Add @unlazy/vue to noExternal to fix [ERR_UNKNOWN_FILE_EXTENSION]
     noExternal: [
       '@nolebase/integrations',
       '@nolebase/vitepress-plugin-enhanced-readabilities',
       '@nolebase/vitepress-plugin-highlight-targeted-heading',
       '@nolebase/vitepress-plugin-git-changelog',
       '@nolebase/vitepress-plugin-page-properties',
+      '@unlazy/vue',
+      'unlazy',
     ],
   },
 })
