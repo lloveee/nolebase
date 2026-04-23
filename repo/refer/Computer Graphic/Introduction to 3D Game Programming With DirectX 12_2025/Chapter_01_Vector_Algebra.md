@@ -1,4 +1,4 @@
-﻿# Chapter 01 Vector Algebra
+# Chapter 01 Vector Algebra
 
 
 # Mathematical Prerequisites
@@ -335,7 +335,7 @@ $$
 Figure 1.10. The orthogonal projection of v on n.
 
 
-# 1.3.1 Orthogonalization
+# 1.3.1 Orthogonalization (正交化)
 
 A set of vectors $\left\{ \mathbf { v } _ { 0 } , . . . , \mathbf { v } _ { n - 1 } \right\}$ is called orthonormal if the vectors are mutually orthogonal (every vector in the set is orthogonal to every other vector in the set) and unit length. Sometimes we have a set of vectors that are almost orthonormal, but not quite. A common task is to orthogonalize the set and make it orthonormal. In 3D computer graphics we might start off with an orthonormal set, but due to numerical precision issues, the set gradually becomes un-orthonormal. We are mainly concerned with the 2D and 3D cases of this problem (that is, sets that contain two and three vectors, respectively). 
 

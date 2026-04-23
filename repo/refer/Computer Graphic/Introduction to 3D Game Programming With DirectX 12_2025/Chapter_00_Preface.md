@@ -1,4 +1,4 @@
-﻿# Chapter 00 Preface
+# Chapter 00 Preface
 
 # # Chapter_00_Preface
 
