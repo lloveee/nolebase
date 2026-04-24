@@ -111,3 +111,23 @@ $$![](assets/01_Vector_Algebra/file-20260423220743820.png)
 $\begin{array} { l } { { \displaystyle \mathrm { F o r } 1 \leq i \leq n - 1 , \mathrm { S e t } { \bf w } _ { i } = { \bf v } _ { i } - \sum _ { j = 0 } ^ { i - 1 } \mathrm { p r o j } _ { { \bf w } _ { j } } \left( { \bf v } _ { i } \right) } } \\ { { \displaystyle \mathrm { N o r m a l i z a t i o n } \mathrm { S t e p } } \colon \mathrm { S e t } { \bf w } _ { i } = \frac { { \bf w } _ { i } } { \displaystyle \| { \bf w } _ { i } \| } } \end{array}$ $1 \leq i \leq n - 1 .$
 
 ## Cross Product(叉积)
+
+叉积仅存在于3D向量中，表示`u x v`得到同时垂直于两者的向量`w`，计算公式如下：
+
+$$
+\mathbf {w} = \mathbf {u} \times \mathbf {v} = \left(u _ {y} v _ {z} - u _ {z} v _ {y}, u _ {z} v _ {x} - u _ {x} v _ {z}, u _ {x} v _ {y} - u _ {y} v _ {x}\right) \tag {eq.1.5}
+$$
+
+
+
+# To summarize,
+
+1. Use XMVECTOR for local or global variables. 
+
+2. Use XMFLOAT2, XMFLOAT3, and XMFLOAT4 for class data members. 
+
+3. Use loading functions to convert from XMFLOATn to XMVECTOR before doing calculations. 
+
+4. Do calculations with XMVECTOR instances. 
+
+5. Use storage functions to convert from XMVECTOR to XMFLOATn. 
