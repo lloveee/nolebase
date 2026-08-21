@@ -115,7 +115,9 @@ Context    Rules    Networking  Persistence  HotUpdate       Diagnostics
 | 3️⃣ | **ModApi** — Mod 作者视角的契约 | [04-ModApi-Contract-Surface.md](./04-ModApi-Contract-Surface.md) | ✅ 已写 |
 | 4️⃣ | **Architecture Tests** — 依赖规则如何被测试守住 | [05-Architecture-Enforcement.md](./05-Architecture-Enforcement.md) | ✅ 已写 |
 | 5️⃣ | **Mod 分发流程** — 作者→构建→玩家→激活的完整链路 | [06-Mod-Distribution.md](./06-Mod-Distribution.md) | ✅ 已写 |
-| 6️⃣ | **Context Runtime** — Fiber + 依赖解析（计划中的下一个实现） | — | 🔜 未实现 |
+| 6️⃣ | **vs SMAPI** — Stardew Valley mod 平台对比 | [07-Comparison-with-SMAPI.md](./07-Comparison-with-SMAPI.md) | ✅ 已写 |
+| 7️⃣ | **vs Bevy ECS** — Rust ECS 引擎对比 | [08-Comparison-with-Bevy-ECS.md](./08-Comparison-with-Bevy-ECS.md) | ✅ 已写 |
+| 8️⃣ | **Context Runtime** — Fiber + 依赖解析（计划中的下一个实现） | — | 🔜 未实现 |
 
 ---
 
