@@ -111,10 +111,11 @@ Context    Rules    Networking  Persistence  HotUpdate       Diagnostics
 | 顺序 | 主题 | 笔记 | 状态 |
 |---|---|---|---|
 | 1️⃣ | **Primitives** — 命名空间 ID、版本、诊断原语 | [02-Primitives-Deep-Dive.md](./02-Primitives-Deep-Dive.md) | ✅ 已写 |
-| 2️⃣ | **Bootstrap** — VContainer scope + App/Session 生命周期 | [03-Bootstrap-Architecture.md](./03-Bootstrap-Architecture.md) | ⏳ 待写 |
-| 3️⃣ | **ModApi** — Mod 作者视角的契约 | [04-ModApi-Contract-Surface.md](./04-ModApi-Contract-Surface.md) | ⏳ 待写 |
-| 4️⃣ | **Architecture Tests** — 依赖规则如何被测试守住 | [05-Architecture-Enforcement.md](./05-Architecture-Enforcement.md) | ⏳ 待写 |
-| 5️⃣ | **Context Runtime** — Fiber + 依赖解析（计划中的下一个实现） | — | 🔜 未实现 |
+| 2️⃣ | **Bootstrap** — VContainer scope + App/Session 生命周期 | [03-Bootstrap-Architecture.md](./03-Bootstrap-Architecture.md) | ✅ 已写 |
+| 3️⃣ | **ModApi** — Mod 作者视角的契约 | [04-ModApi-Contract-Surface.md](./04-ModApi-Contract-Surface.md) | ✅ 已写 |
+| 4️⃣ | **Architecture Tests** — 依赖规则如何被测试守住 | [05-Architecture-Enforcement.md](./05-Architecture-Enforcement.md) | ✅ 已写 |
+| 5️⃣ | **Mod 分发流程** — 作者→构建→玩家→激活的完整链路 | [06-Mod-Distribution.md](./06-Mod-Distribution.md) | ✅ 已写 |
+| 6️⃣ | **Context Runtime** — Fiber + 依赖解析（计划中的下一个实现） | — | 🔜 未实现 |
 
 ---
 
